@@ -1,12 +1,12 @@
 name: Deploy Angular App on Keyword Commit
 
 permissions:
-  contents: write
+  contents: write   # REQUIRED so the workflow can push to gh-pages
 
 on:
   push:
     branches:
-      - master
+      - master   # Deploy only from master
 
 jobs:
   deploy:
@@ -27,14 +27,16 @@ jobs:
 
       - name: Install dependencies
         run: npm install
-        working-directory: ./
 
-      - name: Build Angular
+      - name: Build Angular (base href must match repo name)
         run: ng build --base-href "/amman-weather/"
-        working-directory: ./
+
+      - name: Disable Jekyll
+        run: echo "" > ./dist/amman-weather/browser/.nojekyll
 
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v3
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./
+          publish_dir: ./dist/amman-weather/browser
+          enable_jekyll: false
