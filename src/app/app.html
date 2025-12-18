@@ -1,9 +1,10 @@
 <main class="container">
-  <div class="weather-card">
-    <div class="header">
-      <h1>🇯🇴 Amman, Jordan</h1>
-      <p class="subtitle">Current Weather</p>
-    </div>
+  <section class="weather-card">
+    <header class="header">
+      <p class="eyebrow">Single-city weather demo</p>
+      <h1>{{ weather()?.city ?? 'Amman' }}, {{ weather()?.country ?? 'Jordan' }}</h1>
+      <p class="subtitle">Static payload served from /api/weather.json</p>
+    </header>
 
     @if (loading()) {
       <div class="loading">
@@ -20,43 +21,98 @@
     }
 
     @if (weather() && !loading()) {
+      @let current = weather()!;
       <div class="weather-content">
-        <div class="weather-icon">
-          {{ getWeatherIcon(weather()!.weathercode) }}
-        </div>
-        
-        <div class="temperature">
-          <span class="temp-value">{{ weather()!.temperature }}</span>
-          <span class="temp-unit">°C</span>
-        </div>
-        
-        <div class="weather-description">
-          {{ getWeatherDescription(weather()!.weathercode) }}
-        </div>
-        
-        <div class="weather-details">
-          <div class="detail">
-            <span class="detail-icon">💨</span>
-            <span class="detail-label">Wind Speed</span>
-            <span class="detail-value">{{ weather()!.windspeed }} km/h</span>
+        <section class="summary">
+          <div class="weather-icon">
+            {{ getWeatherIcon(current.conditionCode) }}
           </div>
-        </div>
+          <div>
+            <div class="temperature">
+              <span class="temp-value">{{ current.temperature }}</span>
+              <span class="temp-unit">°C</span>
+            </div>
+            <p class="weather-description">
+              {{ getWeatherDescription(current.conditionCode) }}
+            </p>
+          </div>
+        </section>
+
+        <section class="metrics-grid">
+          <article class="metric">
+            <p class="metric-label">Feels like</p>
+            <p class="metric-value">{{ current.feelsLike }}°C</p>
+            <p class="metric-detail">manual reading</p>
+          </article>
+          <article class="metric">
+            <p class="metric-label">Wind</p>
+            <p class="metric-value">{{ current.windSpeed }} km/h</p>
+            <p class="metric-detail">north-west breeze</p>
+          </article>
+          <article class="metric">
+            <p class="metric-label">Humidity</p>
+            <p class="metric-value">{{ current.humidity }}%</p>
+            <p class="metric-detail">static dataset</p>
+          </article>
+          <article class="metric">
+            <p class="metric-label">Day range</p>
+            <p class="metric-value">{{ current.high }}° / {{ current.low }}°</p>
+            <p class="metric-detail">forecast high / low</p>
+          </article>
+        </section>
+
+        <section class="sunrise-sunset">
+          <div>
+            <p class="sun-label">Sunrise</p>
+            <p class="sun-value">{{ current.sunrise }}</p>
+          </div>
+          <div>
+            <p class="sun-label">Sunset</p>
+            <p class="sun-value">{{ current.sunset }}</p>
+          </div>
+        </section>
+
+        @if (current.forecast.length) {
+          <section class="forecast">
+            <div class="forecast-header">
+              <h3>Multi-day outlook</h3>
+              <p>Values sourced from the static API file.</p>
+            </div>
+            <div class="forecast-grid">
+              @for (entry of current.forecast; track entry.day) {
+                <article class="forecast-card">
+                  <p class="forecast-day">{{ entry.day }}</p>
+                  <div class="forecast-icon">{{ getWeatherIcon(entry.conditionCode) }}</div>
+                  <p class="forecast-temp">{{ entry.high }}° / {{ entry.low }}°</p>
+                  <p class="forecast-description">
+                    {{ getWeatherDescription(entry.conditionCode) }}
+                  </p>
+                </article>
+              }
+            </div>
+          </section>
+        }
 
         @if (lastUpdated()) {
-          <div class="last-updated">
-            Last updated: {{ lastUpdated() | date:'medium' }}
-          </div>
+          <p class="last-updated">
+            Dataset timestamp: {{ lastUpdated() | date:'medium' }}
+          </p>
         }
-        
+
         <button (click)="fetchWeather()" class="refresh-btn">
-          🔄 Refresh
+          🔄 Reload static data
         </button>
       </div>
     }
-  </div>
+  </section>
 
   <footer class="footer">
-    <p>Powered by <a href="https://open-meteo.com/" target="_blank" rel="noopener">Open-Meteo API</a></p>
-    <p class="api-note">Free weather API - No API key required</p>
+    <p>
+      This app mimics a backend by reading <code>public/api/weather.json</code>.
+      Edit that file to change the response.
+    </p>
+    <p class="api-note">
+      Designed for demos where real APIs are unavailable.
+    </p>
   </footer>
 </main>

@@ -23,15 +23,16 @@ export class App implements OnInit {
   fetchWeather(): void {
     this.loading.set(true);
     this.error.set(null);
-    
-    this.weatherService.getAmmanWeather().subscribe({
+
+    this.weatherService.getCityWeather().subscribe({
       next: (data) => {
         this.weather.set(data);
-        this.lastUpdated.set(new Date());
+        const parsedTimestamp = Date.parse(data.updatedAt);
+        this.lastUpdated.set(Number.isNaN(parsedTimestamp) ? new Date() : new Date(parsedTimestamp));
         this.loading.set(false);
       },
       error: (err) => {
-        this.error.set('Failed to fetch weather data. Please try again.');
+        this.error.set('Unable to read the static weather payload. Please verify that /api/weather.json exists.');
         this.loading.set(false);
         console.error('Weather fetch error:', err);
       }

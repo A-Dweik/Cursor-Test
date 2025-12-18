@@ -1,21 +1,53 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable, map } from 'rxjs';
+import { Observable, map, shareReplay } from 'rxjs';
 
-export interface WeatherData {
-  temperature: number;
-  windspeed: number;
-  weathercode: number;
-  time: string;
+export interface ForecastEntry {
+  day: string;
+  conditionCode: number;
+  high: number;
+  low: number;
 }
 
-export interface OpenMeteoResponse {
-  current_weather: {
-    temperature: number;
-    windspeed: number;
-    weathercode: number;
-    time: string;
+export interface WeatherData {
+  city: string;
+  country: string;
+  updatedAt: string;
+  temperature: number;
+  feelsLike: number;
+  conditionCode: number;
+  windSpeed: number;
+  humidity: number;
+  high: number;
+  low: number;
+  sunrise: string;
+  sunset: string;
+  forecast: ForecastEntry[];
+}
+
+interface StaticWeatherPayload {
+  city: string;
+  country: string;
+  updatedAt: string;
+  current: {
+    temperatureC: number;
+    feelsLikeC: number;
+    conditionCode: number;
+    windKph: number;
+    humidity: number;
   };
+  day: {
+    highC: number;
+    lowC: number;
+    sunrise: string;
+    sunset: string;
+  };
+  forecast: Array<{
+    day: string;
+    conditionCode: number;
+    highC: number;
+    lowC: number;
+  }>;
 }
 
 @Injectable({
@@ -23,24 +55,31 @@ export interface OpenMeteoResponse {
 })
 export class WeatherService {
   private http = inject(HttpClient);
-  
-  // Amman, Jordan coordinates
-  private readonly AMMAN_LAT = 31.9454;
-  private readonly AMMAN_LON = 35.9284;
-  
-  // Open-Meteo API (free, no API key required)
-  private readonly API_URL = 'https://api.open-meteo.com/v1/forecast';
+  private readonly STATIC_ENDPOINT = '/api/weather.json';
 
-  getAmmanWeather(): Observable<WeatherData> {
-    const url = `${this.API_URL}?latitude=${this.AMMAN_LAT}&longitude=${this.AMMAN_LON}&current_weather=true`;
-    
-    return this.http.get<OpenMeteoResponse>(url).pipe(
-      map(response => ({
-        temperature: response.current_weather.temperature,
-        windspeed: response.current_weather.windspeed,
-        weathercode: response.current_weather.weathercode,
-        time: response.current_weather.time
-      }))
+  getCityWeather(): Observable<WeatherData> {
+    return this.http.get<StaticWeatherPayload>(this.STATIC_ENDPOINT).pipe(
+      map((payload) => ({
+        city: payload.city,
+        country: payload.country,
+        updatedAt: payload.updatedAt,
+        temperature: payload.current.temperatureC,
+        feelsLike: payload.current.feelsLikeC,
+        conditionCode: payload.current.conditionCode,
+        windSpeed: payload.current.windKph,
+        humidity: payload.current.humidity,
+        high: payload.day.highC,
+        low: payload.day.lowC,
+        sunrise: payload.day.sunrise,
+        sunset: payload.day.sunset,
+        forecast: (payload.forecast ?? []).map((entry) => ({
+          day: entry.day,
+          conditionCode: entry.conditionCode,
+          high: entry.highC,
+          low: entry.lowC
+        }))
+      })),
+      shareReplay(1)
     );
   }
 

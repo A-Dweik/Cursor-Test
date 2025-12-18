@@ -1,0 +1,24 @@
+{
+  "city": "Amman",
+  "country": "Jordan",
+  "updatedAt": "2024-12-18T08:30:00Z",
+  "current": {
+    "temperatureC": 18,
+    "feelsLikeC": 17,
+    "conditionCode": 2,
+    "windKph": 14,
+    "humidity": 58
+  },
+  "day": {
+    "highC": 20,
+    "lowC": 10,
+    "sunrise": "06:31",
+    "sunset": "16:37"
+  },
+  "forecast": [
+    { "day": "Thu", "conditionCode": 2, "highC": 20, "lowC": 10 },
+    { "day": "Fri", "conditionCode": 3, "highC": 18, "lowC": 9 },
+    { "day": "Sat", "conditionCode": 61, "highC": 16, "lowC": 8 },
+    { "day": "Sun", "conditionCode": 1, "highC": 19, "lowC": 9 }
+  ]
+}

@@ -1,59 +1,34 @@
-# AmmanWeather
+# Amman Weather (Static API Demo)
 
-This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 21.0.2.
+This project delivers a lightweight Angular 17 single-page app that showcases the weather for a single city (Amman, Jordan). Instead of calling a live API, the UI consumes a static payload to make local development and demos deterministic.
 
-## Development server
+## How it Works
 
-To start a local development server, run:
+- The UI calls `/api/weather.json`, which is served directly from the `public/` folder by the Angular dev server.
+- `WeatherService` maps that payload into a rich view model (current conditions, range, humidity, and a short forecast).
+- You can trigger a "refresh" inside the UI to re-read the same static file—useful after editing the JSON.
 
-```bash
-ng serve
-```
-
-Once the server is running, open your browser and navigate to `http://localhost:4200/`. The application will automatically reload whenever you modify any of the source files.
-
-## Code scaffolding
-
-Angular CLI includes powerful code scaffolding tools. To generate a new component, run:
+## Development
 
 ```bash
-ng generate component component-name
+npm install
+npm start   # runs ng serve
 ```
 
-For a complete list of available schematics (such as `components`, `directives`, or `pipes`), run:
+Navigate to `http://localhost:4200/` and you’ll see the Amman dashboard. The app automatically reloads when you edit any source file.
+
+## Updating the Static API
+
+1. Open `public/api/weather.json`.
+2. Adjust any of the fields (`temperatureC`, `forecast`, `sunrise`, etc.).
+3. Save the file and click **Reload static data** in the UI to pull your changes.
+
+Because the payload ships with the bundle, no additional backend services are required for manual testing or QA sign-off.
+
+## Building for Production
 
 ```bash
-ng generate --help
+npm run build
 ```
 
-## Building
-
-To build the project run:
-
-```bash
-ng build
-```
-
-This will compile your project and store the build artifacts in the `dist/` directory. By default, the production build optimizes your application for performance and speed.
-
-## Running unit tests
-
-To execute unit tests with the [Vitest](https://vitest.dev/) test runner, use the following command:
-
-```bash
-ng test
-```
-
-## Running end-to-end tests
-
-For end-to-end (e2e) testing, run:
-
-```bash
-ng e2e
-```
-
-Angular CLI does not come with an end-to-end testing framework by default. You can choose one that suits your needs.
-
-## Additional Resources
-
-For more information on using the Angular CLI, including detailed command references, visit the [Angular CLI Overview and Command Reference](https://angular.dev/tools/cli) page.
+The compiled artifacts land in `dist/`. The `public/api/weather.json` file is copied automatically, so hosting the build folder reproduces the same static API behaviour.
