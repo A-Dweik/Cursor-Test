@@ -1,6 +1,5 @@
-import { Injectable, inject } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
-import { Observable, map } from 'rxjs';
+import { Injectable } from '@angular/core';
+import { Observable, delay, of } from 'rxjs';
 
 export interface WeatherData {
   temperature: number;
@@ -9,39 +8,22 @@ export interface WeatherData {
   time: string;
 }
 
-export interface OpenMeteoResponse {
-  current_weather: {
-    temperature: number;
-    windspeed: number;
-    weathercode: number;
-    time: string;
-  };
-}
-
 @Injectable({
   providedIn: 'root'
 })
 export class WeatherService {
-  private http = inject(HttpClient);
-  
-  // Amman, Jordan coordinates
-  private readonly AMMAN_LAT = 31.9454;
-  private readonly AMMAN_LON = 35.9284;
-  
-  // Open-Meteo API (free, no API key required)
-  private readonly API_URL = 'https://api.open-meteo.com/v1/forecast';
+  // Static payload to mimic a backend API response
+  private readonly ammanWeather: WeatherData = {
+    temperature: 24.5,
+    windspeed: 11,
+    weathercode: 2,
+    time: '2025-06-18T09:00:00Z'
+  };
 
   getAmmanWeather(): Observable<WeatherData> {
-    const url = `${this.API_URL}?latitude=${this.AMMAN_LAT}&longitude=${this.AMMAN_LON}&current_weather=true`;
-    
-    return this.http.get<OpenMeteoResponse>(url).pipe(
-      map(response => ({
-        temperature: response.current_weather.temperature,
-        windspeed: response.current_weather.windspeed,
-        weathercode: response.current_weather.weathercode,
-        time: response.current_weather.time
-      }))
-    );
+    // Simulate the latency of a real HTTP call so the UI states
+    // (loading, last-updated, etc.) can still be showcased.
+    return of(this.ammanWeather).pipe(delay(600));
   }
 
   getWeatherDescription(code: number): string {
