@@ -2,6 +2,28 @@
 
 This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 21.0.2.
 
+## Backend API
+
+A basic ASP.NET Core Web API lives in `api/`.
+
+### Prerequisites
+
+- .NET SDK 8.0 (already installed in this workspace)
+
+### Useful commands
+
+Build the API:
+
+```bash
+dotnet build api/api.csproj
+```
+
+Run the API locally (listens on `http://localhost:5156` by default):
+
+```bash
+dotnet run --project api/api.csproj
+```
+
 ## Development server
 
 To start a local development server, run:
