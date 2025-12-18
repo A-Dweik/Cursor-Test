@@ -1,41 +1,49 @@
 {
-  "name": "amman-weather",
-  "version": "0.0.0",
-  "scripts": {
-    "ng": "ng",
-    "start": "ng serve",
-    "build": "ng build",
-    "watch": "ng build --watch --configuration development",
-    "test": "ng test"
-  },
-  "prettier": {
-    "printWidth": 100,
-    "singleQuote": true,
-    "overrides": [
-      {
-        "files": "*.html",
-        "options": {
-          "parser": "angular"
-        }
-      }
-    ]
-  },
+  "name": "todos",
+  "version": "0.1.0",
   "private": true,
-  "packageManager": "npm@10.9.4",
+  "scripts": {
+    "serve": "vue-cli-service serve --open",
+    "build": "vue-cli-service build --dest dist",
+    "lint": "vue-cli-service lint"
+  },
   "dependencies": {
-    "@angular/common": "^21.0.0",
-    "@angular/compiler": "^21.0.0",
-    "@angular/core": "^21.0.0",
-    "@angular/forms": "^21.0.0",
-    "@angular/platform-browser": "^21.0.0",
-    "@angular/router": "^21.0.0",
-    "rxjs": "~7.8.0",
-    "tslib": "^2.3.0"
+    "@babel/polyfill": "7.4.4",
+    "@microsoft/applicationinsights-web": "2.9.1",
+    "@t2/Viewerpdf": "^1.0.34",
+    "@t2/attach-file": "^1.0.51",
+    "@t2/data-table": "^1.0.63",
+    "@t2/date-picker": "^1.0.17",
+    "@t2/hijri-meladi-picker": "^1.0.18",
+    "@t2/reason-file-uploader": "^1.0.17",
+    "@t2/recaptcha": "^1.0.26",
+    "@t2/selectto": "^1.0.34",
+    "@t2/wizard": "^1.0.16",
+    "axios": "0.19.0",
+    "file-saver": "2.0.2",
+    "izitoast": "1.4.0",
+    "register-service-worker": "1.6.2",
+    "reflect-metadata": "^0.1.13",
+    "vue": "2.6.10",
+    "vue-class-component": "7.1.0",
+    "vue-di-container": "0.1.0",
+    "vue-i18n": "8.12.0",
+    "vue-property-decorator": "8.1.1",
+    "vue-router": "3.1.0",
+    "vuetify": "1.5.14",
+    "vuex": "3.1.1"
   },
   "devDependencies": {
-    "@angular/build": "^21.0.2",
-    "@angular/cli": "^21.0.2",
-    "@angular/compiler-cli": "^21.0.0",
-    "typescript": "~5.9.2"
+    "@vue/cli-plugin-babel": "3.10.0",
+    "@vue/cli-plugin-typescript": "3.10.0",
+    "@vue/cli-service": "3.10.0",
+    "babel-plugin-transform-imports": "2.0.0",
+    "node-sass": "4.12.0",
+    "sass-loader": "7.1.0",
+    "tslint": "5.20.1",
+    "stylus": "0.54.8",
+    "stylus-loader": "3.0.2",
+    "typescript": "3.5.1",
+    "vue-template-compiler": "2.6.10"
   }
 }

@@ -1,10 +1,16 @@
 # See https://docs.github.com/get-started/getting-started-with-git/ignoring-files for more about ignoring files.
 
-# Compiled output
+# Build artifacts
 /dist
+/dist/**
 /tmp
 /out-tsc
 /bazel-out
+/bin
+/obj
+/App_Data/logs/
+/App_Data/logs/**
+!/App_Data/logs/.gitkeep
 
 # Node
 /node_modules
@@ -29,7 +35,6 @@ yarn-error.log
 .history/*
 
 # Miscellaneous
-/.angular/cache
 .sass-cache/
 /connect.lock
 /coverage
@@ -37,7 +42,9 @@ yarn-error.log
 testem.log
 /typings
 __screenshots__/
+/App_Data/logs/log-*.log
 
 # System files
 .DS_Store
 Thumbs.db
+
