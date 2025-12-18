@@ -1,62 +1,200 @@
-<main class="container">
-  <div class="weather-card">
-    <div class="header">
-      <h1>🇯🇴 Amman, Jordan</h1>
-      <p class="subtitle">Current Weather</p>
+<main class="task-manager">
+  <section class="hero">
+    <div>
+      <p class="eyebrow">Micro Application · Internal tooling</p>
+      <h1>Task Manager Service</h1>
+      <p class="subtitle">Live board for the cross-squad delivery program.</p>
     </div>
 
-    @if (loading()) {
-      <div class="loading">
-        <div class="spinner"></div>
-        <p>Loading weather data...</p>
-      </div>
+    <div class="hero__actions">
+      <button type="button" class="ghost">Record update</button>
+      <button type="button" class="primary" (click)="syncBoard()">Sync board</button>
+    </div>
+  </section>
+
+  <section class="insights">
+    @for (insight of insightCards(); track insight.label) {
+      <article class="insight-card">
+        <div class="insight-card__header">
+          <span class="trend" [class.up]="insight.trend === 'up'" [class.down]="insight.trend === 'down'">
+            {{ trendIcon(insight.trend) }}
+          </span>
+          <p class="eyebrow">{{ insight.meta }}</p>
+        </div>
+        <strong>{{ insight.value }}</strong>
+        <p>{{ insight.label }}</p>
+      </article>
     }
+  </section>
 
-    @if (error()) {
-      <div class="error">
-        <p>{{ error() }}</p>
-        <button (click)="fetchWeather()" class="retry-btn">Try Again</button>
-      </div>
-    }
+  <section class="controls">
+    <div class="control-group search">
+      <label for="search">Search work</label>
+      <input
+        id="search"
+        type="search"
+        placeholder="Search by ID, owner, tag or summary"
+        [value]="filters().search"
+        (input)="onSearch($event)"
+      />
+    </div>
 
-    @if (weather() && !loading()) {
-      <div class="weather-content">
-        <div class="weather-icon">
-          {{ getWeatherIcon(weather()!.weathercode) }}
-        </div>
-        
-        <div class="temperature">
-          <span class="temp-value">{{ weather()!.temperature }}</span>
-          <span class="temp-unit">°C</span>
-        </div>
-        
-        <div class="weather-description">
-          {{ getWeatherDescription(weather()!.weathercode) }}
-        </div>
-        
-        <div class="weather-details">
-          <div class="detail">
-            <span class="detail-icon">💨</span>
-            <span class="detail-label">Wind Speed</span>
-            <span class="detail-value">{{ weather()!.windspeed }} km/h</span>
-          </div>
-        </div>
-
-        @if (lastUpdated()) {
-          <div class="last-updated">
-            Last updated: {{ lastUpdated() | date:'medium' }}
-          </div>
+    <div class="control-group">
+      <label for="status">Status</label>
+      <select id="status" [value]="filters().status" (change)="onStatusChange($event)">
+        <option value="all">All statuses</option>
+        @for (status of statuses; track status) {
+          <option [value]="status">{{ status }}</option>
         }
-        
-        <button (click)="fetchWeather()" class="refresh-btn">
-          🔄 Refresh
-        </button>
-      </div>
-    }
-  </div>
+      </select>
+    </div>
 
-  <footer class="footer">
-    <p>Powered by <a href="https://open-meteo.com/" target="_blank" rel="noopener">Open-Meteo API</a></p>
-    <p class="api-note">Free weather API - No API key required</p>
-  </footer>
+    <div class="control-group">
+      <label for="priority">Priority</label>
+      <select id="priority" [value]="filters().priority" (change)="onPriorityChange($event)">
+        <option value="all">All priorities</option>
+        @for (priority of priorities; track priority) {
+          <option [value]="priority">{{ priority }}</option>
+        }
+      </select>
+    </div>
+
+    <div class="control-group">
+      <label for="owner">Owner</label>
+      <select id="owner" [value]="filters().owner" (change)="onOwnerChange($event)">
+        <option value="all">All owners</option>
+        @for (owner of owners; track owner) {
+          <option [value]="owner">{{ owner }}</option>
+        }
+      </select>
+    </div>
+
+    <button type="button" class="ghost" (click)="clearFilters()">Reset filters</button>
+  </section>
+
+  <section class="board">
+    @for (column of boardColumns(); track column.key) {
+      <article class="board-column">
+        <header>
+          <div>
+            <p class="eyebrow">{{ column.title }}</p>
+            <span class="count">{{ column.tasks.length }} items</span>
+          </div>
+          <span class="accent" [style.background]="column.accent"></span>
+        </header>
+
+        <div class="column-body">
+          @if (column.tasks.length === 0) {
+            <p class="empty-state">No work queued here.</p>
+          } @else {
+            @for (task of column.tasks; track task.id) {
+              <article class="task-card" [class.overdue]="task.isOverdue">
+                <div class="task-card__title">
+                  <span class="task-id">{{ task.id }}</span>
+                  <span class="priority-chip" [attr.data-priority]="task.priority">{{ task.priority }}</span>
+                </div>
+
+                <h3>{{ task.title }}</h3>
+                <p class="summary">{{ task.summary }}</p>
+
+                <div class="meta-row">
+                  <span>Owner · {{ task.owner }}</span>
+                  <span [class.due-warning]="task.isOverdue">{{ dueLabel(task) }}</span>
+                </div>
+
+                <div class="tags">
+                  @for (tag of task.tags; track tag) {
+                    <span class="tag">{{ tag }}</span>
+                  }
+                </div>
+
+                <div class="progress">
+                  <div class="progress__bar">
+                    <span class="progress__value" [style.width.%]="task.progress"></span>
+                  </div>
+                  <span class="progress__label">{{ task.progress }}%</span>
+                </div>
+
+                <div class="meta-row small">
+                  <span>{{ task.squad }} squad</span>
+                  <span>{{ task.dependencies }} dependencies</span>
+                </div>
+              </article>
+            }
+          }
+        </div>
+      </article>
+    }
+  </section>
+
+  <section class="secondary-grid">
+    <article class="panel">
+      <header>
+        <h2>Upcoming milestones</h2>
+        <p>{{ milestones().length }} near-term commitments</p>
+      </header>
+
+      @if (milestones().length === 0) {
+        <p class="empty-state">No milestones match the current filters.</p>
+      } @else {
+        <ul class="milestones">
+          @for (milestone of milestones(); track milestone.id) {
+            <li>
+              <div>
+                <strong>{{ milestone.title }}</strong>
+                <p>{{ milestone.focus }} · Owner {{ milestone.owner }}</p>
+              </div>
+              <span class="chip" [attr.data-status]="milestone.status">
+                {{ milestone.status }} · {{ milestone.dueDate | date:'MMM d' }}
+              </span>
+            </li>
+          }
+        </ul>
+      }
+    </article>
+
+    <article class="panel">
+      <header>
+        <h2>Activity feed</h2>
+        <p>Latest cross-squad updates</p>
+      </header>
+
+      <ul class="activity-feed">
+        @for (event of activityFeed(); track event.id) {
+          <li>
+            <div class="badge" [attr.data-type]="event.type">{{ event.type }}</div>
+            <div>
+              <strong>{{ event.taskId }}</strong>
+              <p>{{ event.action }}</p>
+              <span>{{ event.actor }} · {{ event.relativeTime }}</span>
+            </div>
+          </li>
+        }
+      </ul>
+    </article>
+
+    <article class="panel pulse">
+      <header>
+        <h2>Service pulse</h2>
+        <p>Composite health indicators</p>
+      </header>
+
+      <div class="pulse-grid">
+        <div>
+          <span class="eyebrow">SLA confidence</span>
+          <strong>{{ servicePulse().slaConfidence }}%</strong>
+        </div>
+        <div>
+          <span class="eyebrow">Automation coverage</span>
+          <strong>{{ servicePulse().automationCoverage }}%</strong>
+        </div>
+        <div>
+          <span class="eyebrow">Avg. response</span>
+          <strong>{{ servicePulse().avgResponseTimeHours }}h</strong>
+        </div>
+      </div>
+
+      <p class="pulse-notes">{{ servicePulse().notes }}</p>
+    </article>
+  </section>
 </main>
