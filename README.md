@@ -1,59 +1,42 @@
-# AmmanWeather
+# Todos Najiz Micro Application
 
-This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 21.0.2.
+This repository hosts **Todos**, a Najiz-compliant micro application that combines an ASP.NET Core 3.1 backend with a Vue 2 + Vuetify SPA frontend. The solution follows the Najiz WebHostSpaStartup pattern, Arabic-first UI conventions, and integrates Application Insights telemetry, JWT-ready authentication, and a PWA-ready frontend.
 
-## Development server
-
-To start a local development server, run:
+## Getting Started
 
 ```bash
-ng serve
+# restore .NET dependencies
+ dotnet restore
+
+# install frontend deps (requires Najiz npm registry access)
+npm config set registry https://najizportalnpm.azurewebsites.net/
+npm install
+
+# run the Vue dev server (proxy via ASP.NET during development)
+npm run serve
+
+# run the ASP.NET Core backend
+ dotnet run
 ```
 
-Once the server is running, open your browser and navigate to `http://localhost:4200/`. The application will automatically reload whenever you modify any of the source files.
+The backend serves API endpoints (e.g., `GET /api/Todos`, `POST /api/Todos`) and the `GET /api/UserInfo` profile endpoint that the Vue client consumes during initialization.
 
-## Code scaffolding
-
-Angular CLI includes powerful code scaffolding tools. To generate a new component, run:
+## Build & Publish
 
 ```bash
-ng generate component component-name
+npm run build          # builds ClientApp into /dist
+ dotnet publish -c Release
 ```
 
-For a complete list of available schematics (such as `components`, `directives`, or `pipes`), run:
+Publishing triggers the `PublishRunWebpack` MSBuild target, which installs npm packages from the Najiz registry and bundles the SPA assets into `dist/` for hosting.
 
-```bash
-ng generate --help
-```
+## Key Features
 
-## Building
+- Najiz Framework 3.55.3 with NLog file logging and JWT-ready security packages
+- Vue 2.6 + TypeScript 3.5 SPA using Vuetify with RTL + Arabic defaults
+- Axios service with interceptors, loader hooks, and toast-based error handling
+- Application Insights telemetry wrapper and DI via `vue-di-container`
+- PWA essentials: manifest, service worker registration, offline messaging, and icons
+- Sample Todos API with in-memory storage plus client UI to add and complete tasks
 
-To build the project run:
-
-```bash
-ng build
-```
-
-This will compile your project and store the build artifacts in the `dist/` directory. By default, the production build optimizes your application for performance and speed.
-
-## Running unit tests
-
-To execute unit tests with the [Vitest](https://vitest.dev/) test runner, use the following command:
-
-```bash
-ng test
-```
-
-## Running end-to-end tests
-
-For end-to-end (e2e) testing, run:
-
-```bash
-ng e2e
-```
-
-Angular CLI does not come with an end-to-end testing framework by default. You can choose one that suits your needs.
-
-## Additional Resources
-
-For more information on using the Angular CLI, including detailed command references, visit the [Angular CLI Overview and Command Reference](https://angular.dev/tools/cli) page.
+Update the placeholders in `appsettings*.json` and `public/config.json` (Application Insights, reCAPTCHA, OpenID settings) before deploying to production.

@@ -1,0 +1,68 @@
+<v-container fluid>
+  <v-layout row wrap align-center>
+    <v-flex xs12>
+      <h1 class="display-1 mb-4">{{ $t('userGreeting', { name: userName || 'ضيف' }) }}</h1>
+    </v-flex>
+
+    <v-flex xs12 sm8 md6>
+      <v-form @submit.prevent="addTodo">
+        <v-layout row wrap>
+          <v-flex xs12 sm9>
+            <v-text-field
+              v-model="newTodoTitle"
+              :label="$t('addTodoPlaceholder')"
+              :disabled="creatingTodo"
+              hide-details
+              outlined
+            ></v-text-field>
+          </v-flex>
+          <v-flex xs12 sm3>
+            <v-btn
+              color="primary"
+              class="mt-3 mt-sm-0"
+              :loading="creatingTodo"
+              block
+              @click="addTodo"
+            >
+              {{ $t('addTodoCta') }}
+            </v-btn>
+          </v-flex>
+        </v-layout>
+      </v-form>
+    </v-flex>
+  </v-layout>
+
+  <v-layout row wrap>
+    <v-flex xs12 sm8 md6>
+      <v-card flat>
+        <v-progress-linear v-if="loadingTodos" indeterminate color="primary"></v-progress-linear>
+
+        <v-list two-line v-if="hasTodos">
+          <v-list-tile v-for="todo in todos" :key="todo.id">
+            <v-list-tile-action>
+              <v-checkbox
+                :input-value="todo.isCompleted"
+                color="primary"
+                @change="() => toggleTodo(todo)"
+              ></v-checkbox>
+            </v-list-tile-action>
+            <v-list-tile-content>
+              <v-list-tile-title :class="{ 'text--disabled': todo.isCompleted }">{{ todo.title }}</v-list-tile-title>
+              <v-list-tile-sub-title>{{ formatDate(todo.createdAt) }}</v-list-tile-sub-title>
+            </v-list-tile-content>
+            <v-list-tile-action>
+              <v-btn icon @click="deleteTodo(todo)">
+                <v-icon color="error">delete</v-icon>
+              </v-btn>
+            </v-list-tile-action>
+          </v-list-tile>
+        </v-list>
+
+        <div class="text-xs-center py-5" v-else>
+          <v-icon color="grey" large>playlist_add_check</v-icon>
+          <p class="mt-2">{{ $t('emptyState') }}</p>
+        </div>
+      </v-card>
+    </v-flex>
+  </v-layout>
+</v-container>

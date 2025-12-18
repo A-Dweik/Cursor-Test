@@ -1,0 +1,4 @@
+{
+  "ApplicationInsightsKey": "YOUR_APP_INSIGHTS_KEY",
+  "RecaptchaSiteKey": "YOUR_RECAPTCHA_SITE_KEY"
+}
