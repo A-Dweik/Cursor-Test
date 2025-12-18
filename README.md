@@ -1,59 +1,46 @@
-# AmmanWeather
+# Task Manager Service Micro App
 
-This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 21.0.2.
+Task Manager Service is a lightweight Angular micro-application inspired by the [`awartani-t2/microApp`](https://github.com/awartani-t2/microApp) template. It focuses on program visibility for cross-squad execution workstreams by surfacing:
 
-## Development server
+- Insight cards for squad-level health
+- A kanban-style execution board
+- Upcoming milestone tracking
+- A lightweight activity feed & service pulse indicators
 
-To start a local development server, run:
-
-```bash
-ng serve
-```
-
-Once the server is running, open your browser and navigate to `http://localhost:4200/`. The application will automatically reload whenever you modify any of the source files.
-
-## Code scaffolding
-
-Angular CLI includes powerful code scaffolding tools. To generate a new component, run:
+## Getting started
 
 ```bash
-ng generate component component-name
+npm install
+npm start
 ```
 
-For a complete list of available schematics (such as `components`, `directives`, or `pipes`), run:
+The dev server runs at `http://localhost:4200/` with hot reload enabled.
 
-```bash
-ng generate --help
-```
+## Available scripts
 
-## Building
+| Command        | Description                              |
+| -------------- | ---------------------------------------- |
+| `npm start`    | Runs the dev server (`ng serve`)         |
+| `npm run build`| Production build into `dist/`            |
+| `npm test`     | Executes the Angular test runner         |
 
-To build the project run:
+## Architecture highlights
 
-```bash
-ng build
-```
+- Standalone root component (`App`) backed by a domain-specific `TaskManagerService`.
+- Rich in-memory dataset that mirrors the structure defined in the `microApp` Vue template (statuses, events, milestones).
+- Signal-based state management for filters, task board derivations, milestones, activity feed, and service health.
+- Pure CSS implementation for the program board, filters, insights, and service pulse panels.
 
-This will compile your project and store the build artifacts in the `dist/` directory. By default, the production build optimizes your application for performance and speed.
+## Relationship to the reference template
 
-## Running unit tests
+The original template uses Vue + ASP.NET. This implementation keeps the interaction model (hero header, status board, activity feed) but delivers it in Angular to match this repository. You can port the dataset or visual shell back to the Vue template with minimal effort because:
 
-To execute unit tests with the [Vitest](https://vitest.dev/) test runner, use the following command:
+- Status metadata (`Backlog`, `Discovery`, `In Progress`, `Review`, `Blocked`, `Done`) mirrors the original columns.
+- Activity feed entries follow the same `taskId`-centric schema used by `ClientApp/components/Index` in the reference repo.
+- Service pulse metrics can be dropped into any dashboard surface by reusing the `TaskManagerService` helpers.
 
-```bash
-ng test
-```
+## Next steps
 
-## Running end-to-end tests
-
-For end-to-end (e2e) testing, run:
-
-```bash
-ng e2e
-```
-
-Angular CLI does not come with an end-to-end testing framework by default. You can choose one that suits your needs.
-
-## Additional Resources
-
-For more information on using the Angular CLI, including detailed command references, visit the [Angular CLI Overview and Command Reference](https://angular.dev/tools/cli) page.
+- Wire the `TaskManagerService` to your preferred API or data stream.
+- Extend the activity feed to capture live updates via WebSockets or server-sent events.
+- Export board metrics to the shared observability data warehouse for deeper reporting.
