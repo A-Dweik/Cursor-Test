@@ -1,0 +1,26 @@
+<v-app>
+    <v-content>
+        <v-container fluid fill-height>
+            <v-layout align-center justify-center>
+                <v-flex xs12 text-xs-center>
+                    <v-card class="elevation-12 mx-auto" max-width="600">
+                        <v-card-title class="primary white--text justify-center">
+                            <h2 class="headline">Amman Weather Application</h2>
+                        </v-card-title>
+                        <v-card-text class="pa-5">
+                            <v-icon size="100" color="primary">wb_sunny</v-icon>
+                            <h3 class="title mt-3 mb-3">Welcome to Amman Weather App</h3>
+                            <p class="body-1">Get real-time weather updates for Amman, Jordan</p>
+                        </v-card-text>
+                        <v-card-actions class="justify-center pb-4">
+                            <v-btn large color="primary" @click="goToWeather">
+                                <v-icon left>arrow_forward</v-icon>
+                                View Weather
+                            </v-btn>
+                        </v-card-actions>
+                    </v-card>
+                </v-flex>
+            </v-layout>
+        </v-container>
+    </v-content>
+</v-app>
