@@ -1,0 +1,92 @@
+<v-container>
+    <v-layout row wrap>
+        <v-flex xs12>
+            <v-card>
+                <v-card-title class="primary white--text">
+                    <h3>Leave Requests</h3>
+                    <v-spacer></v-spacer>
+                    <v-btn color="white" @click="createNewRequest">
+                        <v-icon left>add</v-icon>
+                        New Request
+                    </v-btn>
+                </v-card-title>
+                <v-card-text>
+                    <v-data-table
+                        :headers="headers"
+                        :items="leaveRequests"
+                        :loading="loading"
+                        class="elevation-1"
+                    >
+                        <template v-slot:items="props">
+                            <td>{{ props.item.id }}</td>
+                            <td>{{ props.item.employeeName }}</td>
+                            <td>{{ props.item.leaveType }}</td>
+                            <td>{{ props.item.startDate }}</td>
+                            <td>{{ props.item.endDate }}</td>
+                            <td>
+                                <v-chip :color="getStatusColor(props.item.status)" text-color="white" small>
+                                    {{ props.item.status }}
+                                </v-chip>
+                            </td>
+                            <td>
+                                <v-btn small icon @click="viewDetails(props.item)">
+                                    <v-icon>visibility</v-icon>
+                                </v-btn>
+                                <v-btn 
+                                    small 
+                                    icon 
+                                    color="success" 
+                                    @click="updateStatus(props.item.id, 'Approved')"
+                                    v-if="props.item.status === 'Pending'"
+                                >
+                                    <v-icon>check</v-icon>
+                                </v-btn>
+                                <v-btn 
+                                    small 
+                                    icon 
+                                    color="error" 
+                                    @click="updateStatus(props.item.id, 'Rejected')"
+                                    v-if="props.item.status === 'Pending'"
+                                >
+                                    <v-icon>close</v-icon>
+                                </v-btn>
+                                <v-btn small icon color="error" @click="deleteRequest(props.item.id)">
+                                    <v-icon>delete</v-icon>
+                                </v-btn>
+                            </td>
+                        </template>
+                    </v-data-table>
+                </v-card-text>
+            </v-card>
+        </v-flex>
+    </v-layout>
+
+    <v-dialog v-model="dialog" max-width="600px" v-if="selectedRequest">
+        <v-card>
+            <v-card-title class="primary white--text">
+                <h3>Leave Request Details</h3>
+            </v-card-title>
+            <v-card-text>
+                <v-layout row wrap>
+                    <v-flex xs12>
+                        <p><strong>ID:</strong> {{ selectedRequest.id }}</p>
+                        <p><strong>Employee Name:</strong> {{ selectedRequest.employeeName }}</p>
+                        <p><strong>Leave Type:</strong> {{ selectedRequest.leaveType }}</p>
+                        <p><strong>Start Date:</strong> {{ selectedRequest.startDate }}</p>
+                        <p><strong>End Date:</strong> {{ selectedRequest.endDate }}</p>
+                        <p><strong>Status:</strong> 
+                            <v-chip :color="getStatusColor(selectedRequest.status)" text-color="white" small>
+                                {{ selectedRequest.status }}
+                            </v-chip>
+                        </p>
+                        <p><strong>Reason:</strong> {{ selectedRequest.reason }}</p>
+                    </v-flex>
+                </v-layout>
+            </v-card-text>
+            <v-card-actions>
+                <v-spacer></v-spacer>
+                <v-btn color="grey" @click="closeDialog">Close</v-btn>
+            </v-card-actions>
+        </v-card>
+    </v-dialog>
+</v-container>

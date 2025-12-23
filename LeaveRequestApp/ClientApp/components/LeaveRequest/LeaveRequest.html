@@ -1,0 +1,89 @@
+<v-container>
+    <v-layout row wrap>
+        <v-flex xs12>
+            <v-card>
+                <v-card-title class="primary white--text">
+                    <h3>Submit Leave Request</h3>
+                </v-card-title>
+                <v-card-text>
+                    <v-form ref="form" v-model="valid">
+                        <v-text-field
+                            v-model="leaveRequest.employeeName"
+                            :rules="[rules.required, rules.minLength]"
+                            label="Employee Name"
+                            required
+                        ></v-text-field>
+
+                        <v-select
+                            v-model="leaveRequest.leaveType"
+                            :items="leaveTypes"
+                            :rules="[rules.required]"
+                            label="Leave Type"
+                            required
+                        ></v-select>
+
+                        <v-menu
+                            v-model="startDateMenu"
+                            :close-on-content-click="false"
+                            :nudge-right="40"
+                            transition="scale-transition"
+                            offset-y
+                            min-width="290px"
+                        >
+                            <template v-slot:activator="{ on }">
+                                <v-text-field
+                                    v-model="leaveRequest.startDate"
+                                    label="Start Date"
+                                    prepend-icon="event"
+                                    readonly
+                                    v-on="on"
+                                    :rules="[rules.required]"
+                                ></v-text-field>
+                            </template>
+                            <v-date-picker
+                                v-model="leaveRequest.startDate"
+                                @input="startDateMenu = false"
+                            ></v-date-picker>
+                        </v-menu>
+
+                        <v-menu
+                            v-model="endDateMenu"
+                            :close-on-content-click="false"
+                            :nudge-right="40"
+                            transition="scale-transition"
+                            offset-y
+                            min-width="290px"
+                        >
+                            <template v-slot:activator="{ on }">
+                                <v-text-field
+                                    v-model="leaveRequest.endDate"
+                                    label="End Date"
+                                    prepend-icon="event"
+                                    readonly
+                                    v-on="on"
+                                    :rules="[rules.required]"
+                                ></v-text-field>
+                            </template>
+                            <v-date-picker
+                                v-model="leaveRequest.endDate"
+                                @input="endDateMenu = false"
+                            ></v-date-picker>
+                        </v-menu>
+
+                        <v-textarea
+                            v-model="leaveRequest.reason"
+                            :rules="[rules.required, rules.minLength]"
+                            label="Reason"
+                            required
+                        ></v-textarea>
+                    </v-form>
+                </v-card-text>
+                <v-card-actions>
+                    <v-spacer></v-spacer>
+                    <v-btn color="grey" @click="cancel">Cancel</v-btn>
+                    <v-btn color="primary" @click="submitLeaveRequest" :disabled="!valid">Submit</v-btn>
+                </v-card-actions>
+            </v-card>
+        </v-flex>
+    </v-layout>
+</v-container>
