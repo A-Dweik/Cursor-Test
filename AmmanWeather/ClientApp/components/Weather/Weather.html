@@ -1,0 +1,285 @@
+<v-app>
+    <v-content>
+        <div class="weather-app">
+            <!-- Header -->
+            <div class="weather-header">
+                <v-container>
+                    <v-layout row wrap>
+                        <v-flex xs12 class="text-xs-center">
+                            <h1 class="display-2 white--text font-weight-bold mb-2">
+                                <v-icon large class="white--text">wb_sunny</v-icon>
+                                Amman Weather
+                            </h1>
+                            <p class="subheading white--text">{{currentDate}}</p>
+                            <p class="headline white--text font-weight-bold">{{currentTime}}</p>
+                        </v-flex>
+                    </v-layout>
+                </v-container>
+            </div>
+
+            <v-container class="weather-content">
+                <!-- Loading State -->
+                <v-layout v-if="loading" row wrap justify-center align-center class="pa-5">
+                    <v-flex xs12 class="text-xs-center">
+                        <v-progress-circular
+                            :size="70"
+                            :width="7"
+                            color="primary"
+                            indeterminate
+                        ></v-progress-circular>
+                        <p class="mt-3 title">Loading weather data...</p>
+                    </v-flex>
+                </v-layout>
+
+                <!-- Error State -->
+                <v-layout v-if="error && !loading" row wrap justify-center>
+                    <v-flex xs12 md8>
+                        <v-alert
+                            :value="true"
+                            type="error"
+                            class="ma-3"
+                        >
+                            {{error}}
+                            <v-btn flat @click="loadWeatherData">Retry</v-btn>
+                        </v-alert>
+                    </v-flex>
+                </v-layout>
+
+                <!-- Current Weather -->
+                <v-layout v-if="currentWeather && !loading" row wrap justify-center>
+                    <v-flex xs12 md10 lg8>
+                        <v-card class="weather-card elevation-10 mb-4">
+                            <v-card-text class="pa-5">
+                                <v-layout row wrap align-center>
+                                    <v-flex xs12 md6 class="text-xs-center">
+                                        <div class="weather-icon-container">
+                                            <img 
+                                                :src="getWeatherIcon(currentWeather.icon)" 
+                                                class="weather-icon-large"
+                                                alt="Weather Icon"
+                                            />
+                                        </div>
+                                        <h2 class="display-3 font-weight-bold primary--text">
+                                            {{currentWeather.temperature}}°C
+                                        </h2>
+                                        <p class="title grey--text text--darken-1 mt-2">
+                                            {{capitalizeFirst(currentWeather.description)}}
+                                        </p>
+                                        <p class="subheading grey--text">
+                                            Feels like {{currentWeather.feelsLike}}°C
+                                        </p>
+                                    </v-flex>
+                                    
+                                    <v-flex xs12 md6>
+                                        <v-layout row wrap class="weather-details">
+                                            <v-flex xs12 class="weather-detail-item pa-3">
+                                                <v-layout align-center>
+                                                    <v-icon large color="primary" class="mr-3">location_on</v-icon>
+                                                    <div>
+                                                        <p class="caption grey--text mb-0">Location</p>
+                                                        <p class="title mb-0">{{currentWeather.cityName}}, Jordan</p>
+                                                    </div>
+                                                </v-layout>
+                                            </v-flex>
+                                            
+                                            <v-flex xs12 class="weather-detail-item pa-3">
+                                                <v-layout align-center>
+                                                    <v-icon large color="info" class="mr-3">opacity</v-icon>
+                                                    <div>
+                                                        <p class="caption grey--text mb-0">Humidity</p>
+                                                        <p class="title mb-0">{{currentWeather.humidity}}%</p>
+                                                    </div>
+                                                </v-layout>
+                                            </v-flex>
+                                            
+                                            <v-flex xs12 class="weather-detail-item pa-3">
+                                                <v-layout align-center>
+                                                    <v-icon large color="accent" class="mr-3">air</v-icon>
+                                                    <div>
+                                                        <p class="caption grey--text mb-0">Wind Speed</p>
+                                                        <p class="title mb-0">{{currentWeather.windSpeed}} m/s</p>
+                                                    </div>
+                                                </v-layout>
+                                            </v-flex>
+                                        </v-layout>
+                                    </v-flex>
+                                </v-layout>
+                            </v-card-text>
+                        </v-card>
+
+                        <!-- 5-Day Forecast -->
+                        <v-card class="forecast-card elevation-10">
+                            <v-card-title class="primary white--text">
+                                <v-icon class="white--text mr-2">date_range</v-icon>
+                                <span class="headline">5-Day Forecast</span>
+                            </v-card-title>
+                            <v-card-text class="pa-4">
+                                <v-layout row wrap>
+                                    <v-flex 
+                                        v-for="(day, index) in forecast" 
+                                        :key="index"
+                                        xs12 
+                                        sm6 
+                                        md4 
+                                        lg-2
+                                        class="pa-2"
+                                    >
+                                        <v-card class="forecast-day elevation-3 text-xs-center pa-3">
+                                            <p class="body-2 font-weight-bold grey--text text--darken-2 mb-2">
+                                                {{day.date}}
+                                            </p>
+                                            <img 
+                                                :src="getWeatherIcon(day.icon)" 
+                                                class="forecast-icon"
+                                                alt="Weather Icon"
+                                            />
+                                            <p class="display-1 font-weight-bold primary--text mb-1">
+                                                {{day.temp}}°C
+                                            </p>
+                                            <p class="caption grey--text">
+                                                {{capitalizeFirst(day.description)}}
+                                            </p>
+                                        </v-card>
+                                    </v-flex>
+                                </v-layout>
+                            </v-card-text>
+                        </v-card>
+
+                        <!-- Refresh Button -->
+                        <v-layout row justify-center class="mt-4">
+                            <v-btn 
+                                large 
+                                color="primary" 
+                                @click="loadWeatherData"
+                                class="elevation-5"
+                            >
+                                <v-icon left>refresh</v-icon>
+                                Refresh Weather
+                            </v-btn>
+                        </v-layout>
+                    </v-flex>
+                </v-layout>
+            </v-container>
+
+            <!-- Footer -->
+            <div class="weather-footer mt-5">
+                <v-container>
+                    <v-layout row wrap justify-center>
+                        <v-flex xs12 class="text-xs-center">
+                            <p class="caption grey--text">
+                                Weather data provided by OpenWeatherMap
+                            </p>
+                            <p class="caption grey--text">
+                                © 2025 Amman Weather App
+                            </p>
+                        </v-flex>
+                    </v-layout>
+                </v-container>
+            </div>
+        </div>
+    </v-content>
+</v-app>
+
+<style scoped>
+.weather-app {
+    min-height: 100vh;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+.weather-header {
+    background: linear-gradient(135deg, rgba(102, 126, 234, 0.9) 0%, rgba(118, 75, 162, 0.9) 100%);
+    padding: 60px 0 40px 0;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.weather-content {
+    padding-top: 40px;
+    padding-bottom: 40px;
+}
+
+.weather-card {
+    border-radius: 20px !important;
+    background: white;
+    overflow: hidden;
+}
+
+.weather-icon-container {
+    background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+    border-radius: 50%;
+    width: 200px;
+    height: 200px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 20px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+}
+
+.weather-icon-large {
+    width: 150px;
+    height: 150px;
+}
+
+.weather-details {
+    padding-left: 20px;
+}
+
+.weather-detail-item {
+    border-left: 4px solid #1976D2;
+    margin-bottom: 15px;
+    transition: all 0.3s ease;
+}
+
+.weather-detail-item:hover {
+    background: #f5f5f5;
+    border-left-width: 6px;
+}
+
+.forecast-card {
+    border-radius: 20px !important;
+    overflow: hidden;
+}
+
+.forecast-day {
+    border-radius: 15px !important;
+    transition: all 0.3s ease;
+    background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+    height: 100%;
+}
+
+.forecast-day:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 15px 30px rgba(0, 0, 0, 0.3) !important;
+}
+
+.forecast-icon {
+    width: 80px;
+    height: 80px;
+}
+
+.weather-footer {
+    background: rgba(0, 0, 0, 0.2);
+    padding: 30px 0;
+}
+
+@media (max-width: 960px) {
+    .weather-header {
+        padding: 40px 0 30px 0;
+    }
+    
+    .weather-icon-container {
+        width: 150px;
+        height: 150px;
+    }
+    
+    .weather-icon-large {
+        width: 120px;
+        height: 120px;
+    }
+    
+    .weather-details {
+        padding-left: 0;
+        padding-top: 20px;
+    }
+}
+</style>
