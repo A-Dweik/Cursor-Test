@@ -1,0 +1,37 @@
+<v-container>
+    <v-layout row wrap>
+        <v-flex xs12>
+            <v-card>
+                <v-card-title class="primary white--text">
+                    <h2>Leave Request Application</h2>
+                </v-card-title>
+                <v-card-text>
+                    <v-layout row wrap>
+                        <v-flex xs12 md6 pa-3>
+                            <v-card hover @click="goToLeaveRequests">
+                                <v-card-title class="headline">
+                                    <v-icon large left color="primary">list</v-icon>
+                                    View Leave Requests
+                                </v-card-title>
+                                <v-card-text>
+                                    View and manage all leave requests. You can approve, reject, or delete requests.
+                                </v-card-text>
+                            </v-card>
+                        </v-flex>
+                        <v-flex xs12 md6 pa-3>
+                            <v-card hover @click="goToNewRequest">
+                                <v-card-title class="headline">
+                                    <v-icon large left color="success">add_circle</v-icon>
+                                    Submit New Request
+                                </v-card-title>
+                                <v-card-text>
+                                    Submit a new leave request by filling out the required information.
+                                </v-card-text>
+                            </v-card>
+                        </v-flex>
+                    </v-layout>
+                </v-card-text>
+            </v-card>
+        </v-flex>
+    </v-layout>
+</v-container>
