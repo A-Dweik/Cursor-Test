@@ -1,0 +1,162 @@
+<v-container fluid class="page-container">
+  <!-- Page Header -->
+  <v-layout row wrap class="mb-4">
+    <v-flex xs12 sm8>
+      <h1 class="display-1 mb-2">قائمة العقود</h1>
+      <p class="subheading grey--text">إدارة ومتابعة جميع العقود</p>
+    </v-flex>
+    <v-flex xs12 sm4 class="text-right">
+      <v-btn color="primary" large @click="addNewContract">
+        <v-icon left>mdi-plus</v-icon>
+        إضافة عقد جديد
+      </v-btn>
+    </v-flex>
+  </v-layout>
+
+  <!-- Filters -->
+  <v-card class="mb-4" elevation="2">
+    <v-card-text>
+      <v-layout row wrap>
+        <v-flex xs12 sm4 class="pa-2">
+          <v-text-field
+            v-model="searchQuery"
+            label="بحث"
+            prepend-inner-icon="mdi-magnify"
+            outlined
+            hide-details
+            clearable
+          ></v-text-field>
+        </v-flex>
+        <v-flex xs12 sm4 class="pa-2">
+          <v-select
+            v-model="filterType"
+            :items="typeOptions"
+            label="نوع العقد"
+            outlined
+            hide-details
+          ></v-select>
+        </v-flex>
+        <v-flex xs12 sm4 class="pa-2">
+          <v-select
+            v-model="filterStatus"
+            :items="statusOptions"
+            label="الحالة"
+            outlined
+            hide-details
+          ></v-select>
+        </v-flex>
+      </v-layout>
+    </v-card-text>
+  </v-card>
+
+  <!-- Loading State -->
+  <div v-if="loading" class="text-center pa-12">
+    <v-progress-circular indeterminate color="primary" size="64"></v-progress-circular>
+    <p class="mt-4 body-1">جاري تحميل العقود...</p>
+  </div>
+
+  <!-- Empty State -->
+  <div v-else-if="filteredContracts.length === 0" class="text-center pa-12">
+    <v-icon size="64" color="grey lighten-1">mdi-file-document-outline</v-icon>
+    <p class="title mt-4 grey--text">لا توجد عقود</p>
+    <p class="body-1 grey--text">قم بإضافة عقد جديد للبدء</p>
+    <v-btn color="primary" class="mt-4" @click="addNewContract">
+      <v-icon left>mdi-plus</v-icon>
+      إضافة عقد جديد
+    </v-btn>
+  </div>
+
+  <!-- Contracts List -->
+  <v-layout row wrap v-else>
+    <v-flex xs12 v-for="contract in filteredContracts" :key="contract.id" class="pa-2">
+      <v-card elevation="2" class="card-hover">
+        <v-card-text>
+          <v-layout row wrap align-center>
+            <!-- Icon Column -->
+            <v-flex xs2 sm1 class="text-center">
+              <v-icon :color="contract.status === 'Verified' ? 'success' : 'grey'" size="40">
+                {{ getTypeIcon(contract.contractType) }}
+              </v-icon>
+            </v-flex>
+
+            <!-- Content Column -->
+            <v-flex xs7 sm8 md9>
+              <div class="mb-2">
+                <span class="title font-weight-bold">{{ contract.contractNumber }}</span>
+                <span :class="getStatusClasses(contract.status)" class="mr-2">
+                  {{ getStatusText(contract.status) }}
+                </span>
+              </div>
+              
+              <div class="body-1 mb-1">
+                <v-icon small color="grey">mdi-tag</v-icon>
+                <span class="mr-1">{{ getContractTypeText(contract.contractType) }}</span>
+                <span class="grey--text">•</span>
+                <span class="mr-1">{{ getContractCategoryText(contract.contractCategory) }}</span>
+              </div>
+
+              <div class="body-2 mb-1">
+                <v-icon small color="grey">mdi-account</v-icon>
+                <span class="mr-1">الطرف الأول:</span>
+                <span class="font-weight-medium">{{ contract.partyAName }}</span>
+              </div>
+
+              <div class="body-2 mb-1">
+                <v-icon small color="grey">mdi-account-outline</v-icon>
+                <span class="mr-1">الطرف الثاني:</span>
+                <span class="font-weight-medium">{{ contract.partyBName }}</span>
+              </div>
+
+              <div class="body-2 mb-1">
+                <v-icon small color="grey">mdi-text</v-icon>
+                <span class="mr-1">{{ contract.propertyDescription }}</span>
+              </div>
+
+              <div class="body-2">
+                <v-icon small color="grey">mdi-cash</v-icon>
+                <span class="mr-1 primary--text font-weight-bold">{{ formatCurrency(contract.propertyValue) }}</span>
+                <span class="grey--text mx-2">•</span>
+                <v-icon small color="grey">mdi-calendar</v-icon>
+                <span class="mr-1">{{ formatDate(contract.contractDate) }}</span>
+              </div>
+            </v-flex>
+
+            <!-- Actions Column -->
+            <v-flex xs3 sm3 md2 class="text-right">
+              <v-btn icon @click="viewContract(contract)">
+                <v-icon color="primary">mdi-eye</v-icon>
+              </v-btn>
+              <v-btn icon @click="editContract(contract)" v-if="contract.status === 'Pending'">
+                <v-icon color="success">mdi-pencil</v-icon>
+              </v-btn>
+              <v-btn icon @click="verifyContract(contract)" v-if="contract.status === 'Pending'">
+                <v-icon color="info">mdi-check-circle</v-icon>
+              </v-btn>
+              <v-btn icon @click="confirmDelete(contract)">
+                <v-icon color="error">mdi-delete</v-icon>
+              </v-btn>
+            </v-flex>
+          </v-layout>
+        </v-card-text>
+      </v-card>
+    </v-flex>
+  </v-layout>
+
+  <!-- Delete Confirmation Dialog -->
+  <v-dialog v-model="showDeleteDialog" max-width="500">
+    <v-card>
+      <v-card-title class="headline">تأكيد الحذف</v-card-title>
+      <v-card-text>
+        هل أنت متأكد من حذف العقد
+        <strong>{{ contractToDelete ? contractToDelete.contractNumber : '' }}</strong>؟
+        <br>
+        لا يمكن التراجع عن هذا الإجراء.
+      </v-card-text>
+      <v-card-actions>
+        <v-spacer></v-spacer>
+        <v-btn text @click="showDeleteDialog = false">إلغاء</v-btn>
+        <v-btn color="error" @click="deleteContract">حذف</v-btn>
+      </v-card-actions>
+    </v-card>
+  </v-dialog>
+</v-container>

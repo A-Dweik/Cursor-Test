@@ -1,0 +1,158 @@
+<v-container fluid class="page-container">
+  <!-- Loading State -->
+  <div v-if="loading" class="text-center pa-12">
+    <v-progress-circular indeterminate color="primary" size="64"></v-progress-circular>
+    <p class="mt-4 body-1">جاري التحميل...</p>
+  </div>
+
+  <template v-else-if="contract">
+    <!-- Page Header -->
+    <v-layout row wrap class="mb-4">
+      <v-flex xs12 sm8>
+        <v-btn text @click="goBack" class="mb-2">
+          <v-icon left>mdi-arrow-right</v-icon>
+          العودة إلى القائمة
+        </v-btn>
+        <h1 class="display-1 mb-2">تفاصيل العقد</h1>
+        <p class="subheading grey--text">{{ contract.contractNumber }}</p>
+      </v-flex>
+      <v-flex xs12 sm4 class="text-right">
+        <v-btn color="success" large @click="editContract" v-if="contract.status === 'Pending'" class="mb-2">
+          <v-icon left>mdi-pencil</v-icon>
+          تعديل
+        </v-btn>
+        <v-btn color="primary" large @click="verifyContract" v-if="contract.status === 'Pending'">
+          <v-icon left>mdi-check-circle</v-icon>
+          توثيق العقد
+        </v-btn>
+      </v-flex>
+    </v-layout>
+
+    <!-- Contract Header Card -->
+    <v-card class="mb-4" elevation="2">
+      <v-card-text class="pa-4">
+        <v-layout row wrap align-center>
+          <v-flex xs12 sm2 class="text-center mb-3">
+            <v-icon :color="contract.status === 'Verified' ? 'success' : 'grey'" size="80">
+              {{ getTypeIcon(contract.contractType) }}
+            </v-icon>
+          </v-flex>
+          <v-flex xs12 sm10>
+            <h2 class="title mb-2">
+              {{ contract.contractNumber }}
+              <span :class="getStatusClasses(contract.status)" class="mr-2">
+                {{ getStatusText(contract.status) }}
+              </span>
+            </h2>
+            <div class="body-1 mb-1">
+              <v-icon small>mdi-tag</v-icon>
+              <span class="mr-1">{{ getContractTypeText(contract.contractType) }}</span>
+              <span class="grey--text">•</span>
+              <span class="mr-1">{{ getContractCategoryText(contract.contractCategory) }}</span>
+            </div>
+            <div class="body-1">
+              <v-icon small>mdi-calendar</v-icon>
+              <span class="mr-1">تاريخ العقد:</span>
+              <span class="font-weight-bold">{{ formatDate(contract.contractDate) }}</span>
+            </div>
+          </v-flex>
+        </v-layout>
+      </v-card-text>
+    </v-card>
+
+    <!-- Party A Information -->
+    <v-card class="mb-4" elevation="2">
+      <v-card-title class="primary white--text">
+        <v-icon left color="white">mdi-account</v-icon>
+        <span class="headline">بيانات الطرف الأول</span>
+      </v-card-title>
+      <v-card-text class="pa-4">
+        <v-layout row wrap>
+          <v-flex xs12 md6 class="pa-2">
+            <div class="caption grey--text mb-1">الاسم الكامل</div>
+            <div class="title">{{ contract.partyAName }}</div>
+          </v-flex>
+          <v-flex xs12 md6 class="pa-2">
+            <div class="caption grey--text mb-1">رقم الهوية / السجل التجاري</div>
+            <div class="title">{{ contract.partyAId }}</div>
+          </v-flex>
+        </v-layout>
+      </v-card-text>
+    </v-card>
+
+    <!-- Party B Information -->
+    <v-card class="mb-4" elevation="2">
+      <v-card-title class="success white--text">
+        <v-icon left color="white">mdi-account-outline</v-icon>
+        <span class="headline">بيانات الطرف الثاني</span>
+      </v-card-title>
+      <v-card-text class="pa-4">
+        <v-layout row wrap>
+          <v-flex xs12 md6 class="pa-2">
+            <div class="caption grey--text mb-1">الاسم الكامل</div>
+            <div class="title">{{ contract.partyBName }}</div>
+          </v-flex>
+          <v-flex xs12 md6 class="pa-2">
+            <div class="caption grey--text mb-1">رقم الهوية / السجل التجاري</div>
+            <div class="title">{{ contract.partyBId }}</div>
+          </v-flex>
+        </v-layout>
+      </v-card-text>
+    </v-card>
+
+    <!-- Property Details -->
+    <v-card class="mb-4" elevation="2">
+      <v-card-title class="headline">
+        <v-icon left color="info">mdi-information</v-icon>
+        تفاصيل العقد
+      </v-card-title>
+      <v-divider></v-divider>
+      <v-card-text class="pa-4">
+        <v-layout row wrap>
+          <v-flex xs12 class="pa-2 mb-3">
+            <div class="caption grey--text mb-1">وصف العقار / المركبة / العقد</div>
+            <div class="body-1">{{ contract.propertyDescription }}</div>
+          </v-flex>
+          <v-flex xs12 md6 class="pa-2">
+            <div class="caption grey--text mb-1">قيمة العقد</div>
+            <div class="display-1 primary--text">{{ formatCurrency(contract.propertyValue) }}</div>
+          </v-flex>
+          <v-flex xs12 md6 class="pa-2" v-if="contract.notes">
+            <div class="caption grey--text mb-1">ملاحظات</div>
+            <div class="body-1">{{ contract.notes }}</div>
+          </v-flex>
+        </v-layout>
+      </v-card-text>
+    </v-card>
+
+    <!-- Timeline -->
+    <v-card elevation="2">
+      <v-card-title class="headline">
+        <v-icon left color="info">mdi-timeline</v-icon>
+        التسلسل الزمني
+      </v-card-title>
+      <v-divider></v-divider>
+      <v-card-text class="pa-4">
+        <v-timeline dense>
+          <v-timeline-item color="primary" small>
+            <div>
+              <div class="font-weight-bold">إنشاء العقد</div>
+              <div class="caption">{{ formatDateTime(contract.createdDate) }}</div>
+            </div>
+          </v-timeline-item>
+          <v-timeline-item 
+            v-if="contract.verificationDate" 
+            color="success" 
+            icon="mdi-check-circle"
+            small
+          >
+            <div>
+              <div class="font-weight-bold">توثيق العقد</div>
+              <div class="caption">{{ formatDateTime(contract.verificationDate) }}</div>
+            </div>
+          </v-timeline-item>
+        </v-timeline>
+      </v-card-text>
+    </v-card>
+  </template>
+</v-container>
