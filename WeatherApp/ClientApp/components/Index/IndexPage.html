@@ -1,0 +1,170 @@
+<v-container fluid class="page-container">
+  <!-- Page Header -->
+  <v-layout row wrap class="mb-6">
+    <v-flex xs12>
+      <h1 class="display-1 mb-2">تطبيق الطقس - عمان</h1>
+      <p class="subheading grey--text">حالة الطقس الحالية في مدينة عمان، الأردن</p>
+    </v-flex>
+  </v-layout>
+
+  <!-- Loading State -->
+  <div v-if="loading" class="text-center pa-12">
+    <v-progress-circular indeterminate color="primary" size="64"></v-progress-circular>
+    <p class="mt-4 body-1">جاري تحميل بيانات الطقس...</p>
+  </div>
+
+  <!-- Error State -->
+  <div v-else-if="error" class="text-center pa-12">
+    <v-icon size="64" color="error">mdi-alert-circle</v-icon>
+    <p class="title mt-4">حدث خطأ</p>
+    <p class="body-1 grey--text">{{ error }}</p>
+    <v-btn color="primary" outlined class="mt-4" @click="loadWeather">
+      إعادة المحاولة
+    </v-btn>
+  </div>
+
+  <!-- Weather Content -->
+  <v-layout row wrap v-else-if="weatherData">
+    <!-- Main Weather Card -->
+    <v-flex xs12 md8 class="pa-2">
+      <v-card elevation="4" class="card-hover">
+        <v-card-title class="primary white--text">
+          <v-icon left color="white">mdi-map-marker</v-icon>
+          <span class="headline">عمان، الأردن</span>
+          <v-spacer></v-spacer>
+          <v-btn icon @click="loadWeather">
+            <v-icon color="white">mdi-refresh</v-icon>
+          </v-btn>
+        </v-card-title>
+
+        <v-card-text class="pa-6">
+          <!-- Current Temperature -->
+          <v-layout row wrap align-center class="mb-4">
+            <v-flex xs4 sm3 class="text-center">
+              <v-icon :color="getTemperatureColor(weatherData.temperature)" size="80">
+                {{ getWeatherIcon(weatherData.condition) }}
+              </v-icon>
+            </v-flex>
+            <v-flex xs8 sm9>
+              <div :class="`display-3 ${getTemperatureColor(weatherData.temperature)}--text`">
+                {{ Math.round(weatherData.temperature) }}°C
+              </div>
+              <div class="title mt-2">{{ weatherData.condition }}</div>
+              <div class="caption grey--text">
+                يشعر بـ {{ Math.round(weatherData.feelsLike) }}°C
+              </div>
+            </v-flex>
+          </v-layout>
+
+          <v-divider class="my-4"></v-divider>
+
+          <!-- Weather Details Grid -->
+          <v-layout row wrap>
+            <v-flex xs6 sm3 class="pa-3 text-center">
+              <v-icon color="info" size="32">mdi-water-percent</v-icon>
+              <div class="body-2 mt-2">الرطوبة</div>
+              <div class="title">{{ weatherData.humidity }}%</div>
+            </v-flex>
+
+            <v-flex xs6 sm3 class="pa-3 text-center">
+              <v-icon color="primary" size="32">mdi-weather-windy</v-icon>
+              <div class="body-2 mt-2">سرعة الرياح</div>
+              <div class="title">{{ weatherData.windSpeed }} كم/س</div>
+              <div class="caption">{{ getWindDirection(weatherData.windDirection) }}</div>
+            </v-flex>
+
+            <v-flex xs6 sm3 class="pa-3 text-center">
+              <v-icon color="success" size="32">mdi-gauge</v-icon>
+              <div class="body-2 mt-2">الضغط الجوي</div>
+              <div class="title">{{ weatherData.pressure }} هكتوباسكال</div>
+            </v-flex>
+
+            <v-flex xs6 sm3 class="pa-3 text-center">
+              <v-icon color="orange" size="32">mdi-eye</v-icon>
+              <div class="body-2 mt-2">الرؤية</div>
+              <div class="title">{{ weatherData.visibility }} كم</div>
+            </v-flex>
+          </v-layout>
+        </v-card-text>
+      </v-card>
+    </v-flex>
+
+    <!-- Additional Info Sidebar -->
+    <v-flex xs12 md4 class="pa-2">
+      <!-- Sun Times Card -->
+      <v-card elevation="2" class="mb-4">
+        <v-card-title class="headline">
+          <v-icon left color="orange">mdi-white-balance-sunny</v-icon>
+          أوقات الشروق والغروب
+        </v-card-title>
+        <v-divider></v-divider>
+        <v-list>
+          <v-list-item>
+            <v-list-item-avatar>
+              <v-icon color="orange">mdi-weather-sunset-up</v-icon>
+            </v-list-item-avatar>
+            <v-list-item-content>
+              <v-list-item-title>شروق الشمس</v-list-item-title>
+              <v-list-item-subtitle>{{ weatherData.sunrise }}</v-list-item-subtitle>
+            </v-list-item-content>
+          </v-list-item>
+
+          <v-divider inset></v-divider>
+
+          <v-list-item>
+            <v-list-item-avatar>
+              <v-icon color="orange">mdi-weather-sunset-down</v-icon>
+            </v-list-item-avatar>
+            <v-list-item-content>
+              <v-list-item-title>غروب الشمس</v-list-item-title>
+              <v-list-item-subtitle>{{ weatherData.sunset }}</v-list-item-subtitle>
+            </v-list-item-content>
+          </v-list-item>
+        </v-list>
+      </v-card>
+
+      <!-- Temperature Range Card -->
+      <v-card elevation="2">
+        <v-card-title class="headline">
+          <v-icon left color="info">mdi-thermometer</v-icon>
+          نطاق درجات الحرارة
+        </v-card-title>
+        <v-divider></v-divider>
+        <v-card-text class="pa-4">
+          <v-layout row wrap>
+            <v-flex xs6 class="text-center pa-3">
+              <v-icon color="error" size="40">mdi-thermometer-high</v-icon>
+              <div class="caption mt-2">الأعلى</div>
+              <div class="title error--text">{{ Math.round(weatherData.tempMax) }}°C</div>
+            </v-flex>
+            <v-flex xs6 class="text-center pa-3">
+              <v-icon color="info" size="40">mdi-thermometer-low</v-icon>
+              <div class="caption mt-2">الأدنى</div>
+              <div class="title info--text">{{ Math.round(weatherData.tempMin) }}°C</div>
+            </v-flex>
+          </v-layout>
+        </v-card-text>
+      </v-card>
+    </v-flex>
+
+    <!-- Last Updated -->
+    <v-flex xs12 class="pa-2 mt-2">
+      <v-card flat outlined>
+        <v-card-text class="text-center caption grey--text">
+          <v-icon small>mdi-update</v-icon>
+          آخر تحديث: {{ weatherData.timestamp }}
+        </v-card-text>
+      </v-card>
+    </v-flex>
+  </v-layout>
+
+  <!-- Empty State (No Data) -->
+  <div v-else class="text-center pa-12">
+    <v-icon size="64" color="grey lighten-1">mdi-weather-cloudy-alert</v-icon>
+    <p class="title mt-4 grey--text">لا توجد بيانات متاحة</p>
+    <p class="body-1 grey--text">انقر على الزر أدناه لتحميل بيانات الطقس</p>
+    <v-btn color="primary" class="mt-4" @click="loadWeather">
+      تحميل بيانات الطقس
+    </v-btn>
+  </div>
+</v-container>
