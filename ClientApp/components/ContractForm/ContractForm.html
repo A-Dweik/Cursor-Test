@@ -1,0 +1,192 @@
+<v-container fluid class="page-container">
+  <!-- Page Header -->
+  <v-layout row wrap class="mb-4">
+    <v-flex xs12>
+      <h1 class="display-1 mb-2">{{ pageTitle }}</h1>
+      <p class="subheading grey--text">املأ جميع البيانات المطلوبة</p>
+    </v-flex>
+  </v-layout>
+
+  <!-- Loading State -->
+  <div v-if="loading" class="text-center pa-12">
+    <v-progress-circular indeterminate color="primary" size="64"></v-progress-circular>
+    <p class="mt-4 body-1">جاري التحميل...</p>
+  </div>
+
+  <!-- Form -->
+  <v-card elevation="2" v-else>
+    <v-card-text class="pa-4">
+      <v-form ref="form" v-model="valid">
+        <!-- Contract Number -->
+        <v-layout row wrap>
+          <v-flex xs12 md6 class="pa-2">
+            <v-text-field
+              v-model="contract.contractNumber"
+              label="رقم العقد"
+              :rules="[rules.required]"
+              outlined
+              prepend-inner-icon="mdi-file-document"
+              disabled
+            ></v-text-field>
+          </v-flex>
+
+          <v-flex xs12 md6 class="pa-2">
+            <v-text-field
+              v-model="contract.contractDate"
+              label="تاريخ العقد"
+              :rules="[rules.required]"
+              outlined
+              type="date"
+              prepend-inner-icon="mdi-calendar"
+            ></v-text-field>
+          </v-flex>
+        </v-layout>
+
+        <!-- Contract Type and Category -->
+        <v-layout row wrap>
+          <v-flex xs12 md6 class="pa-2">
+            <v-select
+              v-model="contract.contractType"
+              :items="typeOptions"
+              label="نوع العقد"
+              :rules="[rules.required]"
+              outlined
+              prepend-inner-icon="mdi-tag"
+            >
+              <template v-slot:selection="{ item }">
+                <v-icon left>{{ item.icon }}</v-icon>
+                {{ item.text }}
+              </template>
+              <template v-slot:item="{ item }">
+                <v-icon left>{{ item.icon }}</v-icon>
+                {{ item.text }}
+              </template>
+            </v-select>
+          </v-flex>
+
+          <v-flex xs12 md6 class="pa-2">
+            <v-select
+              v-model="contract.contractCategory"
+              :items="categoryOptions"
+              label="نوع المعاملة"
+              :rules="[rules.required]"
+              outlined
+              prepend-inner-icon="mdi-swap-horizontal"
+            ></v-select>
+          </v-flex>
+        </v-layout>
+
+        <v-divider class="my-4"></v-divider>
+
+        <!-- Party A Information -->
+        <h3 class="title mb-3">
+          <v-icon left color="primary">mdi-account</v-icon>
+          بيانات الطرف الأول
+        </h3>
+        <v-layout row wrap>
+          <v-flex xs12 md6 class="pa-2">
+            <v-text-field
+              v-model="contract.partyAName"
+              label="اسم الطرف الأول"
+              :rules="[rules.required, rules.minLength(3)]"
+              outlined
+              prepend-inner-icon="mdi-account"
+            ></v-text-field>
+          </v-flex>
+
+          <v-flex xs12 md6 class="pa-2">
+            <v-text-field
+              v-model="contract.partyAId"
+              label="رقم الهوية / السجل التجاري"
+              :rules="[rules.required, rules.idNumber]"
+              outlined
+              prepend-inner-icon="mdi-card-account-details"
+            ></v-text-field>
+          </v-flex>
+        </v-layout>
+
+        <!-- Party B Information -->
+        <h3 class="title mb-3 mt-4">
+          <v-icon left color="success">mdi-account-outline</v-icon>
+          بيانات الطرف الثاني
+        </h3>
+        <v-layout row wrap>
+          <v-flex xs12 md6 class="pa-2">
+            <v-text-field
+              v-model="contract.partyBName"
+              label="اسم الطرف الثاني"
+              :rules="[rules.required, rules.minLength(3)]"
+              outlined
+              prepend-inner-icon="mdi-account-outline"
+            ></v-text-field>
+          </v-flex>
+
+          <v-flex xs12 md6 class="pa-2">
+            <v-text-field
+              v-model="contract.partyBId"
+              label="رقم الهوية / السجل التجاري"
+              :rules="[rules.required, rules.idNumber]"
+              outlined
+              prepend-inner-icon="mdi-card-account-details-outline"
+            ></v-text-field>
+          </v-flex>
+        </v-layout>
+
+        <v-divider class="my-4"></v-divider>
+
+        <!-- Property Details -->
+        <h3 class="title mb-3">
+          <v-icon left color="info">mdi-information</v-icon>
+          تفاصيل العقد
+        </h3>
+        <v-layout row wrap>
+          <v-flex xs12 class="pa-2">
+            <v-textarea
+              v-model="contract.propertyDescription"
+              label="وصف العقار / المركبة / العقد"
+              :rules="[rules.required, rules.minLength(10)]"
+              outlined
+              rows="3"
+              prepend-inner-icon="mdi-text"
+            ></v-textarea>
+          </v-flex>
+
+          <v-flex xs12 md6 class="pa-2">
+            <v-text-field
+              v-model.number="contract.propertyValue"
+              label="قيمة العقد (ريال سعودي)"
+              :rules="[rules.required, rules.positiveNumber]"
+              outlined
+              type="number"
+              prepend-inner-icon="mdi-cash"
+            ></v-text-field>
+          </v-flex>
+
+          <v-flex xs12 md6 class="pa-2">
+            <v-textarea
+              v-model="contract.notes"
+              label="ملاحظات (اختياري)"
+              outlined
+              rows="3"
+              prepend-inner-icon="mdi-note-text"
+            ></v-textarea>
+          </v-flex>
+        </v-layout>
+      </v-form>
+    </v-card-text>
+
+    <v-divider></v-divider>
+
+    <v-card-actions class="pa-4">
+      <v-spacer></v-spacer>
+      <v-btn large outlined @click="cancel">
+        <v-icon left>mdi-close</v-icon>
+        إلغاء
+      </v-btn>
+      <v-btn large color="primary" :disabled="!valid" @click="submit">
+        <v-icon left>mdi-check</v-icon>
+        {{ submitButtonText }}
+      </v-btn>
+    </v-card-actions>
+  </v-card>
+</v-container>
