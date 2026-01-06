@@ -4,7 +4,7 @@
 
 ### Step 1: Install Dependencies
 ```bash
-cd /workspace/ContractVerification
+cd /workspace
 npm install
 ```
 

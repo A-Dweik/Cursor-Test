@@ -127,7 +127,7 @@
 ## 📁 Project Structure
 
 ```
-ContractVerification/
+/workspace/ (Root Level)
 ├── ClientApp/                          # Frontend Application
 │   ├── assets/styles/                 # Global CSS
 │   │   └── main.css                   # Main styles with BEM patterns
