@@ -1,0 +1,195 @@
+<v-container fluid class="page-container">
+  <!-- Page Header with Back Button -->
+  <v-layout row wrap class="mb-4">
+    <v-flex xs12>
+      <v-btn text @click="goBack" class="mb-2">
+        <v-icon left>mdi-arrow-right</v-icon>
+        العودة للرئيسية
+      </v-btn>
+      <h1 class="display-1 mb-2">الطقس في ألمانيا</h1>
+      <p class="subheading grey--text">معلومات الطقس الحالية والتوقعات</p>
+    </v-flex>
+  </v-layout>
+
+  <!-- City Selector -->
+  <v-layout row wrap class="mb-4">
+    <v-flex xs12 md6>
+      <v-card elevation="2">
+        <v-card-text>
+          <v-select
+            v-model="selectedCity"
+            :items="cities"
+            item-text="name"
+            label="اختر المدينة"
+            return-object
+            @change="onCityChange"
+            prepend-icon="mdi-map-marker"
+            outlined
+          ></v-select>
+        </v-card-text>
+      </v-card>
+    </v-flex>
+  </v-layout>
+
+  <!-- Loading State -->
+  <div v-if="loading" class="text-center pa-12">
+    <v-progress-circular indeterminate color="primary" size="64"></v-progress-circular>
+    <p class="mt-4 body-1">جاري تحميل بيانات الطقس...</p>
+  </div>
+
+  <!-- Error State -->
+  <v-alert v-if="error" type="error" class="mb-4">
+    {{ error }}
+    <v-btn text color="white" @click="loadWeatherData">
+      إعادة المحاولة
+    </v-btn>
+  </v-alert>
+
+  <!-- Weather Content -->
+  <div v-if="!loading && currentWeather">
+    <!-- Current Weather Card -->
+    <v-layout row wrap class="mb-4">
+      <v-flex xs12 md8 lg6 class="mx-auto">
+        <v-card elevation="4" class="primary white--text">
+          <v-card-text class="text-center pa-6">
+            <h2 class="headline mb-2">{{ currentWeather.location }}</h2>
+            <v-icon size="72" color="white" class="weather-icon">
+              {{ currentWeather.icon }}
+            </v-icon>
+            <div class="temperature">{{ currentWeather.temperature }}°C</div>
+            <p class="title mt-2">{{ currentWeather.description }}</p>
+            
+            <v-divider class="my-4" dark></v-divider>
+            
+            <v-layout row wrap class="weather-details">
+              <v-flex xs6 class="weather-detail-item">
+                <v-icon color="white" size="32">mdi-weather-windy</v-icon>
+                <div class="weather-detail-value white--text">{{ currentWeather.windSpeed }} كم/س</div>
+                <div class="weather-detail-label white--text">سرعة الرياح</div>
+              </v-flex>
+              <v-flex xs6 class="weather-detail-item">
+                <v-icon color="white" size="32">mdi-thermometer</v-icon>
+                <div class="weather-detail-value white--text">{{ currentWeather.temperature }}°</div>
+                <div class="weather-detail-label white--text">درجة الحرارة</div>
+              </v-flex>
+            </v-layout>
+          </v-card-text>
+        </v-card>
+      </v-flex>
+    </v-layout>
+
+    <!-- 7-Day Forecast -->
+    <v-layout row wrap>
+      <v-flex xs12>
+        <v-card elevation="2">
+          <v-card-title class="headline">
+            <v-icon left color="primary">mdi-calendar-week</v-icon>
+            توقعات الأسبوع
+          </v-card-title>
+          <v-divider></v-divider>
+          <v-card-text class="pa-0">
+            <v-list two-line>
+              <template v-for="(day, index) in forecast">
+                <v-list-item :key="day.date">
+                  <v-list-item-avatar size="56">
+                    <v-icon size="40" :color="index === 0 ? 'primary' : 'grey'">
+                      {{ day.icon }}
+                    </v-icon>
+                  </v-list-item-avatar>
+
+                  <v-list-item-content>
+                    <v-list-item-title class="font-weight-bold">
+                      {{ getDayName(day.date) }}
+                    </v-list-item-title>
+                    <v-list-item-subtitle>
+                      {{ formatDate(day.date) }} - {{ day.description }}
+                    </v-list-item-subtitle>
+                  </v-list-item-content>
+
+                  <v-list-item-action>
+                    <div class="text-center">
+                      <div class="title primary--text">{{ day.maxTemp }}°</div>
+                      <div class="caption grey--text">{{ day.minTemp }}°</div>
+                    </div>
+                  </v-list-item-action>
+
+                  <v-list-item-action v-if="day.precipitation > 0">
+                    <div class="text-center">
+                      <v-icon small color="info">mdi-water</v-icon>
+                      <div class="caption">{{ day.precipitation.toFixed(1) }} مم</div>
+                    </div>
+                  </v-list-item-action>
+                </v-list-item>
+                <v-divider v-if="index < forecast.length - 1" :key="'divider-' + day.date"></v-divider>
+              </template>
+            </v-list>
+          </v-card-text>
+        </v-card>
+      </v-flex>
+    </v-layout>
+
+    <!-- Weather Tips Card -->
+    <v-layout row wrap class="mt-4">
+      <v-flex xs12 md6 class="pa-2">
+        <v-card elevation="2">
+          <v-card-title class="info white--text">
+            <v-icon left color="white">mdi-lightbulb</v-icon>
+            <span class="headline">نصائح الطقس</span>
+          </v-card-title>
+          <v-card-text class="pa-4">
+            <v-list dense>
+              <v-list-item v-if="currentWeather.temperature < 10">
+                <v-list-item-icon>
+                  <v-icon color="blue">mdi-snowflake</v-icon>
+                </v-list-item-icon>
+                <v-list-item-content>
+                  <v-list-item-title>الطقس بارد - ارتدِ ملابس دافئة</v-list-item-title>
+                </v-list-item-content>
+              </v-list-item>
+              <v-list-item v-if="currentWeather.windSpeed > 30">
+                <v-list-item-icon>
+                  <v-icon color="orange">mdi-weather-windy</v-icon>
+                </v-list-item-icon>
+                <v-list-item-content>
+                  <v-list-item-title>رياح قوية - كن حذراً في الخارج</v-list-item-title>
+                </v-list-item-content>
+              </v-list-item>
+              <v-list-item v-if="currentWeather.weatherCode >= 61">
+                <v-list-item-icon>
+                  <v-icon color="blue">mdi-umbrella</v-icon>
+                </v-list-item-icon>
+                <v-list-item-content>
+                  <v-list-item-title>احتمال هطول أمطار - احمل مظلة</v-list-item-title>
+                </v-list-item-content>
+              </v-list-item>
+            </v-list>
+          </v-card-text>
+        </v-card>
+      </v-flex>
+
+      <v-flex xs12 md6 class="pa-2">
+        <v-card elevation="2">
+          <v-card-title class="success white--text">
+            <v-icon left color="white">mdi-information</v-icon>
+            <span class="headline">معلومات إضافية</span>
+          </v-card-title>
+          <v-card-text class="pa-4">
+            <p class="body-1">
+              <strong>المصدر:</strong> Open-Meteo API
+            </p>
+            <p class="body-1">
+              <strong>آخر تحديث:</strong> {{ new Date().toLocaleTimeString('ar-SA') }}
+            </p>
+            <p class="body-1">
+              <strong>التوقيت:</strong> توقيت برلين (CET/CEST)
+            </p>
+            <v-btn color="success" outlined class="mt-3" @click="loadWeatherData">
+              <v-icon left>mdi-refresh</v-icon>
+              تحديث البيانات
+            </v-btn>
+          </v-card-text>
+        </v-card>
+      </v-flex>
+    </v-layout>
+  </div>
+</v-container>
