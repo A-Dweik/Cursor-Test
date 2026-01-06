@@ -1,0 +1,131 @@
+<v-container fluid class="page-container">
+  <!-- Page Header -->
+  <v-layout row wrap class="mb-6">
+    <v-flex xs12>
+      <h1 class="display-1 mb-2">تطبيق الطقس في ألمانيا</h1>
+      <p class="subheading grey--text">مرحباً بك في تطبيق الطقس الألماني - احصل على معلومات الطقس الدقيقة</p>
+    </v-flex>
+  </v-layout>
+
+  <!-- Main Content -->
+  <v-layout row wrap>
+    <!-- Welcome Card -->
+    <v-flex xs12 md6 class="pa-2">
+      <v-card class="card-hover" elevation="2">
+        <v-card-title class="primary white--text">
+          <v-icon left color="white">mdi-weather-partly-cloudy</v-icon>
+          <span class="headline">مرحباً</span>
+        </v-card-title>
+        <v-card-text class="pa-4">
+          <p class="body-1">
+            مرحباً بك في تطبيق الطقس الألماني. هذا التطبيق يوفر لك معلومات دقيقة عن الطقس في المدن الألمانية المختلفة.
+          </p>
+          <v-btn color="primary" class="mt-3" @click="$router.push('/weather')">
+            <v-icon left>mdi-weather-sunny</v-icon>
+            عرض الطقس الآن
+          </v-btn>
+        </v-card-text>
+      </v-card>
+    </v-flex>
+
+    <!-- Quick Info Card -->
+    <v-flex xs12 md6 class="pa-2">
+      <v-card class="card-hover" elevation="2">
+        <v-card-title class="headline">المعلومات المتوفرة</v-card-title>
+        <v-card-text>
+          <v-layout row wrap>
+            <v-flex xs6 class="text-center pa-4">
+              <v-icon size="48" color="primary">mdi-thermometer</v-icon>
+              <div class="caption grey--text mt-2">درجة الحرارة</div>
+            </v-flex>
+            <v-flex xs6 class="text-center pa-4">
+              <v-icon size="48" color="info">mdi-weather-windy</v-icon>
+              <div class="caption grey--text mt-2">سرعة الرياح</div>
+            </v-flex>
+            <v-flex xs6 class="text-center pa-4">
+              <v-icon size="48" color="success">mdi-weather-rainy</v-icon>
+              <div class="caption grey--text mt-2">الأمطار</div>
+            </v-flex>
+            <v-flex xs6 class="text-center pa-4">
+              <v-icon size="48" color="orange">mdi-calendar-week</v-icon>
+              <div class="caption grey--text mt-2">توقعات 7 أيام</div>
+            </v-flex>
+          </v-layout>
+        </v-card-text>
+      </v-card>
+    </v-flex>
+
+    <!-- Features List -->
+    <v-flex xs12 class="pa-2 mt-4">
+      <v-card elevation="2">
+        <v-card-title class="headline">
+          <v-icon left color="primary">mdi-star</v-icon>
+          الميزات الأساسية
+        </v-card-title>
+        <v-divider></v-divider>
+        <v-list>
+          <v-list-item>
+            <v-list-item-avatar>
+              <v-icon color="primary">mdi-check-circle</v-icon>
+            </v-list-item-avatar>
+            <v-list-item-content>
+              <v-list-item-title>بيانات دقيقة وموثوقة</v-list-item-title>
+              <v-list-item-subtitle>بيانات مباشرة من مصادر موثوقة</v-list-item-subtitle>
+            </v-list-item-content>
+          </v-list-item>
+
+          <v-divider inset></v-divider>
+
+          <v-list-item>
+            <v-list-item-avatar>
+              <v-icon color="success">mdi-update</v-icon>
+            </v-list-item-avatar>
+            <v-list-item-content>
+              <v-list-item-title>تحديث مستمر</v-list-item-title>
+              <v-list-item-subtitle>معلومات محدثة بشكل دوري</v-list-item-subtitle>
+            </v-list-item-content>
+          </v-list-item>
+
+          <v-divider inset></v-divider>
+
+          <v-list-item>
+            <v-list-item-avatar>
+              <v-icon color="info">mdi-chart-line</v-icon>
+            </v-list-item-avatar>
+            <v-list-item-content>
+              <v-list-item-title>توقعات مفصلة</v-list-item-title>
+              <v-list-item-subtitle>توقعات الطقس لمدة أسبوع كامل</v-list-item-subtitle>
+            </v-list-item-content>
+          </v-list-item>
+
+          <v-divider inset></v-divider>
+
+          <v-list-item>
+            <v-list-item-avatar>
+              <v-icon color="orange">mdi-map-marker</v-icon>
+            </v-list-item-avatar>
+            <v-list-item-content>
+              <v-list-item-title>مدن ألمانية متعددة</v-list-item-title>
+              <v-list-item-subtitle>تغطية شاملة للمدن الألمانية الرئيسية</v-list-item-subtitle>
+            </v-list-item-content>
+          </v-list-item>
+        </v-list>
+      </v-card>
+    </v-flex>
+
+    <!-- Quick Start Card -->
+    <v-flex xs12 class="pa-2 mt-4">
+      <v-card elevation="2" color="blue-grey lighten-5">
+        <v-card-text class="text-center pa-6">
+          <v-icon size="64" color="primary">mdi-compass</v-icon>
+          <h2 class="title mt-4 mb-2">جاهز للبدء؟</h2>
+          <p class="body-1 mb-4">انقر على الزر أدناه لعرض معلومات الطقس الحالية</p>
+          <v-btn large color="primary" @click="$router.push('/weather')">
+            <v-icon left>mdi-arrow-left</v-icon>
+            ابدأ الآن
+          </v-btn>
+        </v-card-text>
+      </v-card>
+    </v-flex>
+  </v-layout>
+</v-container>
