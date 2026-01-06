@@ -1,0 +1,14 @@
+{
+  "ApplicationInsights": {
+    "InstrumentationKey": "",
+    "ApplicationName": "WeatherApp"
+  },
+  "Recaptcha": {
+    "SiteKey": "6LcD1bkUAAAAABM1N9Iq2eDrmPzmXPWfCVFaJh4_"
+  },
+  "Weather": {
+    "ApiKey": "demo",
+    "City": "Amman",
+    "Country": "JO"
+  }
+}
