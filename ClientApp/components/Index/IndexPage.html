@@ -1,0 +1,258 @@
+<v-container fluid class="page-container">
+  <!-- Page Header -->
+  <v-layout row wrap class="mb-6">
+    <v-flex xs12>
+      <h1 class="display-1 mb-2">نظام توثيق العقود</h1>
+      <p class="subheading grey--text">نظام متكامل لتوثيق عقود بيع وتأجير السيارات والمنازل</p>
+    </v-flex>
+  </v-layout>
+
+  <!-- Loading State -->
+  <div v-if="loading" class="text-center pa-12">
+    <v-progress-circular indeterminate color="primary"></v-progress-circular>
+    <p class="mt-4 body-1">جاري التحميل...</p>
+  </div>
+
+  <!-- Main Content -->
+  <div v-else>
+    <!-- Statistics Cards -->
+    <v-layout row wrap class="mb-4">
+      <!-- Total Contracts -->
+      <v-flex xs12 sm6 md3 class="pa-2">
+        <v-card class="card-hover" elevation="2">
+          <v-card-text class="pa-4">
+            <v-layout align-center>
+              <v-flex xs3>
+                <v-icon size="48" color="primary">mdi-file-document-multiple</v-icon>
+              </v-flex>
+              <v-flex xs9 class="text-left">
+                <div class="display-1 primary--text">{{totalContracts}}</div>
+                <div class="caption grey--text">إجمالي العقود</div>
+              </v-flex>
+            </v-layout>
+          </v-card-text>
+        </v-card>
+      </v-flex>
+
+      <!-- Sale Contracts -->
+      <v-flex xs12 sm6 md3 class="pa-2">
+        <v-card class="card-hover" elevation="2">
+          <v-card-text class="pa-4">
+            <v-layout align-center>
+              <v-flex xs3>
+                <v-icon size="48" color="success">mdi-cash</v-icon>
+              </v-flex>
+              <v-flex xs9 class="text-left">
+                <div class="display-1 success--text">{{saleContracts}}</div>
+                <div class="caption grey--text">عقود البيع</div>
+              </v-flex>
+            </v-layout>
+          </v-card-text>
+        </v-card>
+      </v-flex>
+
+      <!-- Rental Contracts -->
+      <v-flex xs12 sm6 md3 class="pa-2">
+        <v-card class="card-hover" elevation="2">
+          <v-card-text class="pa-4">
+            <v-layout align-center>
+              <v-flex xs3>
+                <v-icon size="48" color="info">mdi-home-currency-usd</v-icon>
+              </v-flex>
+              <v-flex xs9 class="text-left">
+                <div class="display-1 info--text">{{rentalContracts}}</div>
+                <div class="caption grey--text">عقود التأجير</div>
+              </v-flex>
+            </v-layout>
+          </v-card-text>
+        </v-card>
+      </v-flex>
+
+      <!-- Active Status -->
+      <v-flex xs12 sm6 md3 class="pa-2">
+        <v-card class="card-hover" elevation="2">
+          <v-card-text class="pa-4">
+            <v-layout align-center>
+              <v-flex xs3>
+                <v-icon size="48" color="success">mdi-check-circle</v-icon>
+              </v-flex>
+              <v-flex xs9 class="text-left">
+                <div class="display-1 success--text">{{totalContracts}}</div>
+                <div class="caption grey--text">العقود النشطة</div>
+              </v-flex>
+            </v-layout>
+          </v-card-text>
+        </v-card>
+      </v-flex>
+    </v-layout>
+
+    <!-- Asset Type Statistics -->
+    <v-layout row wrap class="mb-4">
+      <v-flex xs12 md6 class="pa-2">
+        <v-card elevation="2">
+          <v-card-title class="headline primary white--text">
+            <v-icon left color="white">mdi-car</v-icon>
+            عقود السيارات
+          </v-card-title>
+          <v-card-text class="pa-4">
+            <div class="display-2 text-center primary--text mb-2">{{carContracts}}</div>
+            <div class="body-1 text-center grey--text">عقد سيارة مسجل</div>
+          </v-card-text>
+        </v-card>
+      </v-flex>
+
+      <v-flex xs12 md6 class="pa-2">
+        <v-card elevation="2">
+          <v-card-title class="headline info white--text">
+            <v-icon left color="white">mdi-home</v-icon>
+            عقود المنازل
+          </v-card-title>
+          <v-card-text class="pa-4">
+            <div class="display-2 text-center info--text mb-2">{{houseContracts}}</div>
+            <div class="body-1 text-center grey--text">عقد منزل مسجل</div>
+          </v-card-text>
+        </v-card>
+      </v-flex>
+    </v-layout>
+
+    <!-- Action Buttons -->
+    <v-layout row wrap class="mb-4">
+      <v-flex xs12 class="pa-2">
+        <v-card elevation="2">
+          <v-card-text class="pa-4">
+            <v-layout row wrap justify-center>
+              <v-flex xs12 sm6 md4 class="pa-2">
+                <v-btn block large color="primary" @click="navigateToAddContract">
+                  <v-icon left>mdi-plus</v-icon>
+                  إضافة عقد جديد
+                </v-btn>
+              </v-flex>
+              <v-flex xs12 sm6 md4 class="pa-2">
+                <v-btn block large outlined color="primary" @click="navigateToContracts">
+                  <v-icon left>mdi-file-document-multiple</v-icon>
+                  عرض جميع العقود
+                </v-btn>
+              </v-flex>
+            </v-layout>
+          </v-card-text>
+        </v-card>
+      </v-flex>
+    </v-layout>
+
+    <!-- Recent Contracts -->
+    <v-layout row wrap>
+      <v-flex xs12 class="pa-2">
+        <v-card elevation="2">
+          <v-card-title class="headline">
+            <v-icon left color="primary">mdi-clock-outline</v-icon>
+            أحدث العقود
+          </v-card-title>
+          <v-divider></v-divider>
+
+          <!-- Empty State -->
+          <div v-if="recentContracts.length === 0" class="empty-state">
+            <v-icon size="64" color="grey lighten-1">mdi-inbox</v-icon>
+            <p class="title mt-4 grey--text">لا توجد عقود مسجلة</p>
+            <p class="body-1 grey--text">قم بإضافة عقد جديد للبدء</p>
+            <v-btn color="primary" class="mt-4" @click="navigateToAddContract">
+              <v-icon left>mdi-plus</v-icon>
+              إضافة عقد جديد
+            </v-btn>
+          </div>
+
+          <!-- Contracts List -->
+          <v-list v-else two-line>
+            <template v-for="(contract, index) in recentContracts">
+              <v-list-item :key="contract.id" @click="viewContract(contract)">
+                <v-list-item-avatar>
+                  <v-icon :color="contract.contractType === 'sale' ? 'success' : 'info'">
+                    {{getAssetTypeIcon(contract.assetType)}}
+                  </v-icon>
+                </v-list-item-avatar>
+
+                <v-list-item-content>
+                  <v-list-item-title>
+                    <strong>{{contract.assetName}}</strong>
+                    <span class="mx-2">-</span>
+                    <span :class="'status--text status--rounded status--' + (contract.contractType === 'sale' ? 'green' : 'blue')">
+                      {{getContractTypeText(contract.contractType)}}
+                    </span>
+                  </v-list-item-title>
+                  <v-list-item-subtitle>
+                    الطرف الأول: {{contract.firstPartyName}} | الطرف الثاني: {{contract.secondPartyName}}
+                  </v-list-item-subtitle>
+                  <v-list-item-subtitle class="caption">
+                    <v-icon small>mdi-calendar</v-icon>
+                    {{formatDate(contract.contractDate)}}
+                    <span class="mx-2">|</span>
+                    <v-icon small>mdi-cash</v-icon>
+                    {{contract.amount.toLocaleString('ar-SA')}} ريال
+                  </v-list-item-subtitle>
+                </v-list-item-content>
+
+                <v-list-item-action>
+                  <v-btn icon>
+                    <v-icon color="primary">mdi-chevron-left</v-icon>
+                  </v-btn>
+                </v-list-item-action>
+              </v-list-item>
+
+              <v-divider v-if="index < recentContracts.length - 1" :key="'divider-' + index" inset></v-divider>
+            </template>
+          </v-list>
+
+          <v-card-actions v-if="recentContracts.length > 0">
+            <v-spacer></v-spacer>
+            <v-btn text color="primary" @click="navigateToContracts">
+              عرض جميع العقود
+              <v-icon left>mdi-arrow-left</v-icon>
+            </v-btn>
+          </v-card-actions>
+        </v-card>
+      </v-flex>
+    </v-layout>
+
+    <!-- Features Section -->
+    <v-layout row wrap class="mt-4">
+      <v-flex xs12 class="pa-2">
+        <v-card elevation="2">
+          <v-card-title class="headline">مميزات النظام</v-card-title>
+          <v-divider></v-divider>
+          <v-layout row wrap class="pa-3">
+            <v-flex xs12 sm6 md3 class="pa-2">
+              <div class="text-center">
+                <v-icon size="48" color="primary">mdi-file-document-edit</v-icon>
+                <h3 class="title mt-2">توثيق سريع</h3>
+                <p class="body-2 grey--text">إضافة وتوثيق العقود بسهولة</p>
+              </div>
+            </v-flex>
+
+            <v-flex xs12 sm6 md3 class="pa-2">
+              <div class="text-center">
+                <v-icon size="48" color="success">mdi-shield-check</v-icon>
+                <h3 class="title mt-2">آمن وموثوق</h3>
+                <p class="body-2 grey--text">حفظ البيانات بشكل آمن</p>
+              </div>
+            </v-flex>
+
+            <v-flex xs12 sm6 md3 class="pa-2">
+              <div class="text-center">
+                <v-icon size="48" color="info">mdi-magnify</v-icon>
+                <h3 class="title mt-2">بحث متقدم</h3>
+                <p class="body-2 grey--text">البحث والفلترة السريعة</p>
+              </div>
+            </v-flex>
+
+            <v-flex xs12 sm6 md3 class="pa-2">
+              <div class="text-center">
+                <v-icon size="48" color="error">mdi-chart-line</v-icon>
+                <h3 class="title mt-2">إحصائيات شاملة</h3>
+                <p class="body-2 grey--text">تقارير وإحصائيات دقيقة</p>
+              </div>
+            </v-flex>
+          </v-layout>
+        </v-card>
+      </v-flex>
+    </v-layout>
+  </div>
+</v-container>

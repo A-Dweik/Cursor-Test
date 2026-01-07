@@ -1,59 +1,267 @@
-# AmmanWeather
+# نظام توثيق العقود - Contract Documentation System
 
-This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 21.0.2.
+تطبيق ويب متكامل لتوثيق عقود بيع وتأجير السيارات والمنازل، تم إنشاؤه باستخدام Najiz.MicroTemplate.
 
-## Development server
+## المميزات الرئيسية
 
-To start a local development server, run:
+### إدارة العقود
+- ✅ **إضافة عقود جديدة**: إنشاء عقود بيع وتأجير للسيارات والمنازل
+- ✅ **عرض وتعديل العقود**: عرض تفاصيل كاملة وإمكانية التعديل
+- ✅ **حذف العقود**: حذف العقود مع تأكيد الإجراء
+- ✅ **البحث والفلترة**: البحث في العقود والفلترة حسب النوع والحالة
 
-```bash
-ng serve
+### أنواع العقود المدعومة
+1. **عقود البيع**
+   - بيع السيارات
+   - بيع المنازل
+
+2. **عقود التأجير**
+   - تأجير السيارات
+   - تأجير المنازل
+   - تحديد مدة التأجير وتاريخ البداية والنهاية
+
+### لوحة المعلومات
+- 📊 إحصائيات شاملة للعقود
+- 📈 عرض أحدث العقود
+- 🎯 مؤشرات الأداء الرئيسية
+
+## التقنيات المستخدمة
+
+### Backend
+- **ASP.NET Core 3.1**
+- **C#**
+- **Najiz Framework 3.55.3**
+
+### Frontend
+- **Vue.js 2.6**
+- **TypeScript 4.5.5**
+- **Vuetify 1.5** (Material Design)
+- **Vue Router**
+- **Vue DI Container**
+
+### الأدوات
+- **npm** لإدارة الحزم
+- **Webpack** للبناء
+- **Vue CLI 3.10**
+- **Babel** للتوافق
+
+## البنية التقنية
+
+```
+ContractApp/
+├── ClientApp/               # تطبيق Vue.js
+│   ├── assets/             # الأصول (CSS, images)
+│   ├── components/         # مكونات Vue
+│   │   ├── App/           # المكون الرئيسي
+│   │   ├── Index/         # لوحة المعلومات
+│   │   └── Contracts/     # مكونات إدارة العقود
+│   ├── Models/            # نماذج البيانات TypeScript
+│   ├── Services/          # خدمات الأعمال
+│   ├── plugins/           # إضافات Vue
+│   └── shared/            # الأدوات المشتركة
+├── Config/                # ملفات التكوين
+├── Pages/                 # صفحات Razor
+├── Properties/            # إعدادات المشروع
+└── public/               # الملفات العامة
+
 ```
 
-Once the server is running, open your browser and navigate to `http://localhost:4200/`. The application will automatically reload whenever you modify any of the source files.
+## التثبيت والتشغيل
 
-## Code scaffolding
+### المتطلبات
+- Node.js 12+
+- npm 6+
+- .NET Core SDK 3.1
+- Visual Studio 2019+ أو VS Code
 
-Angular CLI includes powerful code scaffolding tools. To generate a new component, run:
+### خطوات التثبيت
 
+1. **استنساخ المشروع**
 ```bash
-ng generate component component-name
+git clone <repository-url>
+cd ContractApp
 ```
 
-For a complete list of available schematics (such as `components`, `directives`, or `pipes`), run:
-
+2. **تثبيت حزم npm**
 ```bash
-ng generate --help
+npm install
 ```
 
-## Building
-
-To build the project run:
-
+3. **بناء Frontend**
 ```bash
-ng build
+npm run build
 ```
 
-This will compile your project and store the build artifacts in the `dist/` directory. By default, the production build optimizes your application for performance and speed.
-
-## Running unit tests
-
-To execute unit tests with the [Vitest](https://vitest.dev/) test runner, use the following command:
-
+4. **استعادة حزم NuGet**
 ```bash
-ng test
+dotnet restore
 ```
 
-## Running end-to-end tests
-
-For end-to-end (e2e) testing, run:
-
+5. **تشغيل التطبيق**
 ```bash
-ng e2e
+dotnet run
 ```
 
-Angular CLI does not come with an end-to-end testing framework by default. You can choose one that suits your needs.
+6. **فتح المتصفح**
+```
+http://localhost:5000/applications/contractapp/
+```
 
-## Additional Resources
+### أوامر التطوير
 
-For more information on using the Angular CLI, including detailed command references, visit the [Angular CLI Overview and Command Reference](https://angular.dev/tools/cli) page.
+```bash
+# تشغيل خادم التطوير
+npm run serve
+
+# بناء للإنتاج
+npm run build
+
+# فحص الأكواد
+npm run lint
+
+# مراقبة التغييرات
+npm run watch
+```
+
+## البيانات التخزينية
+
+⚠️ **ملاحظة هامة**: هذا التطبيق يستخدم التخزين في الذاكرة (In-Memory) للبيانات.
+
+- جميع البيانات تُحفظ في الذاكرة فقط
+- البيانات تُفقد عند إعادة تشغيل التطبيق
+- يوجد 3 عقود نموذجية للتجربة
+- مناسب للعروض التوضيحية والتطوير
+
+### للإنتاج
+لاستخدام قاعدة بيانات حقيقية، يجب:
+1. إضافة Entity Framework Core
+2. إنشاء DbContext
+3. تحديث ContractService للاتصال بقاعدة البيانات
+4. إضافة Migrations
+
+## هيكل البيانات
+
+### ContractModel
+```typescript
+{
+  id: string;                    // معرف فريد
+  contractNumber: string;        // رقم العقد
+  contractDate: string;          // تاريخ العقد
+  contractType: 'sale' | 'rental';  // نوع العقد
+  assetType: 'car' | 'house';    // نوع الأصل
+  assetName: string;             // اسم الأصل
+  assetDetails: string;          // تفاصيل الأصل
+  firstPartyName: string;        // اسم الطرف الأول
+  firstPartyId: string;          // رقم هوية الطرف الأول
+  firstPartyPhone: string;       // جوال الطرف الأول
+  secondPartyName: string;       // اسم الطرف الثاني
+  secondPartyId: string;         // رقم هوية الطرف الثاني
+  secondPartyPhone: string;      // جوال الطرف الثاني
+  amount: number;                // المبلغ
+  paymentMethod: string;         // طريقة الدفع
+  duration?: string;             // مدة التأجير (للتأجير فقط)
+  startDate?: string;            // تاريخ البداية (للتأجير فقط)
+  endDate?: string;              // تاريخ النهاية (للتأجير فقط)
+  notes: string;                 // ملاحظات
+  status: 'active' | 'completed' | 'cancelled';  // حالة العقد
+  createdDate: string;           // تاريخ الإنشاء
+  updatedDate: string;           // تاريخ آخر تحديث
+}
+```
+
+## المميزات التقنية
+
+### ✅ أمان المحتوى (CSP Compliant)
+- جميع الأصول محملة محلياً عبر npm
+- لا توجد روابط CDN خارجية (ما عدا Google Fonts)
+- الأيقونات محملة من @mdi/font محلياً
+
+### ✅ دعم RTL كامل
+- واجهة عربية بالكامل
+- دعم الاتجاه من اليمين لليسار
+- خطوط عربية (Tajawal)
+
+### ✅ تصميم متجاوب
+- يعمل على جميع الأجهزة
+- تخطيط مرن (Mobile-first)
+- نظام شبكي Vuetify 12-column
+
+### ✅ واجهة مستخدم احترافية
+- Material Design
+- رسوم متحركة سلسة
+- تصميم بطاقات (Cards)
+- مؤشرات حالة ملونة
+
+### ✅ تجربة مستخدم ممتازة
+- تحميل سريع
+- رسائل تأكيد
+- حالات فارغة واضحة
+- رسائل خطأ مفيدة
+
+## الصفحات الرئيسية
+
+1. **الصفحة الرئيسية** (`/`)
+   - لوحة معلومات شاملة
+   - إحصائيات العقود
+   - أحدث العقود
+   - إجراءات سريعة
+
+2. **قائمة العقود** (`/contracts`)
+   - جدول بيانات قابل للفرز
+   - بحث وفلترة
+   - إجراءات سريعة (عرض/تعديل/حذف)
+
+3. **إضافة عقد** (`/contracts/add`)
+   - نموذج شامل
+   - التحقق من البيانات
+   - حقول ديناميكية حسب نوع العقد
+
+4. **عرض العقد** (`/contracts/:id`)
+   - عرض تفاصيل كاملة
+   - معلومات الطرفين
+   - تفاصيل مالية
+   - معلومات التأجير (إن وجدت)
+
+5. **تعديل العقد** (`/contracts/:id/edit`)
+   - نفس نموذج الإضافة
+   - بيانات محملة مسبقاً
+   - تحديث فوري
+
+## الأمان
+
+- ✅ التحقق من البيانات في Frontend و Backend
+- ✅ Content Security Policy (CSP) متوافق
+- ✅ لا توجد ثغرات XSS
+- ✅ التحقق من صحة رقم الهوية (10 أرقام)
+- ✅ التحقق من صحة رقم الجوال (يبدأ بـ 05)
+
+## التطوير المستقبلي
+
+### مقترحات للتحسين
+- [ ] إضافة قاعدة بيانات حقيقية
+- [ ] إضافة مصادقة المستخدمين
+- [ ] إضافة صلاحيات المستخدمين
+- [ ] طباعة العقود PDF
+- [ ] رفع مرفقات للعقود
+- [ ] إشعارات البريد الإلكتروني
+- [ ] تصدير التقارير Excel
+- [ ] تكامل مع التوقيع الإلكتروني
+- [ ] نسخ احتياطي تلقائي
+- [ ] سجل التعديلات (Audit Log)
+
+## الدعم
+
+للأسئلة والمساعدة:
+- البريد الإلكتروني: support@najiz.sa
+- الموقع: https://najiz.sa
+- التوثيق: [Najiz Framework Documentation]
+
+## الترخيص
+
+هذا المشروع محمي بموجب حقوق الملكية الخاصة بـ Najiz Platform.
+
+---
+
+**تم الإنشاء بواسطة**: Najiz AI Cloud Agent  
+**التاريخ**: يناير 2026  
+**الإصدار**: 1.0.0
