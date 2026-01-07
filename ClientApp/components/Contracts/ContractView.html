@@ -1,0 +1,292 @@
+<v-container fluid class="page-container">
+  <!-- Loading State -->
+  <div v-if="loading" class="text-center pa-12">
+    <v-progress-circular indeterminate color="primary"></v-progress-circular>
+    <p class="mt-4 body-1">جاري التحميل...</p>
+  </div>
+
+  <!-- Contract Details -->
+  <div v-else-if="contract">
+    <!-- Page Header -->
+    <v-layout row wrap class="mb-4">
+      <v-flex xs12>
+        <v-layout align-center>
+          <v-flex xs12 sm8>
+            <v-btn icon @click="backToList" class="ml-2">
+              <v-icon>mdi-arrow-right</v-icon>
+            </v-btn>
+            <h1 class="display-1 d-inline">تفاصيل العقد</h1>
+            <p class="subheading grey--text mt-2">عرض معلومات العقد الكاملة</p>
+          </v-flex>
+          <v-flex xs12 sm4 class="text-left">
+            <v-btn color="success" @click="editContract" class="ml-2">
+              <v-icon left>mdi-pencil</v-icon>
+              تعديل
+            </v-btn>
+            <v-btn color="error" outlined @click="confirmDelete">
+              <v-icon left>mdi-delete</v-icon>
+              حذف
+            </v-btn>
+          </v-flex>
+        </v-layout>
+      </v-flex>
+    </v-layout>
+
+    <!-- Contract Overview Card -->
+    <v-layout row wrap class="mb-4">
+      <v-flex xs12>
+        <v-card elevation="2" class="primary white--text">
+          <v-card-text class="pa-4">
+            <v-layout row wrap align-center>
+              <v-flex xs12 md8>
+                <h2 class="headline mb-2">{{contract.assetName}}</h2>
+                <p class="body-1 mb-2">
+                  <v-icon color="white" small>mdi-pound</v-icon>
+                  رقم العقد: <strong>{{contract.contractNumber}}</strong>
+                </p>
+                <p class="body-1">
+                  <v-icon color="white" small>mdi-calendar</v-icon>
+                  تاريخ العقد: <strong>{{formatDate(contract.contractDate)}}</strong>
+                </p>
+              </v-flex>
+              <v-flex xs12 md4 class="text-center">
+                <v-icon size="80" color="white">
+                  {{contract.assetType === 'car' ? 'mdi-car' : 'mdi-home'}}
+                </v-icon>
+              </v-flex>
+            </v-layout>
+          </v-card-text>
+        </v-card>
+      </v-flex>
+    </v-layout>
+
+    <!-- Contract Information Grid -->
+    <v-layout row wrap>
+      <!-- Contract Type & Status -->
+      <v-flex xs12 md6 class="pa-2">
+        <v-card elevation="2">
+          <v-card-title class="headline">معلومات العقد</v-card-title>
+          <v-divider></v-divider>
+          <v-card-text>
+            <v-layout row wrap>
+              <v-flex xs6 class="pa-2">
+                <p class="caption grey--text mb-1">نوع العقد</p>
+                <span :class="contract.contractType === 'sale' ? 'status--text status--rounded status--green' : 'status--text status--rounded status--blue'">
+                  {{getContractTypeText(contract.contractType)}}
+                </span>
+              </v-flex>
+              <v-flex xs6 class="pa-2">
+                <p class="caption grey--text mb-1">نوع الأصل</p>
+                <p class="body-1">
+                  <v-icon :color="contract.assetType === 'car' ? 'primary' : 'info'" small>
+                    {{contract.assetType === 'car' ? 'mdi-car' : 'mdi-home'}}
+                  </v-icon>
+                  {{getAssetTypeText(contract.assetType)}}
+                </p>
+              </v-flex>
+              <v-flex xs12 class="pa-2">
+                <p class="caption grey--text mb-1">الحالة</p>
+                <span :class="getStatusClass(contract.status)">
+                  {{getStatusText(contract.status)}}
+                </span>
+              </v-flex>
+              <v-flex xs12 class="pa-2">
+                <p class="caption grey--text mb-1">تفاصيل الأصل</p>
+                <p class="body-1">{{contract.assetDetails}}</p>
+              </v-flex>
+            </v-layout>
+          </v-card-text>
+        </v-card>
+      </v-flex>
+
+      <!-- Financial Information -->
+      <v-flex xs12 md6 class="pa-2">
+        <v-card elevation="2">
+          <v-card-title class="headline">المعلومات المالية</v-card-title>
+          <v-divider></v-divider>
+          <v-card-text>
+            <v-layout row wrap>
+              <v-flex xs12 class="pa-2">
+                <p class="caption grey--text mb-1">المبلغ الإجمالي</p>
+                <h2 class="display-1 success--text">{{formatAmount(contract.amount)}}</h2>
+              </v-flex>
+              <v-flex xs12 class="pa-2">
+                <p class="caption grey--text mb-1">طريقة الدفع</p>
+                <p class="body-1">
+                  <v-icon color="primary" small>mdi-credit-card</v-icon>
+                  {{contract.paymentMethod}}
+                </p>
+              </v-flex>
+            </v-layout>
+          </v-card-text>
+        </v-card>
+      </v-flex>
+
+      <!-- First Party Information -->
+      <v-flex xs12 md6 class="pa-2">
+        <v-card elevation="2">
+          <v-card-title class="headline">
+            <v-icon left color="primary">mdi-account</v-icon>
+            الطرف الأول
+          </v-card-title>
+          <v-divider></v-divider>
+          <v-card-text>
+            <v-layout row wrap>
+              <v-flex xs12 class="pa-2">
+                <p class="caption grey--text mb-1">الاسم</p>
+                <p class="body-1"><strong>{{contract.firstPartyName}}</strong></p>
+              </v-flex>
+              <v-flex xs12 class="pa-2">
+                <p class="caption grey--text mb-1">رقم الهوية</p>
+                <p class="body-1">
+                  <v-icon small>mdi-card-account-details</v-icon>
+                  {{contract.firstPartyId}}
+                </p>
+              </v-flex>
+              <v-flex xs12 class="pa-2">
+                <p class="caption grey--text mb-1">رقم الجوال</p>
+                <p class="body-1">
+                  <v-icon small>mdi-phone</v-icon>
+                  {{contract.firstPartyPhone}}
+                </p>
+              </v-flex>
+            </v-layout>
+          </v-card-text>
+        </v-card>
+      </v-flex>
+
+      <!-- Second Party Information -->
+      <v-flex xs12 md6 class="pa-2">
+        <v-card elevation="2">
+          <v-card-title class="headline">
+            <v-icon left color="info">mdi-account-multiple</v-icon>
+            الطرف الثاني
+          </v-card-title>
+          <v-divider></v-divider>
+          <v-card-text>
+            <v-layout row wrap>
+              <v-flex xs12 class="pa-2">
+                <p class="caption grey--text mb-1">الاسم</p>
+                <p class="body-1"><strong>{{contract.secondPartyName}}</strong></p>
+              </v-flex>
+              <v-flex xs12 class="pa-2">
+                <p class="caption grey--text mb-1">رقم الهوية</p>
+                <p class="body-1">
+                  <v-icon small>mdi-card-account-details</v-icon>
+                  {{contract.secondPartyId}}
+                </p>
+              </v-flex>
+              <v-flex xs12 class="pa-2">
+                <p class="caption grey--text mb-1">رقم الجوال</p>
+                <p class="body-1">
+                  <v-icon small>mdi-phone</v-icon>
+                  {{contract.secondPartyPhone}}
+                </p>
+              </v-flex>
+            </v-layout>
+          </v-card-text>
+        </v-card>
+      </v-flex>
+
+      <!-- Rental Information (if applicable) -->
+      <v-flex xs12 class="pa-2" v-if="isRentalContract">
+        <v-card elevation="2" color="blue lighten-5">
+          <v-card-title class="headline info white--text">
+            <v-icon left color="white">mdi-calendar-range</v-icon>
+            معلومات التأجير
+          </v-card-title>
+          <v-divider></v-divider>
+          <v-card-text>
+            <v-layout row wrap>
+              <v-flex xs12 md4 class="pa-2">
+                <p class="caption grey--text mb-1">مدة التأجير</p>
+                <p class="body-1">
+                  <v-icon small>mdi-clock-outline</v-icon>
+                  {{contract.duration || 'غير محدد'}}
+                </p>
+              </v-flex>
+              <v-flex xs12 md4 class="pa-2">
+                <p class="caption grey--text mb-1">تاريخ البداية</p>
+                <p class="body-1">
+                  <v-icon small>mdi-calendar-start</v-icon>
+                  {{contract.startDate ? formatDate(contract.startDate) : 'غير محدد'}}
+                </p>
+              </v-flex>
+              <v-flex xs12 md4 class="pa-2">
+                <p class="caption grey--text mb-1">تاريخ النهاية</p>
+                <p class="body-1">
+                  <v-icon small>mdi-calendar-end</v-icon>
+                  {{contract.endDate ? formatDate(contract.endDate) : 'غير محدد'}}
+                </p>
+              </v-flex>
+            </v-layout>
+          </v-card-text>
+        </v-card>
+      </v-flex>
+
+      <!-- Notes -->
+      <v-flex xs12 class="pa-2" v-if="contract.notes">
+        <v-card elevation="2">
+          <v-card-title class="headline">
+            <v-icon left color="primary">mdi-note-text</v-icon>
+            ملاحظات
+          </v-card-title>
+          <v-divider></v-divider>
+          <v-card-text>
+            <p class="body-1">{{contract.notes}}</p>
+          </v-card-text>
+        </v-card>
+      </v-flex>
+
+      <!-- Metadata -->
+      <v-flex xs12 class="pa-2">
+        <v-card elevation="1" flat color="grey lighten-4">
+          <v-card-text>
+            <v-layout row wrap>
+              <v-flex xs12 md6 class="pa-2">
+                <p class="caption grey--text">
+                  <v-icon small>mdi-clock</v-icon>
+                  تاريخ الإنشاء: {{formatDate(contract.createdDate)}}
+                </p>
+              </v-flex>
+              <v-flex xs12 md6 class="pa-2">
+                <p class="caption grey--text">
+                  <v-icon small>mdi-update</v-icon>
+                  آخر تحديث: {{formatDate(contract.updatedDate)}}
+                </p>
+              </v-flex>
+            </v-layout>
+          </v-card-text>
+        </v-card>
+      </v-flex>
+    </v-layout>
+  </div>
+
+  <!-- Delete Confirmation Dialog -->
+  <v-dialog v-model="deleteDialog" max-width="500">
+    <v-card>
+      <v-card-title class="headline error white--text">
+        <v-icon left color="white">mdi-alert</v-icon>
+        تأكيد الحذف
+      </v-card-title>
+      <v-card-text class="pa-4">
+        <p class="body-1 mt-3">
+          هل أنت متأكد من حذف هذا العقد؟
+        </p>
+        <p class="body-2 grey--text" v-if="contract">
+          <strong>رقم العقد:</strong> {{contract.contractNumber}}<br>
+          <strong>الأصل:</strong> {{contract.assetName}}
+        </p>
+        <p class="body-2 error--text">
+          <v-icon small color="error">mdi-alert</v-icon>
+          لا يمكن التراجع عن هذا الإجراء
+        </p>
+      </v-card-text>
+      <v-card-actions>
+        <v-spacer></v-spacer>
+        <v-btn text @click="deleteDialog = false">إلغاء</v-btn>
+        <v-btn color="error" @click="deleteContract">حذف</v-btn>
+      </v-card-actions>
+    </v-card>
+  </v-dialog>
+</v-container>
