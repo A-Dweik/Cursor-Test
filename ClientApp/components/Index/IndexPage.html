@@ -1,0 +1,312 @@
+<v-container fluid class="page-container">
+  <!-- Page Header -->
+  <v-layout row wrap class="mb-4">
+    <v-flex xs12>
+      <v-layout row wrap align-center>
+        <v-flex xs8 sm9>
+          <h1 class="display-1 mb-2">تطبيق الطقس - عمّان</h1>
+          <p class="subheading grey--text">أحوال الطقس الحالية والتوقعات</p>
+        </v-flex>
+        <v-flex xs4 sm3 class="text-left">
+          <v-btn 
+            color="primary" 
+            :loading="loading"
+            @click="refreshWeather"
+            class="ma-0"
+          >
+            <v-icon left>mdi-refresh</v-icon>
+            تحديث
+          </v-btn>
+        </v-flex>
+      </v-layout>
+    </v-flex>
+  </v-layout>
+
+  <!-- Loading State -->
+  <div v-if="loading" class="text-center pa-12">
+    <v-progress-circular indeterminate color="primary" size="64"></v-progress-circular>
+    <p class="mt-4 body-1">جاري تحميل بيانات الطقس...</p>
+  </div>
+
+  <!-- Main Content -->
+  <div v-else>
+    <!-- Current Weather Card -->
+    <v-layout row wrap v-if="currentWeather">
+      <v-flex xs12 class="pa-2">
+        <v-card elevation="4" class="primary white--text">
+          <v-card-text class="pa-4">
+            <v-layout row wrap align-center>
+              <!-- Temperature Display -->
+              <v-flex xs12 sm6 md4 class="text-center pa-3">
+                <v-icon size="100" color="white">{{ currentWeather.icon }}</v-icon>
+                <h1 class="display-4 font-weight-bold mt-3">{{ currentWeather.temperature }}°</h1>
+                <p class="headline mb-0">{{ currentWeather.cityAr }}</p>
+                <p class="subheading mb-0">{{ currentWeather.conditionAr }}</p>
+                <p class="caption mt-2">
+                  يشعر وكأنه {{ currentWeather.feelsLike }}°
+                </p>
+              </v-flex>
+
+              <!-- Weather Details Grid -->
+              <v-flex xs12 sm6 md8>
+                <v-layout row wrap>
+                  <!-- Humidity -->
+                  <v-flex xs6 md3 class="pa-3 text-center">
+                    <v-icon color="white" size="32">mdi-water-percent</v-icon>
+                    <p class="title mt-2 mb-0">{{ currentWeather.humidity }}%</p>
+                    <p class="caption mb-0">الرطوبة</p>
+                  </v-flex>
+
+                  <!-- Wind Speed -->
+                  <v-flex xs6 md3 class="pa-3 text-center">
+                    <v-icon color="white" size="32">mdi-weather-windy</v-icon>
+                    <p class="title mt-2 mb-0">{{ currentWeather.windSpeed }} كم/س</p>
+                    <p class="caption mb-0">سرعة الرياح</p>
+                  </v-flex>
+
+                  <!-- Pressure -->
+                  <v-flex xs6 md3 class="pa-3 text-center">
+                    <v-icon color="white" size="32">mdi-gauge</v-icon>
+                    <p class="title mt-2 mb-0">{{ currentWeather.pressure }} هكتوباسكال</p>
+                    <p class="caption mb-0">الضغط الجوي</p>
+                  </v-flex>
+
+                  <!-- UV Index -->
+                  <v-flex xs6 md3 class="pa-3 text-center">
+                    <v-icon color="white" size="32">mdi-white-balance-sunny</v-icon>
+                    <p class="title mt-2 mb-0">{{ currentWeather.uvIndex }}</p>
+                    <p class="caption mb-0">مؤشر الأشعة فوق البنفسجية</p>
+                  </v-flex>
+
+                  <!-- Visibility -->
+                  <v-flex xs6 md3 class="pa-3 text-center">
+                    <v-icon color="white" size="32">mdi-eye</v-icon>
+                    <p class="title mt-2 mb-0">{{ currentWeather.visibility }} كم</p>
+                    <p class="caption mb-0">مدى الرؤية</p>
+                  </v-flex>
+
+                  <!-- Last Updated -->
+                  <v-flex xs12 md9 class="pa-3 text-center">
+                    <v-icon color="white" size="20">mdi-clock-outline</v-icon>
+                    <span class="caption mr-2">آخر تحديث: {{ formatTime(currentWeather.lastUpdated) }}</span>
+                  </v-flex>
+                </v-layout>
+              </v-flex>
+            </v-layout>
+          </v-card-text>
+        </v-card>
+      </v-flex>
+
+      <!-- Weather Advice Card -->
+      <v-flex xs12 class="pa-2">
+        <v-card elevation="2" color="#E3F2FD">
+          <v-card-text class="pa-4">
+            <v-layout row wrap align-center>
+              <v-flex xs2 sm1 class="text-center">
+                <v-icon color="info" size="40">mdi-lightbulb-on</v-icon>
+              </v-flex>
+              <v-flex xs10 sm11>
+                <p class="body-1 mb-0 info--text">
+                  <strong>نصيحة اليوم:</strong> {{ weatherAdvice }}
+                </p>
+              </v-flex>
+            </v-layout>
+          </v-card-text>
+        </v-card>
+      </v-flex>
+    </v-layout>
+
+    <!-- Forecast Tabs -->
+    <v-layout row wrap class="mt-4">
+      <v-flex xs12>
+        <v-card elevation="2">
+          <v-tabs v-model="selectedTab" color="primary" slider-color="primary">
+            <v-tab>
+              <v-icon left>mdi-clock-outline</v-icon>
+              التوقعات الساعية
+            </v-tab>
+            <v-tab>
+              <v-icon left>mdi-calendar-week</v-icon>
+              التوقعات الأسبوعية
+            </v-tab>
+          </v-tabs>
+
+          <v-tabs-items v-model="selectedTab">
+            <!-- Hourly Forecast Tab -->
+            <v-tab-item>
+              <v-card-text class="pa-3">
+                <div style="overflow-x: auto; white-space: nowrap;">
+                  <v-layout row wrap style="flex-wrap: nowrap;">
+                    <v-flex 
+                      v-for="(hour, index) in hourlyForecast.slice(0, 12)" 
+                      :key="index"
+                      style="min-width: 120px; max-width: 120px;"
+                      class="pa-2"
+                    >
+                      <v-card outlined class="text-center pa-3">
+                        <p class="caption mb-2">{{ hour.time }}</p>
+                        <v-icon :color="getTemperatureColor(hour.temperature)" size="36">
+                          {{ hour.icon }}
+                        </v-icon>
+                        <p class="title mt-2 mb-1">{{ hour.temperature }}°</p>
+                        <p class="caption mb-2">{{ hour.conditionAr }}</p>
+                        <v-layout row wrap align-center justify-center>
+                          <v-icon small color="info" class="ml-1">mdi-water</v-icon>
+                          <span class="caption">{{ hour.precipitation }}%</span>
+                        </v-layout>
+                      </v-card>
+                    </v-flex>
+                  </v-layout>
+                </div>
+              </v-card-text>
+            </v-tab-item>
+
+            <!-- Daily Forecast Tab -->
+            <v-tab-item>
+              <v-card-text class="pa-3">
+                <v-list two-line>
+                  <template v-for="(day, index) in dailyForecast">
+                    <v-list-item :key="index">
+                      <v-list-item-content>
+                        <v-layout row wrap align-center>
+                          <!-- Day Info -->
+                          <v-flex xs3 sm2>
+                            <p class="body-2 font-weight-bold mb-0">{{ day.dayOfWeekAr }}</p>
+                            <p class="caption grey--text mb-0">{{ day.dateAr }}</p>
+                          </v-flex>
+
+                          <!-- Weather Icon -->
+                          <v-flex xs2 sm1 class="text-center">
+                            <v-icon :color="getTemperatureColor(day.maxTemp)" size="32">
+                              {{ day.icon }}
+                            </v-icon>
+                          </v-flex>
+
+                          <!-- Condition -->
+                          <v-flex xs3 sm3 class="text-center hide-on-mobile">
+                            <p class="body-2 mb-0">{{ day.conditionAr }}</p>
+                          </v-flex>
+
+                          <!-- Temperature Range -->
+                          <v-flex xs4 sm3 class="text-center">
+                            <v-layout row wrap align-center justify-center>
+                              <span class="body-1 font-weight-bold">{{ day.maxTemp }}°</span>
+                              <span class="body-2 grey--text mx-2">/</span>
+                              <span class="body-2 grey--text">{{ day.minTemp }}°</span>
+                            </v-layout>
+                          </v-flex>
+
+                          <!-- Precipitation & Humidity -->
+                          <v-flex xs3 sm3 class="text-center">
+                            <v-layout row wrap justify-center>
+                              <v-flex xs12 sm6>
+                                <v-icon small color="info">mdi-water</v-icon>
+                                <span class="caption">{{ day.precipitation }}%</span>
+                              </v-flex>
+                              <v-flex xs12 sm6 class="hide-on-mobile">
+                                <v-icon small :color="getHumidityColor(day.humidity)">mdi-water-percent</v-icon>
+                                <span class="caption">{{ day.humidity }}%</span>
+                              </v-flex>
+                            </v-layout>
+                          </v-flex>
+                        </v-layout>
+                      </v-list-item-content>
+                    </v-list-item>
+                    <v-divider v-if="index < dailyForecast.length - 1" :key="'divider-' + index"></v-divider>
+                  </template>
+                </v-list>
+              </v-card-text>
+            </v-tab-item>
+          </v-tabs-items>
+        </v-card>
+      </v-flex>
+    </v-layout>
+
+    <!-- Additional Info Cards -->
+    <v-layout row wrap class="mt-4">
+      <!-- About Card -->
+      <v-flex xs12 md6 class="pa-2">
+        <v-card elevation="2" class="card-hover" style="height: 100%;">
+          <v-card-title class="primary white--text">
+            <v-icon left color="white">mdi-information</v-icon>
+            <span class="headline">عن التطبيق</span>
+          </v-card-title>
+          <v-card-text class="pa-4">
+            <p class="body-1">
+              تطبيق الطقس يوفر لك معلومات دقيقة عن أحوال الطقس في مدينة عمّان.
+              يمكنك متابعة الطقس الحالي والتوقعات الساعية واليومية.
+            </p>
+            <v-list dense>
+              <v-list-item>
+                <v-list-item-avatar>
+                  <v-icon color="primary">mdi-check-circle</v-icon>
+                </v-list-item-avatar>
+                <v-list-item-content>
+                  <v-list-item-title>تحديثات مستمرة للطقس</v-list-item-title>
+                </v-list-item-content>
+              </v-list-item>
+
+              <v-list-item>
+                <v-list-item-avatar>
+                  <v-icon color="success">mdi-weather-partly-cloudy</v-icon>
+                </v-list-item-avatar>
+                <v-list-item-content>
+                  <v-list-item-title>توقعات ساعية ويومية</v-list-item-title>
+                </v-list-item-content>
+              </v-list-item>
+
+              <v-list-item>
+                <v-list-item-avatar>
+                  <v-icon color="info">mdi-lightbulb</v-icon>
+                </v-list-item-avatar>
+                <v-list-item-content>
+                  <v-list-item-title>نصائح يومية مفيدة</v-list-item-title>
+                </v-list-item-content>
+              </v-list-item>
+            </v-list>
+          </v-card-text>
+        </v-card>
+      </v-flex>
+
+      <!-- Features Card -->
+      <v-flex xs12 md6 class="pa-2">
+        <v-card elevation="2" class="card-hover" style="height: 100%;">
+          <v-card-title class="headline">المعلومات المتوفرة</v-card-title>
+          <v-card-text class="pa-4">
+            <v-layout row wrap>
+              <v-flex xs6 class="pa-2 text-center">
+                <v-icon color="primary" size="32">mdi-thermometer</v-icon>
+                <p class="caption mt-2 mb-0">درجة الحرارة</p>
+              </v-flex>
+
+              <v-flex xs6 class="pa-2 text-center">
+                <v-icon color="info" size="32">mdi-water-percent</v-icon>
+                <p class="caption mt-2 mb-0">الرطوبة</p>
+              </v-flex>
+
+              <v-flex xs6 class="pa-2 text-center">
+                <v-icon color="success" size="32">mdi-weather-windy</v-icon>
+                <p class="caption mt-2 mb-0">سرعة الرياح</p>
+              </v-flex>
+
+              <v-flex xs6 class="pa-2 text-center">
+                <v-icon color="orange" size="32">mdi-white-balance-sunny</v-icon>
+                <p class="caption mt-2 mb-0">مؤشر UV</p>
+              </v-flex>
+
+              <v-flex xs6 class="pa-2 text-center">
+                <v-icon color="purple" size="32">mdi-gauge</v-icon>
+                <p class="caption mt-2 mb-0">الضغط الجوي</p>
+              </v-flex>
+
+              <v-flex xs6 class="pa-2 text-center">
+                <v-icon color="teal" size="32">mdi-eye</v-icon>
+                <p class="caption mt-2 mb-0">مدى الرؤية</p>
+              </v-flex>
+            </v-layout>
+          </v-card-text>
+        </v-card>
+      </v-flex>
+    </v-layout>
+  </div>
+</v-container>
