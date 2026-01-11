@@ -10,7 +10,7 @@
 
 ### 1. Navigate to Project Directory
 ```bash
-cd /workspace/CarRental
+cd /workspace
 ```
 
 ### 2. Install Frontend Dependencies

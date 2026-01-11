@@ -8,8 +8,10 @@ All tasks completed successfully! The Car Rental Management System is fully func
 
 ## 📁 Project Structure
 
+**Note:** All files are at the workspace root level (`/workspace/`)
+
 ```
-CarRental/
+/workspace/
 ├── 📂 ClientApp/                    # Vue.js Frontend
 │   ├── 📂 assets/styles/           # Global CSS (Sigma-S patterns)
 │   ├── 📂 components/              # Vue Components
@@ -168,8 +170,8 @@ CarRental/
 ## 🚀 Quick Start
 
 ```bash
-# Navigate to project
-cd /workspace/CarRental
+# Navigate to project (files are at root level)
+cd /workspace
 
 # Install dependencies (already done)
 npm install
@@ -183,6 +185,8 @@ dotnet run
 # Access at:
 # http://localhost:5200/applications/carrental/
 ```
+
+**Note:** All application files are at the workspace root level (`/workspace/`), not in a subfolder.
 
 ---
 
