@@ -3,7 +3,7 @@ const path = require("path");
 module.exports = {
   lintOnSave: false,
   outputDir: "dist",
-  publicPath: "/applications/carrental",
+  publicPath: "/",
   pwa: {
     workboxPluginMode: 'GenerateSW'
   },

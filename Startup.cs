@@ -42,6 +42,7 @@ namespace Najiz.CarRentalApp
             // Ensure database is created and seeded
             dbContext.Database.EnsureCreated();
 
+            // Serve static files from wwwroot and dist
             app.UseStaticFiles();
             app.UseSpaStaticFiles();
 
@@ -50,20 +51,15 @@ namespace Najiz.CarRentalApp
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllers();
+                
+                // Fallback to SPA for any non-API routes
+                endpoints.MapFallbackToFile("index.html");
             });
 
             app.UseSpa(spa =>
             {
                 spa.Options.SourcePath = "ClientApp";
-                spa.Options.DefaultPageStaticFileOptions = new StaticFileOptions
-                {
-                    OnPrepareResponse = context =>
-                    {
-                        context.Context.Response.Headers.Add("Cache-Control", "no-cache, no-store");
-                        context.Context.Response.Headers.Add("Expires", "-1");
-                    }
-                };
-
+                
                 if (env.IsDevelopment())
                 {
                     // spa.UseVueCli(npmScript: "serve");
