@@ -1,0 +1,244 @@
+<v-container fluid class="page-container">
+  <!-- Page Header -->
+  <v-layout row wrap class="mb-4">
+    <v-flex xs12>
+      <h1 class="display-1 mb-2">إدارة الحجوزات</h1>
+      <p class="subheading grey--text">عرض وإدارة جميع حجوزات تأجير السيارات</p>
+    </v-flex>
+  </v-layout>
+
+  <!-- Add Rental Button -->
+  <v-layout row wrap class="mb-4">
+    <v-flex xs12>
+      <v-btn color="primary" large @click="addNewRental">
+        <v-icon left>mdi-plus</v-icon>
+        إضافة حجز جديد
+      </v-btn>
+    </v-flex>
+  </v-layout>
+
+  <!-- Tabs -->
+  <v-tabs v-model="tab" class="mb-4">
+    <v-tab value="all">جميع الحجوزات</v-tab>
+    <v-tab value="active">الحجوزات النشطة</v-tab>
+    <v-tab value="completed">الحجوزات المكتملة</v-tab>
+  </v-tabs>
+
+  <!-- Rentals List -->
+  <v-layout row wrap>
+    <v-flex xs12 v-for="rental in filteredRentals" :key="rental.id" class="pa-2">
+      <v-card elevation="2">
+        <v-card-text>
+          <v-layout row wrap align-center>
+            <!-- Car Info -->
+            <v-flex xs12 sm3 md2>
+              <v-img 
+                v-if="rental.car" 
+                :src="rental.car.imageUrl" 
+                height="100px"
+                class="mb-2"
+              ></v-img>
+              <div v-if="rental.car" class="body-2 font-weight-bold">
+                {{ rental.car.make }} {{ rental.car.model }}
+              </div>
+            </v-flex>
+
+            <!-- Customer Info -->
+            <v-flex xs12 sm4 md3>
+              <div class="mb-2">
+                <v-icon small color="grey">mdi-account</v-icon>
+                <span class="mr-2 body-1">{{ rental.customerName }}</span>
+              </div>
+              <div class="mb-2">
+                <v-icon small color="grey">mdi-phone</v-icon>
+                <span class="mr-2 body-2">{{ rental.customerPhone }}</span>
+              </div>
+              <div class="mb-2">
+                <v-icon small color="grey">mdi-email</v-icon>
+                <span class="mr-2 body-2">{{ rental.customerEmail }}</span>
+              </div>
+            </v-flex>
+
+            <!-- Rental Dates -->
+            <v-flex xs12 sm3 md3>
+              <div class="mb-2">
+                <v-icon small color="grey">mdi-calendar-start</v-icon>
+                <span class="mr-2 body-2">من: {{ formatDate(rental.startDate) }}</span>
+              </div>
+              <div class="mb-2">
+                <v-icon small color="grey">mdi-calendar-end</v-icon>
+                <span class="mr-2 body-2">إلى: {{ formatDate(rental.endDate) }}</span>
+              </div>
+              <div class="mb-2">
+                <v-icon small color="grey">mdi-cash</v-icon>
+                <span class="mr-2 title primary--text">{{ rental.totalAmount }} ريال</span>
+              </div>
+            </v-flex>
+
+            <!-- Status & Actions -->
+            <v-flex xs12 sm2 md2>
+              <div class="mb-3">
+                <span :class="getStatusClasses(rental.status)">
+                  {{ getStatusText(rental.status) }}
+                </span>
+              </div>
+            </v-flex>
+
+            <!-- Action Buttons -->
+            <v-flex xs12 sm12 md2 class="text-right">
+              <v-btn 
+                icon 
+                @click="completeRental(rental)"
+                v-if="rental.status === 'active'"
+              >
+                <v-icon color="success">mdi-check-circle</v-icon>
+              </v-btn>
+              <v-btn icon @click="confirmDeleteRental(rental)">
+                <v-icon color="error">mdi-delete</v-icon>
+              </v-btn>
+            </v-flex>
+          </v-layout>
+
+          <!-- Notes -->
+          <v-layout row wrap v-if="rental.notes" class="mt-2">
+            <v-flex xs12>
+              <v-divider class="mb-2"></v-divider>
+              <div class="caption grey--text">ملاحظات:</div>
+              <div class="body-2">{{ rental.notes }}</div>
+            </v-flex>
+          </v-layout>
+        </v-card-text>
+      </v-card>
+    </v-flex>
+  </v-layout>
+
+  <!-- Empty State -->
+  <v-layout row wrap v-if="filteredRentals.length === 0">
+    <v-flex xs12>
+      <div class="empty-state">
+        <v-icon size="64" color="grey lighten-1">mdi-calendar-remove</v-icon>
+        <p class="title mt-4 grey--text">لا توجد حجوزات</p>
+        <p class="body-1 grey--text">قم بإضافة حجز جديد للبدء</p>
+      </div>
+    </v-flex>
+  </v-layout>
+
+  <!-- Add Rental Dialog -->
+  <v-dialog v-model="dialog" max-width="700px" persistent>
+    <v-card>
+      <v-card-title class="headline primary white--text">
+        إضافة حجز جديد
+      </v-card-title>
+
+      <v-card-text class="pt-4">
+        <v-form>
+          <h3 class="title mb-3">معلومات السيارة</h3>
+          
+          <v-select
+            v-model="editedRental.carId"
+            :items="availableCars"
+            item-text="make"
+            item-value="id"
+            label="اختر السيارة"
+            outlined
+            required
+          >
+            <template v-slot:selection="{ item }">
+              {{ item.make }} {{ item.model }} - {{ item.plateNumber }}
+            </template>
+            <template v-slot:item="{ item }">
+              {{ item.make }} {{ item.model }} - {{ item.plateNumber }} ({{ item.dailyRate }} ريال/يوم)
+            </template>
+          </v-select>
+
+          <v-divider class="my-4"></v-divider>
+
+          <h3 class="title mb-3">معلومات العميل</h3>
+
+          <v-text-field
+            v-model="editedRental.customerName"
+            label="اسم العميل"
+            outlined
+            required
+          ></v-text-field>
+
+          <v-text-field
+            v-model="editedRental.customerPhone"
+            label="رقم الهاتف"
+            outlined
+            required
+          ></v-text-field>
+
+          <v-text-field
+            v-model="editedRental.customerEmail"
+            label="البريد الإلكتروني"
+            type="email"
+            outlined
+            required
+          ></v-text-field>
+
+          <v-text-field
+            v-model="editedRental.customerIdNumber"
+            label="رقم الهوية"
+            outlined
+            required
+          ></v-text-field>
+
+          <v-divider class="my-4"></v-divider>
+
+          <h3 class="title mb-3">تفاصيل الحجز</h3>
+
+          <v-layout row wrap>
+            <v-flex xs12 md6 class="pa-2">
+              <v-text-field
+                v-model="editedRental.startDate"
+                label="تاريخ البداية"
+                type="date"
+                outlined
+                required
+              ></v-text-field>
+            </v-flex>
+
+            <v-flex xs12 md6 class="pa-2">
+              <v-text-field
+                v-model="editedRental.endDate"
+                label="تاريخ النهاية"
+                type="date"
+                outlined
+                required
+              ></v-text-field>
+            </v-flex>
+          </v-layout>
+
+          <v-textarea
+            v-model="editedRental.notes"
+            label="ملاحظات (اختياري)"
+            outlined
+            rows="3"
+          ></v-textarea>
+        </v-form>
+      </v-card-text>
+
+      <v-card-actions>
+        <v-spacer></v-spacer>
+        <v-btn text @click="dialog = false">إلغاء</v-btn>
+        <v-btn color="primary" @click="saveRental">حفظ</v-btn>
+      </v-card-actions>
+    </v-card>
+  </v-dialog>
+
+  <!-- Delete Confirmation Dialog -->
+  <v-dialog v-model="deleteDialog" max-width="400px">
+    <v-card>
+      <v-card-title class="headline">تأكيد الحذف</v-card-title>
+      <v-card-text>
+        هل أنت متأكد من حذف هذا الحجز؟
+      </v-card-text>
+      <v-card-actions>
+        <v-spacer></v-spacer>
+        <v-btn text @click="deleteDialog = false">إلغاء</v-btn>
+        <v-btn color="error" @click="deleteRental">حذف</v-btn>
+      </v-card-actions>
+    </v-card>
+  </v-dialog>
+</v-container>
