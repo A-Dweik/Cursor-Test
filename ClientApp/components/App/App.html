@@ -1,0 +1,23 @@
+<div id="app" data-app dir="rtl">
+    <v-app>
+        <v-toolbar app color="primary" dark>
+            <v-toolbar-title>نظام إدارة تأجير السيارات</v-toolbar-title>
+            <v-spacer></v-spacer>
+            <v-btn flat @click="$router.push('/')">
+                <v-icon left>mdi-home</v-icon>
+                الرئيسية
+            </v-btn>
+            <v-btn flat @click="$router.push('/cars')">
+                <v-icon left>mdi-car</v-icon>
+                السيارات
+            </v-btn>
+            <v-btn flat @click="$router.push('/rentals')">
+                <v-icon left>mdi-file-document</v-icon>
+                عقود الإيجار
+            </v-btn>
+        </v-toolbar>
+        <v-content>
+            <router-view />
+        </v-content>
+    </v-app>
+</div>
