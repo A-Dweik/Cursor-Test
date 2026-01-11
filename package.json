@@ -1,41 +1,64 @@
 {
-  "name": "amman-weather",
-  "version": "0.0.0",
-  "scripts": {
-    "ng": "ng",
-    "start": "ng serve",
-    "build": "ng build",
-    "watch": "ng build --watch --configuration development",
-    "test": "ng test"
-  },
-  "prettier": {
-    "printWidth": 100,
-    "singleQuote": true,
-    "overrides": [
-      {
-        "files": "*.html",
-        "options": {
-          "parser": "angular"
-        }
-      }
-    ]
-  },
+  "name": "houserental",
+  "version": "0.1.0",
   "private": true,
-  "packageManager": "npm@10.9.4",
+  "scripts": {
+    "serve": "vue-cli-service serve",
+    "build": "vue-cli-service build",
+    "lint": "vue-cli-service lint",
+    "watch": "vue-cli-service build --watch"
+  },
   "dependencies": {
-    "@angular/common": "^21.0.0",
-    "@angular/compiler": "^21.0.0",
-    "@angular/core": "^21.0.0",
-    "@angular/forms": "^21.0.0",
-    "@angular/platform-browser": "^21.0.0",
-    "@angular/router": "^21.0.0",
-    "rxjs": "~7.8.0",
-    "tslib": "^2.3.0"
+    "@mdi/font": "^5.9.55",
+    "@t2/Viewerpdf": "0.0.1",
+    "@t2/attach-file": "^0.2.3",
+    "@t2/choose-file": "^0.1.3",
+    "@t2/data-table": "^0.1.3",
+    "@t2/date-picker": "^0.1.16",
+    "@t2/hijri-meladi-picker": "^0.2.2",
+    "@t2/reason-file-uploader": "^0.4.8",
+    "@t2/recaptcha": "^0.1.10",
+    "@t2/selectto": "^0.2.1",
+    "@t2/wizard": "^0.2.1",
+    "file-saver": "^2.0.2",
+    "i": "^0.3.6",
+    "izitoast": "^1.4.0",
+    "latest": "^0.2.0",
+    "register-service-worker": "^1.6.2",
+    "vue": "^2.6.10",
+    "vue-application-insights": "^1.0.6",
+    "vue-class-component": "^7.1.0",
+    "vue-di-container": "^0.1.0",
+    "vue-i18n": "^8.12.0",
+    "vue-loading-spinner": "^1.0.11",
+    "vue-property-decorator": "^8.1.1",
+    "vue-router": "^3.1.0",
+    "vue-template-loader": "^1.0.0",
+    "vuetify": "^1.5.14",
+    "vuex": "^3.1.1",
+    "vuex-class": "^0.3.2"
   },
   "devDependencies": {
-    "@angular/build": "^21.0.2",
-    "@angular/cli": "^21.0.2",
-    "@angular/compiler-cli": "^21.0.0",
-    "typescript": "~5.9.2"
+    "@babel/polyfill": "^7.4.4",
+    "@types/file-saver": "^2.0.1",
+    "@types/node": "^12.7.4",
+    "@vue/cli-plugin-babel": "^3.10.0",
+    "@vue/cli-plugin-pwa": "^3.10.0",
+    "@vue/cli-plugin-typescript": "^3.10.0",
+    "@vue/cli-service": "^3.10.0",
+    "axios": "^0.19.0",
+    "babel-plugin-transform-imports": "^1.5.1",
+    "sass": "1.32.0",
+    "sass-loader": "^7.3.1",
+    "stylus": "^0.54.5",
+    "stylus-loader": "^3.0.2",
+    "typescript": "~4.5.5",
+    "vue-cli-plugin-axios": "0.0.4",
+    "vue-cli-plugin-vuetify": "^0.5.0",
+    "vue-template-compiler": "^2.6.10",
+    "vuetify-loader": "^1.3.0"
+  },
+  "overrides": {
+    "node-sass": "npm:sass@^1.32.0"
   }
 }

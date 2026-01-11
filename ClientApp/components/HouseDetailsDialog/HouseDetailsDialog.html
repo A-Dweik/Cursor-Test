@@ -1,0 +1,159 @@
+<v-dialog v-model="show" max-width="900">
+  <v-card v-if="house">
+    <v-img
+      :src="house.imageUrl || 'https://via.placeholder.com/900x400?text=No+Image'"
+      height="300"
+      class="white--text"
+    >
+      <v-container fill-height fluid>
+        <v-layout fill-height>
+          <v-flex xs12 align-end flexbox>
+            <v-btn icon large @click="close" class="white">
+              <v-icon>mdi-close</v-icon>
+            </v-btn>
+          </v-flex>
+        </v-layout>
+      </v-container>
+    </v-img>
+
+    <v-card-title class="headline">
+      {{ house.title }}
+      <v-spacer></v-spacer>
+      <span :class="getStatusClasses(house.status)">
+        {{ getStatusText(house.status) }}
+      </span>
+    </v-card-title>
+
+    <v-card-text class="pa-4">
+      <v-layout row wrap>
+        <!-- Price Section -->
+        <v-flex xs12 class="mb-4">
+          <v-card outlined>
+            <v-card-text class="text-center">
+              <div class="display-2 primary--text">
+                {{ house.price.toLocaleString() }} ريال
+              </div>
+              <div class="subheading grey--text">في الشهر</div>
+            </v-card-text>
+          </v-card>
+        </v-flex>
+
+        <!-- Basic Info -->
+        <v-flex xs12 class="mb-4">
+          <h3 class="title mb-3">المعلومات الأساسية</h3>
+          <v-divider class="mb-3"></v-divider>
+
+          <v-layout row wrap>
+            <v-flex xs12 sm6 md3 class="pa-2">
+              <v-card outlined class="text-center pa-3">
+                <v-icon size="40" color="primary">mdi-bed</v-icon>
+                <div class="title mt-2">{{ house.bedrooms }}</div>
+                <div class="caption grey--text">غرف النوم</div>
+              </v-card>
+            </v-flex>
+
+            <v-flex xs12 sm6 md3 class="pa-2">
+              <v-card outlined class="text-center pa-3">
+                <v-icon size="40" color="primary">mdi-shower</v-icon>
+                <div class="title mt-2">{{ house.bathrooms }}</div>
+                <div class="caption grey--text">الحمامات</div>
+              </v-card>
+            </v-flex>
+
+            <v-flex xs12 sm6 md3 class="pa-2">
+              <v-card outlined class="text-center pa-3">
+                <v-icon size="40" color="primary">mdi-ruler-square</v-icon>
+                <div class="title mt-2">{{ house.area }}</div>
+                <div class="caption grey--text">متر مربع</div>
+              </v-card>
+            </v-flex>
+
+            <v-flex xs12 sm6 md3 class="pa-2">
+              <v-card outlined class="text-center pa-3">
+                <v-icon size="40" color="primary">mdi-map-marker</v-icon>
+                <div class="caption grey--text mt-2">{{ house.location }}</div>
+              </v-card>
+            </v-flex>
+          </v-layout>
+        </v-flex>
+
+        <!-- Description -->
+        <v-flex xs12 class="mb-4">
+          <h3 class="title mb-3">الوصف</h3>
+          <v-divider class="mb-3"></v-divider>
+          <p class="body-1">{{ house.description }}</p>
+        </v-flex>
+
+        <!-- Features -->
+        <v-flex xs12 class="mb-4" v-if="house.features && house.features.length > 0">
+          <h3 class="title mb-3">المميزات</h3>
+          <v-divider class="mb-3"></v-divider>
+          <v-layout row wrap>
+            <v-flex
+              v-for="(feature, index) in house.features"
+              :key="index"
+              xs12
+              sm6
+              md4
+              class="pa-1"
+            >
+              <v-chip color="success" outlined>
+                <v-icon left small>mdi-check-circle</v-icon>
+                {{ feature }}
+              </v-chip>
+            </v-flex>
+          </v-layout>
+        </v-flex>
+
+        <!-- Owner Info -->
+        <v-flex xs12 v-if="house.ownerName || house.ownerPhone">
+          <h3 class="title mb-3">معلومات المالك</h3>
+          <v-divider class="mb-3"></v-divider>
+          <v-card outlined>
+            <v-list>
+              <v-list-item v-if="house.ownerName">
+                <v-list-item-avatar>
+                  <v-icon color="primary">mdi-account</v-icon>
+                </v-list-item-avatar>
+                <v-list-item-content>
+                  <v-list-item-title>{{ house.ownerName }}</v-list-item-title>
+                  <v-list-item-subtitle>اسم المالك</v-list-item-subtitle>
+                </v-list-item-content>
+              </v-list-item>
+
+              <v-divider inset v-if="house.ownerName && house.ownerPhone"></v-divider>
+
+              <v-list-item v-if="house.ownerPhone">
+                <v-list-item-avatar>
+                  <v-icon color="primary">mdi-phone</v-icon>
+                </v-list-item-avatar>
+                <v-list-item-content>
+                  <v-list-item-title>{{ house.ownerPhone }}</v-list-item-title>
+                  <v-list-item-subtitle>رقم الجوال</v-list-item-subtitle>
+                </v-list-item-content>
+                <v-list-item-action>
+                  <v-btn icon :href="'tel:' + house.ownerPhone">
+                    <v-icon color="success">mdi-phone-outgoing</v-icon>
+                  </v-btn>
+                </v-list-item-action>
+              </v-list-item>
+            </v-list>
+          </v-card>
+        </v-flex>
+      </v-layout>
+    </v-card-text>
+
+    <v-divider></v-divider>
+
+    <v-card-actions class="pa-4">
+      <v-spacer></v-spacer>
+      <v-btn text large @click="close">
+        إغلاق
+      </v-btn>
+      <v-btn color="primary" large v-if="house.ownerPhone" :href="'tel:' + house.ownerPhone">
+        <v-icon left>mdi-phone</v-icon>
+        اتصال
+      </v-btn>
+    </v-card-actions>
+  </v-card>
+</v-dialog>

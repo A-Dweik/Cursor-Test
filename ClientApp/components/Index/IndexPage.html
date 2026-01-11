@@ -1,0 +1,204 @@
+<v-container fluid class="page-container">
+  <!-- Page Header -->
+  <v-layout row wrap class="mb-6">
+    <v-flex xs12>
+      <h1 class="display-1 mb-2">نظام إدارة تأجير المنازل</h1>
+      <p class="subheading grey--text">إدارة وتتبع عقارات التأجير بسهولة</p>
+    </v-flex>
+  </v-layout>
+
+  <!-- Statistics Cards -->
+  <v-layout row wrap class="mb-4">
+    <v-flex xs12 sm6 md3 class="pa-2">
+      <v-card elevation="2">
+        <v-card-text class="text-center">
+          <v-icon size="40" color="primary" class="mb-2">mdi-home-city</v-icon>
+          <div class="display-1 primary--text">{{ stats.total }}</div>
+          <div class="caption grey--text">إجمالي العقارات</div>
+        </v-card-text>
+      </v-card>
+    </v-flex>
+
+    <v-flex xs12 sm6 md3 class="pa-2">
+      <v-card elevation="2">
+        <v-card-text class="text-center">
+          <v-icon size="40" color="success" class="mb-2">mdi-check-circle</v-icon>
+          <div class="display-1 success--text">{{ stats.available }}</div>
+          <div class="caption grey--text">عقارات متاحة</div>
+        </v-card-text>
+      </v-card>
+    </v-flex>
+
+    <v-flex xs12 sm6 md3 class="pa-2">
+      <v-card elevation="2">
+        <v-card-text class="text-center">
+          <v-icon size="40" color="info" class="mb-2">mdi-key</v-icon>
+          <div class="display-1 info--text">{{ stats.rented }}</div>
+          <div class="caption grey--text">عقارات مؤجرة</div>
+        </v-card-text>
+      </v-card>
+    </v-flex>
+
+    <v-flex xs12 sm6 md3 class="pa-2">
+      <v-card elevation="2">
+        <v-card-text class="text-center">
+          <v-icon size="40" color="warning" class="mb-2">mdi-tools</v-icon>
+          <div class="display-1 warning--text">{{ stats.maintenance }}</div>
+          <div class="caption grey--text">تحت الصيانة</div>
+        </v-card-text>
+      </v-card>
+    </v-flex>
+  </v-layout>
+
+  <!-- Search and Filter Section -->
+  <v-layout row wrap class="mb-4">
+    <v-flex xs12>
+      <v-card elevation="2">
+        <v-card-text>
+          <v-layout row wrap align-center>
+            <v-flex xs12 sm8 md6 class="pa-2">
+              <v-text-field
+                v-model="searchQuery"
+                prepend-inner-icon="mdi-magnify"
+                label="البحث عن عقار"
+                outlined
+                dense
+                hide-details
+                clearable
+              ></v-text-field>
+            </v-flex>
+
+            <v-flex xs12 sm4 md3 class="pa-2">
+              <v-select
+                v-model="filterStatus"
+                :items="[
+                  { text: 'الكل', value: 'all' },
+                  { text: 'متاح', value: 'available' },
+                  { text: 'مؤجر', value: 'rented' },
+                  { text: 'صيانة', value: 'maintenance' }
+                ]"
+                label="حالة العقار"
+                outlined
+                dense
+                hide-details
+              ></v-select>
+            </v-flex>
+
+            <v-flex xs12 md3 class="pa-2 text-right">
+              <v-btn color="primary" large @click="openAddDialog">
+                <v-icon left>mdi-plus</v-icon>
+                إضافة عقار جديد
+              </v-btn>
+            </v-flex>
+          </v-layout>
+        </v-card-text>
+      </v-card>
+    </v-flex>
+  </v-layout>
+
+  <!-- Loading State -->
+  <div v-if="loading" class="text-center pa-12">
+    <v-progress-circular indeterminate color="primary" size="64"></v-progress-circular>
+    <p class="mt-4 body-1">جاري التحميل...</p>
+  </div>
+
+  <!-- Houses List -->
+  <v-layout row wrap v-else-if="filteredHouses.length > 0">
+    <v-flex xs12 sm6 md4 lg3 v-for="house in filteredHouses" :key="house.id" class="pa-2">
+      <v-card class="card-hover" elevation="2">
+        <v-img
+          :src="house.imageUrl || 'https://via.placeholder.com/300x200?text=No+Image'"
+          height="200"
+          class="white--text"
+        >
+          <v-container fill-height fluid>
+            <v-layout fill-height>
+              <v-flex xs12 align-end flexbox>
+                <span :class="getStatusClasses(house.status)">
+                  {{ getStatusText(house.status) }}
+                </span>
+              </v-flex>
+            </v-layout>
+          </v-container>
+        </v-img>
+
+        <v-card-title class="headline">
+          {{ house.title }}
+        </v-card-title>
+
+        <v-card-text>
+          <div class="mb-2">
+            <v-icon small color="grey">mdi-map-marker</v-icon>
+            <span class="body-1 mr-1">{{ house.location }}</span>
+          </div>
+
+          <div class="mb-2">
+            <v-icon small color="grey">mdi-bed</v-icon>
+            <span class="body-2 mr-1">{{ house.bedrooms }} غرف</span>
+            <v-icon small color="grey" class="mr-2">mdi-shower</v-icon>
+            <span class="body-2 mr-1">{{ house.bathrooms }} حمام</span>
+          </div>
+
+          <div class="mb-2">
+            <v-icon small color="grey">mdi-ruler-square</v-icon>
+            <span class="body-2 mr-1">{{ house.area }} م²</span>
+          </div>
+
+          <div class="title primary--text mt-3">
+            {{ house.price.toLocaleString() }} ريال / شهر
+          </div>
+        </v-card-text>
+
+        <v-divider></v-divider>
+
+        <v-card-actions>
+          <v-btn icon @click="openDetailsDialog(house)">
+            <v-icon color="primary">mdi-eye</v-icon>
+          </v-btn>
+
+          <v-btn icon @click="openEditDialog(house)">
+            <v-icon color="success">mdi-pencil</v-icon>
+          </v-btn>
+
+          <v-btn icon @click="deleteHouse(house)">
+            <v-icon color="error">mdi-delete</v-icon>
+          </v-btn>
+
+          <v-spacer></v-spacer>
+
+          <v-btn text color="primary" @click="openDetailsDialog(house)">
+            التفاصيل
+          </v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-flex>
+  </v-layout>
+
+  <!-- Empty State -->
+  <div v-else class="text-center pa-12">
+    <v-icon size="64" color="grey lighten-1">mdi-home-search</v-icon>
+    <p class="title mt-4 grey--text">لا توجد عقارات</p>
+    <p class="body-1 grey--text">قم بإضافة عقار جديد للبدء</p>
+    <v-btn color="primary" class="mt-4" @click="openAddDialog">
+      <v-icon left>mdi-plus</v-icon>
+      إضافة عقار جديد
+    </v-btn>
+  </div>
+
+  <!-- Add/Edit House Dialog -->
+  <add-house-dialog
+    v-if="showAddDialog"
+    :show="showAddDialog"
+    :house="selectedHouse"
+    @close="showAddDialog = false"
+    @saved="onHouseSaved"
+  />
+
+  <!-- House Details Dialog -->
+  <house-details-dialog
+    v-if="showDetailsDialog"
+    :show="showDetailsDialog"
+    :house="selectedHouse"
+    @close="showDetailsDialog = false"
+  />
+</v-container>
