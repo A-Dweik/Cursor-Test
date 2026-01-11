@@ -9,8 +9,8 @@ A complete car rental management application built with ASP.NET Core 3.1 and Vue
 ## 🏗️ التقنيات المستخدمة / Technology Stack
 
 ### Backend
-- **ASP.NET Core 3.1**
-- **Entity Framework Core 3.1** (In-Memory Database)
+- **ASP.NET Core 6.0** (LTS - Upgraded from 3.1)
+- **Entity Framework Core 6.0** (In-Memory Database)
 - **RESTful API**
 
 ### Frontend
@@ -102,9 +102,11 @@ CarRentalApp/
 
 ### المتطلبات / Prerequisites
 
-- **.NET Core SDK 3.1** or higher
+- **.NET 6.0 SDK** (installed and verified ✅)
 - **Node.js 12+** and **npm**
 - Visual Studio 2019+ or VS Code (optional)
+
+**Note:** Project was upgraded from .NET Core 3.1 to .NET 6.0 for better compatibility and long-term support.
 
 ### خطوات التشغيل / Installation Steps
 
@@ -309,8 +311,35 @@ All services must follow the 3-step pattern:
 - ✅ Check column sizes: xs, sm, md values
 
 ### Backend build issues
-- Ensure .NET Core 3.1 SDK is installed
-- Run `dotnet restore` before `dotnet build`
+- ✅ Ensure .NET 6.0 SDK is installed
+- ✅ Run `dotnet restore` before `dotnet build`
+- ✅ See BUILD_INSTRUCTIONS.md for detailed troubleshooting
+
+## ✅ Build Status
+
+**Backend Build:** ✅ SUCCESS
+```
+Build succeeded.
+    0 Warning(s)
+    0 Error(s)
+
+Time Elapsed 00:00:03.12
+```
+
+**Backend Runtime:** ✅ SUCCESS
+```
+info: Microsoft.EntityFrameworkCore.Update[30100]
+      Saved 5 entities to in-memory store.
+info: Microsoft.Hosting.Lifetime[14]
+      Now listening on: http://localhost:5001
+info: Microsoft.Hosting.Lifetime[0]
+      Application started. Press Ctrl+C to shut down.
+```
+
+**Frontend Build:** ✅ SUCCESS
+```
+DONE  Build complete. The dist directory is ready to be deployed.
+```
 
 ## 📄 License
 

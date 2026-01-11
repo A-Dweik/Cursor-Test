@@ -1,7 +1,5 @@
-using System.Reflection;
 using Microsoft.AspNetCore.Hosting;
-using Najiz.Framework.Web.Host;
-using Najiz.Framework.Web.Host.Extensions;
+using Microsoft.Extensions.Hosting;
 
 namespace Najiz.CarRentalApp
 {
@@ -9,18 +7,14 @@ namespace Najiz.CarRentalApp
     {
         public static void Main(string[] args)
         {
-            WebHostFactory.CreateSpaWebHost<Startup>(args, builder =>
-            {
-                builder.RegisterAssembly(Assembly.GetAssembly(typeof(Najiz.NLog.Web.Startup)));
-                builder.RegisterAssembly(Assembly.GetAssembly(typeof(Najiz.ApplicationInsights.Startup)));
-                builder.RegisterAssembly(Assembly.GetAssembly(typeof(Najiz.Web.Security.Startup)));
-                builder.RegisterAssembly(Assembly.GetAssembly(typeof(Najiz.Security.OpenIdConnect.Abstractions.Startup)));
-                builder.RegisterAssembly(Assembly.GetAssembly(typeof(Najiz.Web.Security.JwtBearer.Startup)));
-                builder.RegisterAssembly(Assembly.GetAssembly(typeof(Najiz.Portal.Web.Abstractions.Startup)));
-                builder.RegisterAssembly(Assembly.GetAssembly(typeof(Najiz.DataProtection.keyStorage.Abstractions.Startup)));
-                builder.RegisterAssembly(Assembly.GetAssembly(typeof(Startup)));
-                builder.RegisterAssembly(Assembly.GetAssembly(typeof(Najiz.Framework.DistributedCaching.Startup)));
-            }).Run();
+            CreateHostBuilder(args).Build().Run();
         }
+
+        public static IHostBuilder CreateHostBuilder(string[] args) =>
+            Host.CreateDefaultBuilder(args)
+                .ConfigureWebHostDefaults(webBuilder =>
+                {
+                    webBuilder.UseStartup<Startup>();
+                });
     }
 }

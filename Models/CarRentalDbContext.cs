@@ -18,6 +18,8 @@ namespace Najiz.CarRentalApp.Models
             base.OnModelCreating(modelBuilder);
 
             // Seed some initial car data
+            var seedDate = new DateTime(2024, 1, 1, 0, 0, 0, DateTimeKind.Utc);
+            
             modelBuilder.Entity<Car>().HasData(
                 new Car
                 {
@@ -31,7 +33,7 @@ namespace Najiz.CarRentalApp.Models
                     IsAvailable = true,
                     ImageUrl = "https://via.placeholder.com/300x200?text=Toyota+Camry",
                     Description = "سيارة عائلية فاخرة ومريحة",
-                    CreatedAt = DateTime.Now
+                    CreatedAt = seedDate
                 },
                 new Car
                 {
@@ -45,7 +47,7 @@ namespace Najiz.CarRentalApp.Models
                     IsAvailable = true,
                     ImageUrl = "https://via.placeholder.com/300x200?text=Honda+Accord",
                     Description = "سيارة موثوقة واقتصادية",
-                    CreatedAt = DateTime.Now
+                    CreatedAt = seedDate
                 },
                 new Car
                 {
@@ -59,7 +61,7 @@ namespace Najiz.CarRentalApp.Models
                     IsAvailable = true,
                     ImageUrl = "https://via.placeholder.com/300x200?text=Nissan+Altima",
                     Description = "سيارة عصرية بتقنيات متقدمة",
-                    CreatedAt = DateTime.Now
+                    CreatedAt = seedDate
                 },
                 new Car
                 {
@@ -73,7 +75,7 @@ namespace Najiz.CarRentalApp.Models
                     IsAvailable = true,
                     ImageUrl = "https://via.placeholder.com/300x200?text=Hyundai+Sonata",
                     Description = "سيارة بتصميم رياضي أنيق",
-                    CreatedAt = DateTime.Now
+                    CreatedAt = seedDate
                 },
                 new Car
                 {
@@ -87,7 +89,7 @@ namespace Najiz.CarRentalApp.Models
                     IsAvailable = false,
                     ImageUrl = "https://via.placeholder.com/300x200?text=Kia+Optima",
                     Description = "سيارة متعددة الاستخدامات",
-                    CreatedAt = DateTime.Now
+                    CreatedAt = seedDate
                 }
             );
         }

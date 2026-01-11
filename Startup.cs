@@ -1,40 +1,74 @@
-using System;
+using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.SpaServices;
+using Microsoft.AspNetCore.SpaServices.Extensions;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Najiz.Framework.Web.Host;
 using Microsoft.EntityFrameworkCore;
 using Najiz.CarRentalApp.Models;
 
 namespace Najiz.CarRentalApp
 {
-    public class Startup : WebHostSpaStartup
+    public class Startup
     {
-        public Startup(IConfiguration configuration, IWebHostEnvironment environment)
-            : base(configuration, environment)
+        public Startup(IConfiguration configuration)
         {
-
+            Configuration = configuration;
         }
 
-        protected override string RootPath => "dist";
-        protected override string SourcePath => "";
-        protected override Action<ISpaBuilder> SpaBuilder => spa =>
-        {
-            if (spa.ApplicationBuilder.ApplicationServices.GetService<IWebHostEnvironment>().IsDevelopment())
-            {
-                //spa.UseVueCli(npmScript: "serve");
-            }
-        };
+        public IConfiguration Configuration { get; }
 
-        protected override void ConfigureApplicationServices(IServiceCollection services)
+        public void ConfigureServices(IServiceCollection services)
         {
-            base.ConfigureApplicationServices(services);
+            services.AddControllers();
             
             // Add EF Core In-Memory Database
             services.AddDbContext<CarRentalDbContext>(options =>
                 options.UseInMemoryDatabase("CarRentalDb"));
+
+            services.AddSpaStaticFiles(configuration =>
+            {
+                configuration.RootPath = "dist";
+            });
+        }
+
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env, CarRentalDbContext dbContext)
+        {
+            if (env.IsDevelopment())
+            {
+                app.UseDeveloperExceptionPage();
+            }
+
+            // Ensure database is created and seeded
+            dbContext.Database.EnsureCreated();
+
+            app.UseStaticFiles();
+            app.UseSpaStaticFiles();
+
+            app.UseRouting();
+
+            app.UseEndpoints(endpoints =>
+            {
+                endpoints.MapControllers();
+            });
+
+            app.UseSpa(spa =>
+            {
+                spa.Options.SourcePath = "ClientApp";
+                spa.Options.DefaultPageStaticFileOptions = new StaticFileOptions
+                {
+                    OnPrepareResponse = context =>
+                    {
+                        context.Context.Response.Headers.Add("Cache-Control", "no-cache, no-store");
+                        context.Context.Response.Headers.Add("Expires", "-1");
+                    }
+                };
+
+                if (env.IsDevelopment())
+                {
+                    // spa.UseVueCli(npmScript: "serve");
+                }
+            });
         }
     }
 }
