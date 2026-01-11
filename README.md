@@ -1,59 +1,114 @@
-# AmmanWeather
+# طقس الزرقاء - الأردن
 
-This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 21.0.2.
+تطبيق ويب لعرض حالة الطقس في مدينة الزرقاء، الأردن. تم بناؤه باستخدام Vue.js 2.6 و ASP.NET Core 3.1.
 
-## Development server
+## الميزات
 
-To start a local development server, run:
+- 🌡️ عرض الطقس الحالي لمدينة الزرقاء
+- 📅 توقعات الطقس لمدة 5 أيام
+- 💧 معلومات تفصيلية (الرطوبة، سرعة الرياح، الضغط الجوي)
+- 📱 تصميم متجاوب يعمل على جميع الأجهزة
+- 🌐 واجهة باللغة العربية (RTL)
 
+## التقنيات المستخدمة
+
+### Frontend
+- Vue.js 2.6
+- TypeScript 4.5
+- Vuetify 1.5
+- Vue Router
+- Axios
+
+### Backend
+- ASP.NET Core 3.1
+- C#
+
+## التثبيت والتشغيل
+
+### المتطلبات
+- Node.js (v12 أو أحدث)
+- .NET Core SDK 3.1
+- npm أو yarn
+
+### خطوات التثبيت
+
+1. استنساخ المشروع:
 ```bash
-ng serve
+git clone <repository-url>
+cd zarqaweather
 ```
 
-Once the server is running, open your browser and navigate to `http://localhost:4200/`. The application will automatically reload whenever you modify any of the source files.
-
-## Code scaffolding
-
-Angular CLI includes powerful code scaffolding tools. To generate a new component, run:
-
+2. تثبيت الحزم:
 ```bash
-ng generate component component-name
+npm install
 ```
 
-For a complete list of available schematics (such as `components`, `directives`, or `pipes`), run:
-
+3. بناء Frontend:
 ```bash
-ng generate --help
+npm run build
 ```
 
-## Building
-
-To build the project run:
-
+4. استعادة حزم .NET:
 ```bash
-ng build
+dotnet restore
 ```
 
-This will compile your project and store the build artifacts in the `dist/` directory. By default, the production build optimizes your application for performance and speed.
-
-## Running unit tests
-
-To execute unit tests with the [Vitest](https://vitest.dev/) test runner, use the following command:
-
+5. تشغيل التطبيق:
 ```bash
-ng test
+dotnet run
 ```
 
-## Running end-to-end tests
-
-For end-to-end (e2e) testing, run:
-
-```bash
-ng e2e
+6. فتح المتصفح على:
+```
+http://localhost:5000/applications/zarqaweather/
 ```
 
-Angular CLI does not come with an end-to-end testing framework by default. You can choose one that suits your needs.
+## البنية
 
-## Additional Resources
+```
+ZarqaWeather/
+├── ClientApp/              # Frontend (Vue.js)
+│   ├── assets/            # الأصول (CSS، صور)
+│   ├── components/        # مكونات Vue
+│   │   ├── App/          # المكون الرئيسي
+│   │   ├── Index/        # الصفحة الرئيسية
+│   │   └── Weather/      # صفحة الطقس
+│   ├── plugins/          # إضافات Vue
+│   ├── Services/         # خدمات API
+│   │   └── Weather/      # خدمة الطقس
+│   └── shared/           # مكونات مشتركة
+├── Controller/           # API Controllers
+│   └── WeatherController.cs
+├── Config/               # ملفات الإعدادات
+├── Pages/                # Razor Pages
+├── Properties/           # إعدادات المشروع
+└── public/              # ملفات عامة
 
-For more information on using the Angular CLI, including detailed command references, visit the [Angular CLI Overview and Command Reference](https://angular.dev/tools/cli) page.
+```
+
+## البيانات
+
+حالياً، التطبيق يستخدم بيانات ثابتة (Static Data) كما هو مطلوب. يمكن دمج API حقيقي للطقس لاحقاً.
+
+## API Endpoints
+
+- `GET /api/Weather/current` - الحصول على الطقس الحالي
+- `GET /api/Weather/forecast` - الحصول على توقعات 5 أيام
+
+## المساهمة
+
+هذا المشروع تم إنشاؤه باستخدام Najiz.MicroTemplate. للمساهمة:
+
+1. Fork المشروع
+2. إنشاء branch للميزة الجديدة
+3. Commit التغييرات
+4. Push إلى Branch
+5. فتح Pull Request
+
+## الترخيص
+
+هذا المشروع لأغراض تعليمية وتجريبية.
+
+## التواصل
+
+للمزيد من المعلومات، يرجى التواصل مع فريق التطوير.
