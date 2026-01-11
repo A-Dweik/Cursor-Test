@@ -1,0 +1,314 @@
+<v-container fluid class="page-container">
+  <!-- Page Header -->
+  <v-layout row wrap class="mb-4">
+    <v-flex xs12 sm8>
+      <h1 class="display-1 mb-2">إدارة عقود الإيجار</h1>
+      <p class="subheading grey--text">عرض وإدارة عقود الإيجار</p>
+    </v-flex>
+    <v-flex xs12 sm4 class="text-left">
+      <v-btn color="primary" large @click="openAddDialog">
+        <v-icon left>mdi-plus</v-icon>
+        إنشاء عقد إيجار جديد
+      </v-btn>
+    </v-flex>
+  </v-layout>
+
+  <!-- Search -->
+  <v-layout row wrap class="mb-4">
+    <v-flex xs12>
+      <v-text-field
+        v-model="search"
+        append-icon="mdi-magnify"
+        label="بحث"
+        single-line
+        hide-details
+        outlined
+      ></v-text-field>
+    </v-flex>
+  </v-layout>
+
+  <!-- Rentals Table -->
+  <v-card elevation="2">
+    <v-data-table
+      :headers="headers"
+      :items="rentals"
+      :search="search"
+      :loading="loading"
+      loading-text="جاري التحميل..."
+      no-data-text="لا توجد عقود إيجار"
+      :items-per-page="10"
+      class="elevation-0"
+    >
+      <template v-slot:item.car.brand="{ item }">
+        {{ getCarDisplay(item.car) }}
+      </template>
+
+      <template v-slot:item.startDate="{ item }">
+        {{ formatDate(item.startDate) }}
+      </template>
+
+      <template v-slot:item.endDate="{ item }">
+        {{ formatDate(item.endDate) }}
+      </template>
+
+      <template v-slot:item.totalCost="{ item }">
+        {{ item.totalCost }} ريال
+      </template>
+
+      <template v-slot:item.status="{ item }">
+        <span :class="getStatusClasses(item.status)">
+          {{ getStatusText(item.status) }}
+        </span>
+      </template>
+
+      <template v-slot:item.actions="{ item }">
+        <v-btn icon @click="openDetailsDialog(item)">
+          <v-icon color="primary">mdi-eye</v-icon>
+        </v-btn>
+        <v-btn icon @click="openDeleteDialog(item)" v-if="item.status !== 'Active'">
+          <v-icon color="error">mdi-delete</v-icon>
+        </v-btn>
+      </template>
+    </v-data-table>
+  </v-card>
+
+  <!-- Add Rental Dialog -->
+  <v-dialog v-model="dialog" max-width="800px" persistent>
+    <v-card>
+      <v-card-title class="primary white--text">
+        <span class="headline">إنشاء عقد إيجار جديد</span>
+      </v-card-title>
+
+      <v-card-text class="pa-4">
+        <v-form ref="form" v-model="valid">
+          <v-layout row wrap>
+            <v-flex xs12 class="pa-2">
+              <v-select
+                v-model="editedRental.carId"
+                :items="availableCars"
+                :item-text="(item) => `${item.brand} ${item.model} - ${item.dailyRate} ريال/يوم`"
+                item-value="id"
+                label="اختر السيارة"
+                :rules="[rules.required]"
+                outlined
+                required
+              >
+                <template v-slot:selection="{ item }">
+                  {{ item.brand }} {{ item.model }} ({{ item.plateNumber }}) - {{ item.dailyRate }} ريال/يوم
+                </template>
+                <template v-slot:item="{ item }">
+                  <v-list-item-content>
+                    <v-list-item-title>{{ item.brand }} {{ item.model }}</v-list-item-title>
+                    <v-list-item-subtitle>{{ item.plateNumber }} - {{ item.dailyRate }} ريال/يوم</v-list-item-subtitle>
+                  </v-list-item-content>
+                </template>
+              </v-select>
+            </v-flex>
+
+            <v-flex xs12 sm6 class="pa-2">
+              <v-text-field
+                v-model="editedRental.customerName"
+                label="اسم العميل"
+                :rules="[rules.required]"
+                outlined
+                required
+              ></v-text-field>
+            </v-flex>
+
+            <v-flex xs12 sm6 class="pa-2">
+              <v-text-field
+                v-model="editedRental.customerPhone"
+                label="رقم الجوال"
+                :rules="[rules.required, rules.phone]"
+                outlined
+                required
+                placeholder="05XXXXXXXX"
+              ></v-text-field>
+            </v-flex>
+
+            <v-flex xs12 sm6 class="pa-2">
+              <v-text-field
+                v-model="editedRental.customerEmail"
+                label="البريد الإلكتروني"
+                :rules="[rules.email]"
+                outlined
+                type="email"
+              ></v-text-field>
+            </v-flex>
+
+            <v-flex xs12 sm6 class="pa-2">
+              <v-text-field
+                v-model="editedRental.nationalId"
+                label="رقم الهوية الوطنية"
+                :rules="[rules.required, rules.nationalId]"
+                outlined
+                required
+                maxlength="10"
+              ></v-text-field>
+            </v-flex>
+
+            <v-flex xs12 sm6 class="pa-2">
+              <v-text-field
+                v-model="editedRental.startDate"
+                label="تاريخ البداية"
+                type="date"
+                :rules="[rules.required]"
+                outlined
+                required
+              ></v-text-field>
+            </v-flex>
+
+            <v-flex xs12 sm6 class="pa-2">
+              <v-text-field
+                v-model="editedRental.endDate"
+                label="تاريخ النهاية"
+                type="date"
+                :rules="[rules.required]"
+                outlined
+                required
+              ></v-text-field>
+            </v-flex>
+
+            <v-flex xs12 class="pa-2">
+              <v-textarea
+                v-model="editedRental.notes"
+                label="ملاحظات"
+                outlined
+                rows="3"
+              ></v-textarea>
+            </v-flex>
+          </v-layout>
+        </v-form>
+      </v-card-text>
+
+      <v-card-actions>
+        <v-spacer></v-spacer>
+        <v-btn text @click="closeDialog">إلغاء</v-btn>
+        <v-btn color="primary" @click="saveRental" :disabled="!valid">حفظ</v-btn>
+      </v-card-actions>
+    </v-card>
+  </v-dialog>
+
+  <!-- Rental Details Dialog -->
+  <v-dialog v-model="detailsDialog" max-width="700px" v-if="selectedRental">
+    <v-card>
+      <v-card-title class="primary white--text">
+        <span class="headline">تفاصيل عقد الإيجار</span>
+      </v-card-title>
+
+      <v-card-text class="pa-4">
+        <v-layout row wrap>
+          <v-flex xs12 class="mb-3">
+            <h3 class="title mb-2">معلومات السيارة</h3>
+            <v-divider></v-divider>
+          </v-flex>
+
+          <v-flex xs12 sm6 class="pa-2">
+            <div class="caption grey--text">الماركة والموديل</div>
+            <div class="body-1">{{ selectedRental.car.brand }} {{ selectedRental.car.model }}</div>
+          </v-flex>
+
+          <v-flex xs12 sm6 class="pa-2">
+            <div class="caption grey--text">رقم اللوحة</div>
+            <div class="body-1">{{ selectedRental.car.plateNumber }}</div>
+          </v-flex>
+
+          <v-flex xs12 sm6 class="pa-2">
+            <div class="caption grey--text">السعر اليومي</div>
+            <div class="body-1">{{ selectedRental.car.dailyRate }} ريال</div>
+          </v-flex>
+
+          <v-flex xs12 class="mt-4 mb-3">
+            <h3 class="title mb-2">معلومات العميل</h3>
+            <v-divider></v-divider>
+          </v-flex>
+
+          <v-flex xs12 sm6 class="pa-2">
+            <div class="caption grey--text">الاسم</div>
+            <div class="body-1">{{ selectedRental.customerName }}</div>
+          </v-flex>
+
+          <v-flex xs12 sm6 class="pa-2">
+            <div class="caption grey--text">رقم الجوال</div>
+            <div class="body-1">{{ selectedRental.customerPhone }}</div>
+          </v-flex>
+
+          <v-flex xs12 sm6 class="pa-2">
+            <div class="caption grey--text">البريد الإلكتروني</div>
+            <div class="body-1">{{ selectedRental.customerEmail || 'غير محدد' }}</div>
+          </v-flex>
+
+          <v-flex xs12 sm6 class="pa-2">
+            <div class="caption grey--text">رقم الهوية</div>
+            <div class="body-1">{{ selectedRental.nationalId }}</div>
+          </v-flex>
+
+          <v-flex xs12 class="mt-4 mb-3">
+            <h3 class="title mb-2">تفاصيل العقد</h3>
+            <v-divider></v-divider>
+          </v-flex>
+
+          <v-flex xs12 sm6 class="pa-2">
+            <div class="caption grey--text">تاريخ البداية</div>
+            <div class="body-1">{{ formatDate(selectedRental.startDate) }}</div>
+          </v-flex>
+
+          <v-flex xs12 sm6 class="pa-2">
+            <div class="caption grey--text">تاريخ النهاية</div>
+            <div class="body-1">{{ formatDate(selectedRental.endDate) }}</div>
+          </v-flex>
+
+          <v-flex xs12 sm6 class="pa-2">
+            <div class="caption grey--text">التكلفة الإجمالية</div>
+            <div class="body-1">{{ selectedRental.totalCost }} ريال</div>
+          </v-flex>
+
+          <v-flex xs12 sm6 class="pa-2">
+            <div class="caption grey--text">الحالة</div>
+            <div>
+              <span :class="getStatusClasses(selectedRental.status)">
+                {{ getStatusText(selectedRental.status) }}
+              </span>
+            </div>
+          </v-flex>
+
+          <v-flex xs12 class="pa-2" v-if="selectedRental.notes">
+            <div class="caption grey--text">ملاحظات</div>
+            <div class="body-1">{{ selectedRental.notes }}</div>
+          </v-flex>
+        </v-layout>
+      </v-card-text>
+
+      <v-card-actions>
+        <v-btn color="success" @click="completeRental(selectedRental)" v-if="selectedRental.status === 'Active'">
+          <v-icon left>mdi-check</v-icon>
+          إكمال العقد
+        </v-btn>
+        <v-btn color="error" outlined @click="cancelRental(selectedRental)" v-if="selectedRental.status === 'Active'">
+          <v-icon left>mdi-close</v-icon>
+          إلغاء العقد
+        </v-btn>
+        <v-spacer></v-spacer>
+        <v-btn text @click="closeDialog">إغلاق</v-btn>
+      </v-card-actions>
+    </v-card>
+  </v-dialog>
+
+  <!-- Delete Confirmation Dialog -->
+  <v-dialog v-model="deleteDialog" max-width="500px">
+    <v-card>
+      <v-card-title class="headline">تأكيد الحذف</v-card-title>
+      <v-card-text>
+        هل أنت متأكد من حذف عقد الإيجار؟
+        <div v-if="rentalToDelete" class="mt-3">
+          <strong>العميل: {{ rentalToDelete.customerName }}</strong>
+        </div>
+      </v-card-text>
+      <v-card-actions>
+        <v-spacer></v-spacer>
+        <v-btn text @click="closeDialog">إلغاء</v-btn>
+        <v-btn color="error" @click="deleteRental">حذف</v-btn>
+      </v-card-actions>
+    </v-card>
+  </v-dialog>
+</v-container>

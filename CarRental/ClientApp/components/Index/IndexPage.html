@@ -1,0 +1,139 @@
+<v-container fluid class="page-container">
+  <!-- Page Header -->
+  <v-layout row wrap class="mb-6">
+    <v-flex xs12>
+      <h1 class="display-1 mb-2">نظام إدارة تأجير السيارات</h1>
+      <p class="subheading grey--text">لوحة التحكم الرئيسية</p>
+    </v-flex>
+  </v-layout>
+
+  <!-- Loading State -->
+  <div v-if="loading" class="text-center pa-12">
+    <v-progress-circular indeterminate color="primary"></v-progress-circular>
+    <p class="mt-4 body-1">جاري التحميل...</p>
+  </div>
+
+  <!-- Main Content -->
+  <v-layout row wrap v-else>
+    <!-- Stats Cards -->
+    <v-flex xs12 sm6 md3 class="pa-2">
+      <v-card class="card-hover" elevation="2">
+        <v-card-text class="text-center pa-4">
+          <v-icon size="48" color="primary">mdi-car-multiple</v-icon>
+          <div class="display-1 primary--text mt-3">{{ stats.totalCars }}</div>
+          <div class="caption grey--text">إجمالي السيارات</div>
+        </v-card-text>
+      </v-card>
+    </v-flex>
+
+    <v-flex xs12 sm6 md3 class="pa-2">
+      <v-card class="card-hover" elevation="2">
+        <v-card-text class="text-center pa-4">
+          <v-icon size="48" color="success">mdi-car-side</v-icon>
+          <div class="display-1 success--text mt-3">{{ stats.availableCars }}</div>
+          <div class="caption grey--text">السيارات المتاحة</div>
+        </v-card-text>
+      </v-card>
+    </v-flex>
+
+    <v-flex xs12 sm6 md3 class="pa-2">
+      <v-card class="card-hover" elevation="2">
+        <v-card-text class="text-center pa-4">
+          <v-icon size="48" color="info">mdi-file-document-multiple</v-icon>
+          <div class="display-1 info--text mt-3">{{ stats.activeRentals }}</div>
+          <div class="caption grey--text">عقود الإيجار النشطة</div>
+        </v-card-text>
+      </v-card>
+    </v-flex>
+
+    <v-flex xs12 sm6 md3 class="pa-2">
+      <v-card class="card-hover" elevation="2">
+        <v-card-text class="text-center pa-4">
+          <v-icon size="48" color="orange">mdi-cash-multiple</v-icon>
+          <div class="display-1 orange--text mt-3">{{ stats.totalRevenue.toFixed(0) }}</div>
+          <div class="caption grey--text">إجمالي الإيرادات (ريال)</div>
+        </v-card-text>
+      </v-card>
+    </v-flex>
+
+    <!-- Welcome Card -->
+    <v-flex xs12 md6 class="pa-2 mt-4">
+      <v-card class="card-hover" elevation="2">
+        <v-card-title class="primary white--text">
+          <v-icon left color="white">mdi-hand-wave</v-icon>
+          <span class="headline">مرحباً بك</span>
+        </v-card-title>
+        <v-card-text class="pa-4">
+          <p class="body-1 mb-3">
+            مرحباً بك في نظام إدارة تأجير السيارات. هذا النظام يتيح لك:
+          </p>
+          <ul class="body-1">
+            <li>إدارة أسطول السيارات المتاحة للإيجار</li>
+            <li>متابعة عقود الإيجار النشطة والمكتملة</li>
+            <li>إضافة وتعديل معلومات السيارات</li>
+            <li>إنشاء عقود إيجار جديدة</li>
+          </ul>
+        </v-card-text>
+        <v-card-actions>
+          <v-spacer></v-spacer>
+          <v-btn color="primary" @click="$router.push('/cars')">
+            إدارة السيارات
+            <v-icon right>mdi-arrow-left</v-icon>
+          </v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-flex>
+
+    <!-- Quick Actions Card -->
+    <v-flex xs12 md6 class="pa-2 mt-4">
+      <v-card elevation="2">
+        <v-card-title class="headline">إجراءات سريعة</v-card-title>
+        <v-divider></v-divider>
+        <v-list>
+          <v-list-item @click="$router.push('/cars')">
+            <v-list-item-avatar>
+              <v-icon color="primary">mdi-plus-circle</v-icon>
+            </v-list-item-avatar>
+            <v-list-item-content>
+              <v-list-item-title>إضافة سيارة جديدة</v-list-item-title>
+              <v-list-item-subtitle>أضف سيارة جديدة للأسطول</v-list-item-subtitle>
+            </v-list-item-content>
+            <v-list-item-action>
+              <v-icon>mdi-chevron-left</v-icon>
+            </v-list-item-action>
+          </v-list-item>
+
+          <v-divider inset></v-divider>
+
+          <v-list-item @click="$router.push('/rentals')">
+            <v-list-item-avatar>
+              <v-icon color="success">mdi-file-document-edit</v-icon>
+            </v-list-item-avatar>
+            <v-list-item-content>
+              <v-list-item-title>إنشاء عقد إيجار جديد</v-list-item-title>
+              <v-list-item-subtitle>أضف عقد إيجار جديد</v-list-item-subtitle>
+            </v-list-item-content>
+            <v-list-item-action>
+              <v-icon>mdi-chevron-left</v-icon>
+            </v-list-item-action>
+          </v-list-item>
+
+          <v-divider inset></v-divider>
+
+          <v-list-item @click="$router.push('/cars')">
+            <v-list-item-avatar>
+              <v-icon color="info">mdi-car-search</v-icon>
+            </v-list-item-avatar>
+            <v-list-item-content>
+              <v-list-item-title>عرض السيارات المتاحة</v-list-item-title>
+              <v-list-item-subtitle>تصفح قائمة السيارات</v-list-item-subtitle>
+            </v-list-item-content>
+            <v-list-item-action>
+              <v-icon>mdi-chevron-left</v-icon>
+            </v-list-item-action>
+          </v-list-item>
+        </v-list>
+      </v-card>
+    </v-flex>
+  </v-layout>
+</v-container>
