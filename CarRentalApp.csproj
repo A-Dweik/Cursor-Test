@@ -1,0 +1,84 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+	<PropertyGroup>
+		<TargetFramework>net6.0</TargetFramework>
+		<TypeScriptCompileBlocked>true</TypeScriptCompileBlocked>
+		<TypeScriptToolsVersion>Latest</TypeScriptToolsVersion>
+		<IsPackable>false</IsPackable>
+		<DefaultItemExcludes>$(DefaultItemExcludes);node_modules\**</DefaultItemExcludes>
+		<Nullable>disable</Nullable>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<PackageReference Include="Microsoft.AspNetCore.SpaServices.Extensions" Version="6.0.0" />
+		<PackageReference Include="Microsoft.EntityFrameworkCore" Version="6.0.0" />
+		<PackageReference Include="Microsoft.EntityFrameworkCore.InMemory" Version="6.0.0" />
+		<PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="6.0.0" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<Compile Remove="App_Data\logs\**" />
+		<Compile Remove="dist\**" />
+		<Compile Remove="wwwroot\**" />
+		<Content Remove="App_Data\logs\**" />
+		<Content Remove="dist\**" />
+		<Content Remove="wwwroot\**" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<EmbeddedResource Remove="App_Data\logs\**" />
+		<EmbeddedResource Remove="dist\**" />
+		<EmbeddedResource Remove="wwwroot\**" />
+		<None Remove="App_Data\logs\**" />
+		<None Remove="dist\**" />
+		<None Remove="wwwroot\**" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<Content Remove="package.json" />
+		<Content Remove="tslint.json" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<None Remove="ClientApp\plugins\i18n.ts" />
+		<None Remove="ClientApp\Services\TelemetryService.ts" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<None Include="package.json" />
+		<None Include="public\manifest.json" />
+		<None Include="tsconfig.json" />
+		<None Include="tslint.json" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<Content Update="Config\NLog.config">
+			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
+			<CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+		</Content>
+	</ItemGroup>
+
+	<ItemGroup>
+		<Folder Include="ClientApp\public\" />
+		<Folder Include="MapperProfiles\" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<TypeScriptCompile Include="ClientApp\plugins\i18n.ts" />
+		<TypeScriptCompile Include="ClientApp\Services\TelemetryService.ts" />
+	</ItemGroup>
+
+	<Target Name="PublishRunWebpack" AfterTargets="ComputeFilesToPublish">
+		<Exec WorkingDirectory="" Command="npm config set registry https://najizportalnpm.azurewebsites.net/" />
+		<Exec WorkingDirectory="" Command="npm install" />
+		<Exec WorkingDirectory="" Command="npm run build" />
+
+		<ItemGroup>
+			<DistFiles Include="dist\**" />
+			<ResolvedFileToPublish Include="@(DistFiles->'%(FullPath)')" Exclude="@(ResolvedFileToPublish)">
+				<RelativePath>%(DistFiles.Identity)</RelativePath>
+				<CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+			</ResolvedFileToPublish>
+		</ItemGroup>
+	</Target>
+</Project>

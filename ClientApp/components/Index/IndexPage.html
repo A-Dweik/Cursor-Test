@@ -1,0 +1,118 @@
+<v-container fluid class="page-container">
+  <!-- Page Header -->
+  <v-layout row wrap class="mb-6">
+    <v-flex xs12>
+      <h1 class="display-1 mb-2">نظام تأجير السيارات</h1>
+      <p class="subheading grey--text">مرحباً بك في نظام إدارة تأجير السيارات</p>
+    </v-flex>
+  </v-layout>
+
+  <!-- Loading State -->
+  <div v-if="loading" class="text-center pa-12">
+    <v-progress-circular indeterminate color="primary" size="64"></v-progress-circular>
+    <p class="mt-4 body-1">جاري التحميل...</p>
+  </div>
+
+  <!-- Main Content -->
+  <v-layout row wrap v-else>
+    <!-- Welcome Card -->
+    <v-flex xs12 md6 class="pa-2">
+      <v-card class="card-hover" elevation="2">
+        <v-card-title class="primary white--text">
+          <v-icon left color="white">mdi-car</v-icon>
+          <span class="headline">مرحباً</span>
+        </v-card-title>
+        <v-card-text class="pa-4">
+          <p class="body-1">
+            مرحباً بك في نظام تأجير السيارات. يمكنك من خلال هذا النظام إدارة السيارات والحجوزات بسهولة.
+          </p>
+        </v-card-text>
+      </v-card>
+    </v-flex>
+
+    <!-- Quick Stats Card -->
+    <v-flex xs12 md6 class="pa-2">
+      <v-card class="card-hover" elevation="2">
+        <v-card-title class="headline">إحصائيات سريعة</v-card-title>
+        <v-card-text>
+          <v-layout row wrap>
+            <v-flex xs6 class="text-center pa-4">
+              <div class="display-1 primary--text">{{ totalCars }}</div>
+              <div class="caption grey--text">إجمالي السيارات</div>
+            </v-flex>
+            <v-flex xs6 class="text-center pa-4">
+              <div class="display-1 success--text">{{ activeRentals }}</div>
+              <div class="caption grey--text">الحجوزات النشطة</div>
+            </v-flex>
+          </v-layout>
+        </v-card-text>
+      </v-card>
+    </v-flex>
+
+    <!-- Features List -->
+    <v-flex xs12 class="pa-2 mt-4">
+      <v-card elevation="2">
+        <v-card-title class="headline">الميزات الأساسية</v-card-title>
+        <v-divider></v-divider>
+        <v-list>
+          <v-list-item>
+            <v-list-item-avatar>
+              <v-icon color="primary">mdi-car-multiple</v-icon>
+            </v-list-item-avatar>
+            <v-list-item-content>
+              <v-list-item-title>إدارة السيارات</v-list-item-title>
+              <v-list-item-subtitle>إضافة وتعديل وحذف السيارات</v-list-item-subtitle>
+            </v-list-item-content>
+          </v-list-item>
+
+          <v-divider inset></v-divider>
+
+          <v-list-item>
+            <v-list-item-avatar>
+              <v-icon color="success">mdi-calendar-check</v-icon>
+            </v-list-item-avatar>
+            <v-list-item-content>
+              <v-list-item-title>إدارة الحجوزات</v-list-item-title>
+              <v-list-item-subtitle>حجز السيارات وتتبع الحجوزات</v-list-item-subtitle>
+            </v-list-item-content>
+          </v-list-item>
+
+          <v-divider inset></v-divider>
+
+          <v-list-item>
+            <v-list-item-avatar>
+              <v-icon color="info">mdi-chart-line</v-icon>
+            </v-list-item-avatar>
+            <v-list-item-content>
+              <v-list-item-title>التقارير والإحصائيات</v-list-item-title>
+              <v-list-item-subtitle>متابعة الأداء والإيرادات</v-list-item-subtitle>
+            </v-list-item-content>
+          </v-list-item>
+        </v-list>
+      </v-card>
+    </v-flex>
+
+    <!-- Quick Actions -->
+    <v-flex xs12 class="pa-2 mt-4">
+      <v-card elevation="2">
+        <v-card-title class="headline">إجراءات سريعة</v-card-title>
+        <v-card-text>
+          <v-layout row wrap>
+            <v-flex xs12 sm6 md3 class="pa-2">
+              <v-btn color="primary" large block to="/cars">
+                <v-icon left>mdi-car</v-icon>
+                عرض السيارات
+              </v-btn>
+            </v-flex>
+            <v-flex xs12 sm6 md3 class="pa-2">
+              <v-btn color="success" large block to="/rentals">
+                <v-icon left>mdi-calendar</v-icon>
+                عرض الحجوزات
+              </v-btn>
+            </v-flex>
+          </v-layout>
+        </v-card-text>
+      </v-card>
+    </v-flex>
+  </v-layout>
+</v-container>
