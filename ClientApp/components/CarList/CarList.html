@@ -1,0 +1,182 @@
+<v-container fluid class="page-container">
+  <!-- Page Header -->
+  <v-layout row wrap class="mb-4">
+    <v-flex xs12>
+      <v-layout row wrap align-center>
+        <v-flex xs12 sm6>
+          <h1 class="display-1 mb-2">قائمة السيارات</h1>
+          <p class="subheading grey--text">إدارة جميع السيارات المتاحة</p>
+        </v-flex>
+        <v-flex xs12 sm6 class="text-right">
+          <v-btn color="primary" large @click="navigateToAddCar">
+            <v-icon left>mdi-plus-circle</v-icon>
+            إضافة سيارة جديدة
+          </v-btn>
+        </v-flex>
+      </v-layout>
+    </v-flex>
+  </v-layout>
+
+  <!-- Filters Card -->
+  <v-card class="mb-4" elevation="2">
+    <v-card-text class="pa-4">
+      <v-layout row wrap>
+        <v-flex xs12 md8 class="pa-2">
+          <v-text-field
+            v-model="searchTerm"
+            @input="onSearchChange"
+            label="ابحث عن سيارة (الماركة، الموديل، اللون)"
+            prepend-inner-icon="mdi-magnify"
+            outlined
+            clearable
+            hide-details
+          ></v-text-field>
+        </v-flex>
+        <v-flex xs12 md4 class="pa-2">
+          <v-select
+            v-model="selectedStatus"
+            @change="onStatusChange"
+            :items="statusOptions"
+            label="الحالة"
+            outlined
+            hide-details
+          ></v-select>
+        </v-flex>
+      </v-layout>
+    </v-card-text>
+  </v-card>
+
+  <!-- Loading State -->
+  <div v-if="loading" class="text-center pa-12">
+    <v-progress-circular indeterminate color="primary"></v-progress-circular>
+    <p class="mt-4 body-1">جاري تحميل السيارات...</p>
+  </div>
+
+  <!-- Empty State -->
+  <div v-else-if="filteredCars.length === 0" class="text-center pa-12">
+    <v-icon size="64" color="grey lighten-1">mdi-car-off</v-icon>
+    <p class="title mt-4 grey--text">لا توجد سيارات</p>
+    <p class="body-1 grey--text">لم يتم العثور على سيارات تطابق معايير البحث</p>
+    <v-btn color="primary" class="mt-4" @click="navigateToAddCar">
+      <v-icon left>mdi-plus</v-icon>
+      إضافة سيارة جديدة
+    </v-btn>
+  </div>
+
+  <!-- Cars Grid -->
+  <v-layout row wrap v-else>
+    <v-flex xs12 sm6 md4 lg3 v-for="car in filteredCars" :key="car.id" class="pa-2">
+      <v-card class="car-card card-hover" elevation="2">
+        <!-- Car Image Placeholder -->
+        <v-card-title class="car-image-placeholder primary white--text pa-6">
+          <v-icon size="80" color="white">mdi-car</v-icon>
+        </v-card-title>
+
+        <v-card-text class="pa-4">
+          <!-- Car Title -->
+          <h3 class="headline mb-2">{{ car.brand }} {{ car.model }}</h3>
+          <p class="subheading mb-3">{{ car.year }}</p>
+
+          <!-- Car Details -->
+          <v-layout row wrap class="mb-2">
+            <v-flex xs6>
+              <div class="body-2 grey--text">
+                <v-icon small>mdi-palette</v-icon>
+                {{ car.color }}
+              </div>
+            </v-flex>
+            <v-flex xs6>
+              <div class="body-2 grey--text">
+                <v-icon small>mdi-speedometer</v-icon>
+                {{ car.mileage.toLocaleString() }} كم
+              </div>
+            </v-flex>
+          </v-layout>
+
+          <!-- Price -->
+          <div class="display-1 primary--text mb-3">
+            {{ car.price.toLocaleString() }} ريال
+          </div>
+
+          <!-- Status -->
+          <div class="mb-3">
+            <span :class="getStatusClasses(car.status)">
+              {{ getStatusText(car.status) }}
+            </span>
+          </div>
+
+          <!-- Description -->
+          <p class="body-1 grey--text text--darken-1 car-description">
+            {{ car.description }}
+          </p>
+        </v-card-text>
+
+        <v-divider></v-divider>
+
+        <!-- Actions -->
+        <v-card-actions class="pa-3">
+          <v-btn icon @click="viewCarDetails(car.id)">
+            <v-icon color="primary">mdi-eye</v-icon>
+          </v-btn>
+          <v-btn icon @click="editCar(car.id)">
+            <v-icon color="success">mdi-pencil</v-icon>
+          </v-btn>
+          <v-spacer></v-spacer>
+          <v-btn icon @click="openDeleteDialog(car)">
+            <v-icon color="error">mdi-delete</v-icon>
+          </v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-flex>
+  </v-layout>
+
+  <!-- Delete Confirmation Dialog -->
+  <v-dialog v-model="deleteDialog" max-width="500">
+    <v-card>
+      <v-card-title class="headline error white--text">
+        <v-icon left color="white">mdi-alert</v-icon>
+        تأكيد الحذف
+      </v-card-title>
+      <v-card-text class="pa-4" v-if="carToDelete">
+        <p class="body-1">
+          هل أنت متأكد من حذف السيارة:
+          <strong>{{ carToDelete.brand }} {{ carToDelete.model }} ({{ carToDelete.year }})</strong>؟
+        </p>
+        <p class="body-2 error--text mt-2">
+          <v-icon small color="error">mdi-information</v-icon>
+          هذا الإجراء لا يمكن التراجع عنه
+        </p>
+      </v-card-text>
+      <v-card-actions class="pa-4">
+        <v-spacer></v-spacer>
+        <v-btn text @click="closeDeleteDialog">إلغاء</v-btn>
+        <v-btn color="error" @click="confirmDelete">حذف</v-btn>
+      </v-card-actions>
+    </v-card>
+  </v-dialog>
+</v-container>
+
+<style scoped>
+.car-image-placeholder {
+  height: 200px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #1976D2 0%, #1565C0 100%);
+}
+
+.car-card {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.car-description {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  min-height: 48px;
+}
+</style>

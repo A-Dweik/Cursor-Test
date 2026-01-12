@@ -1,0 +1,233 @@
+<v-container fluid class="page-container">
+  <!-- Page Header -->
+  <v-layout row wrap class="mb-4">
+    <v-flex xs12>
+      <v-btn text @click="cancel" class="mb-3">
+        <v-icon left>mdi-arrow-right</v-icon>
+        العودة إلى القائمة
+      </v-btn>
+      <h1 class="display-1 mb-2">
+        {{ isEditMode ? 'تعديل السيارة' : 'إضافة سيارة جديدة' }}
+      </h1>
+      <p class="subheading grey--text">
+        {{ isEditMode ? 'قم بتحديث بيانات السيارة' : 'املأ النموذج لإضافة سيارة جديدة' }}
+      </p>
+    </v-flex>
+  </v-layout>
+
+  <!-- Loading State -->
+  <div v-if="loading && isEditMode" class="text-center pa-12">
+    <v-progress-circular indeterminate color="primary"></v-progress-circular>
+    <p class="mt-4 body-1">جاري تحميل البيانات...</p>
+  </div>
+
+  <!-- Car Form -->
+  <v-card elevation="2" v-else>
+    <v-card-text class="pa-4">
+      <v-form ref="carForm" v-model="valid">
+        <v-layout row wrap>
+          <!-- Brand -->
+          <v-flex xs12 md6 class="pa-2">
+            <v-text-field
+              v-model="car.brand"
+              label="الماركة *"
+              :rules="[rules.required]"
+              outlined
+              required
+              prepend-inner-icon="mdi-car"
+            ></v-text-field>
+          </v-flex>
+
+          <!-- Model -->
+          <v-flex xs12 md6 class="pa-2">
+            <v-text-field
+              v-model="car.model"
+              label="الموديل *"
+              :rules="[rules.required]"
+              outlined
+              required
+              prepend-inner-icon="mdi-car-info"
+            ></v-text-field>
+          </v-flex>
+
+          <!-- Year -->
+          <v-flex xs12 md6 class="pa-2">
+            <v-text-field
+              v-model.number="car.year"
+              label="السنة *"
+              :rules="[rules.required, rules.minValue(1900), rules.maxYear]"
+              outlined
+              required
+              type="number"
+              prepend-inner-icon="mdi-calendar"
+            ></v-text-field>
+          </v-flex>
+
+          <!-- Color -->
+          <v-flex xs12 md6 class="pa-2">
+            <v-text-field
+              v-model="car.color"
+              label="اللون *"
+              :rules="[rules.required]"
+              outlined
+              required
+              prepend-inner-icon="mdi-palette"
+            ></v-text-field>
+          </v-flex>
+
+          <!-- Price -->
+          <v-flex xs12 md6 class="pa-2">
+            <v-text-field
+              v-model.number="car.price"
+              label="السعر (ريال) *"
+              :rules="[rules.required, rules.minValue(0)]"
+              outlined
+              required
+              type="number"
+              prepend-inner-icon="mdi-currency-usd"
+              suffix="ريال"
+            ></v-text-field>
+          </v-flex>
+
+          <!-- Mileage -->
+          <v-flex xs12 md6 class="pa-2">
+            <v-text-field
+              v-model.number="car.mileage"
+              label="المسافة المقطوعة (كم) *"
+              :rules="[rules.required, rules.minValue(0)]"
+              outlined
+              required
+              type="number"
+              prepend-inner-icon="mdi-speedometer"
+              suffix="كم"
+            ></v-text-field>
+          </v-flex>
+
+          <!-- Status -->
+          <v-flex xs12 md6 class="pa-2">
+            <v-select
+              v-model="car.status"
+              :items="statusOptions"
+              label="الحالة *"
+              :rules="[rules.required]"
+              outlined
+              required
+              prepend-inner-icon="mdi-information"
+            ></v-select>
+          </v-flex>
+
+          <!-- Description -->
+          <v-flex xs12 class="pa-2">
+            <v-textarea
+              v-model="car.description"
+              label="الوصف *"
+              :rules="[rules.required]"
+              outlined
+              required
+              rows="4"
+              prepend-inner-icon="mdi-text"
+              counter
+            ></v-textarea>
+          </v-flex>
+
+          <!-- Help Text -->
+          <v-flex xs12 class="pa-2">
+            <v-alert type="info" outlined>
+              <div class="body-2">
+                <v-icon small left>mdi-information</v-icon>
+                <strong>ملاحظة:</strong> جميع الحقول المعلمة بـ (*) مطلوبة
+              </div>
+            </v-alert>
+          </v-flex>
+        </v-layout>
+      </v-form>
+    </v-card-text>
+
+    <v-divider></v-divider>
+
+    <!-- Form Actions -->
+    <v-card-actions class="pa-4">
+      <v-spacer></v-spacer>
+      <v-btn large outlined @click="cancel" :disabled="loading">
+        إلغاء
+      </v-btn>
+      <v-btn
+        large
+        color="primary"
+        @click="saveCar"
+        :loading="loading"
+        :disabled="!valid || loading"
+      >
+        <v-icon left>{{ isEditMode ? 'mdi-content-save' : 'mdi-plus-circle' }}</v-icon>
+        {{ isEditMode ? 'حفظ التعديلات' : 'إضافة السيارة' }}
+      </v-btn>
+    </v-card-actions>
+  </v-card>
+
+  <!-- Preview Card -->
+  <v-card elevation="2" class="mt-4" v-if="car.brand || car.model">
+    <v-card-title class="headline">
+      <v-icon left color="primary">mdi-eye</v-icon>
+      معاينة
+    </v-card-title>
+    <v-divider></v-divider>
+    <v-card-text class="pa-4">
+      <v-layout row wrap>
+        <!-- Car Image Placeholder -->
+        <v-flex xs12 md4 class="pa-2">
+          <div class="preview-image primary white--text">
+            <v-icon size="80" color="white">mdi-car</v-icon>
+          </div>
+        </v-flex>
+
+        <!-- Car Info Preview -->
+        <v-flex xs12 md8 class="pa-2">
+          <h3 class="display-1 mb-2">
+            {{ car.brand || 'الماركة' }} {{ car.model || 'الموديل' }}
+          </h3>
+          <p class="headline mb-3">{{ car.year || currentYear }}</p>
+
+          <div class="display-1 primary--text mb-3">
+            {{ car.price ? car.price.toLocaleString() : '0' }} ريال
+          </div>
+
+          <v-layout row wrap class="mb-3">
+            <v-flex xs12 sm6>
+              <div class="body-1 grey--text">
+                <v-icon small>mdi-palette</v-icon>
+                {{ car.color || 'اللون' }}
+              </div>
+            </v-flex>
+            <v-flex xs12 sm6>
+              <div class="body-1 grey--text">
+                <v-icon small>mdi-speedometer</v-icon>
+                {{ car.mileage ? car.mileage.toLocaleString() : '0' }} كم
+              </div>
+            </v-flex>
+          </v-layout>
+
+          <div class="mb-3">
+            <span class="status--text status--rounded status--green">
+              {{ car.status === 'available' ? 'متاحة' : car.status === 'reserved' ? 'محجوزة' : 'مباعة' }}
+            </span>
+          </div>
+
+          <p class="body-1 grey--text text--darken-1">
+            {{ car.description || 'لا يوجد وصف' }}
+          </p>
+        </v-flex>
+      </v-layout>
+    </v-card-text>
+  </v-card>
+</v-container>
+
+<style scoped>
+.preview-image {
+  height: 250px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #1976D2 0%, #1565C0 100%);
+  border-radius: 4px;
+}
+</style>

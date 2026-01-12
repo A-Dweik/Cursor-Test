@@ -1,0 +1,219 @@
+<v-container fluid class="page-container">
+  <!-- Page Header -->
+  <v-layout row wrap class="mb-6">
+    <v-flex xs12>
+      <h1 class="display-1 mb-2">تطبيق بيع السيارات</h1>
+      <p class="subheading grey--text">منصة شاملة لبيع وشراء السيارات</p>
+    </v-flex>
+  </v-layout>
+
+  <!-- Loading State -->
+  <div v-if="loading" class="text-center pa-12">
+    <v-progress-circular indeterminate color="primary"></v-progress-circular>
+    <p class="mt-4 body-1">جاري التحميل...</p>
+  </div>
+
+  <!-- Main Content -->
+  <v-layout row wrap v-else>
+    <!-- Statistics Cards -->
+    <v-flex xs12 sm6 md3 class="pa-2">
+      <v-card class="card-hover" elevation="2">
+        <v-card-text class="text-center pa-4">
+          <v-icon size="48" color="primary" class="mb-3">mdi-car-multiple</v-icon>
+          <div class="display-1 primary--text mb-2">{{ totalCars }}</div>
+          <div class="body-2 grey--text">إجمالي السيارات</div>
+        </v-card-text>
+      </v-card>
+    </v-flex>
+
+    <v-flex xs12 sm6 md3 class="pa-2">
+      <v-card class="card-hover" elevation="2">
+        <v-card-text class="text-center pa-4">
+          <v-icon size="48" color="success" class="mb-3">mdi-check-circle</v-icon>
+          <div class="display-1 success--text mb-2">{{ availableCars }}</div>
+          <div class="body-2 grey--text">سيارات متاحة</div>
+        </v-card-text>
+      </v-card>
+    </v-flex>
+
+    <v-flex xs12 sm6 md3 class="pa-2">
+      <v-card class="card-hover" elevation="2">
+        <v-card-text class="text-center pa-4">
+          <v-icon size="48" color="error" class="mb-3">mdi-close-circle</v-icon>
+          <div class="display-1 error--text mb-2">{{ soldCars }}</div>
+          <div class="body-2 grey--text">سيارات مباعة</div>
+        </v-card-text>
+      </v-card>
+    </v-flex>
+
+    <v-flex xs12 sm6 md3 class="pa-2">
+      <v-card class="card-hover" elevation="2">
+        <v-card-text class="text-center pa-4">
+          <v-icon size="48" color="orange" class="mb-3">mdi-clock-outline</v-icon>
+          <div class="display-1 orange--text mb-2">{{ reservedCars }}</div>
+          <div class="body-2 grey--text">سيارات محجوزة</div>
+        </v-card-text>
+      </v-card>
+    </v-flex>
+
+    <!-- Quick Actions -->
+    <v-flex xs12 class="pa-2 mt-4">
+      <v-card elevation="2">
+        <v-card-title class="headline">
+          <v-icon left color="primary">mdi-flash</v-icon>
+          إجراءات سريعة
+        </v-card-title>
+        <v-divider></v-divider>
+        <v-card-text class="pa-4">
+          <v-layout row wrap>
+            <v-flex xs12 sm6 md3 class="pa-2">
+              <v-btn color="primary" large block @click="navigateToAddCar">
+                <v-icon left>mdi-plus-circle</v-icon>
+                إضافة سيارة جديدة
+              </v-btn>
+            </v-flex>
+            <v-flex xs12 sm6 md3 class="pa-2">
+              <v-btn color="success" large block outlined @click="navigateToCars">
+                <v-icon left>mdi-view-list</v-icon>
+                عرض جميع السيارات
+              </v-btn>
+            </v-flex>
+            <v-flex xs12 sm6 md3 class="pa-2">
+              <v-btn color="info" large block outlined>
+                <v-icon left>mdi-chart-bar</v-icon>
+                التقارير
+              </v-btn>
+            </v-flex>
+            <v-flex xs12 sm6 md3 class="pa-2">
+              <v-btn color="secondary" large block outlined>
+                <v-icon left>mdi-cog</v-icon>
+                الإعدادات
+              </v-btn>
+            </v-flex>
+          </v-layout>
+        </v-card-text>
+      </v-card>
+    </v-flex>
+
+    <!-- Recent Cars -->
+    <v-flex xs12 class="pa-2 mt-4">
+      <v-card elevation="2">
+        <v-card-title class="headline">
+          <v-icon left color="primary">mdi-history</v-icon>
+          آخر السيارات المضافة
+        </v-card-title>
+        <v-divider></v-divider>
+
+        <div v-if="recentCars.length === 0" class="text-center pa-12">
+          <v-icon size="64" color="grey lighten-1">mdi-car-off</v-icon>
+          <p class="title mt-4 grey--text">لا توجد سيارات بعد</p>
+          <p class="body-1 grey--text">ابدأ بإضافة سيارة جديدة</p>
+          <v-btn color="primary" class="mt-4" @click="navigateToAddCar">
+            <v-icon left>mdi-plus</v-icon>
+            إضافة سيارة
+          </v-btn>
+        </div>
+
+        <v-list v-else three-line>
+          <template v-for="(car, index) in recentCars">
+            <v-list-item :key="car.id" @click="viewCarDetails(car.id)" class="clickable">
+              <v-list-item-avatar size="60" color="grey lighten-2">
+                <v-icon size="32" color="grey darken-1">mdi-car</v-icon>
+              </v-list-item-avatar>
+
+              <v-list-item-content>
+                <v-list-item-title class="headline mb-1">
+                  {{ car.brand }} {{ car.model }} ({{ car.year }})
+                </v-list-item-title>
+                <v-list-item-subtitle class="body-1">
+                  <v-icon small>mdi-palette</v-icon> {{ car.color }} |
+                  <v-icon small>mdi-speedometer</v-icon> {{ car.mileage }} كم |
+                  <v-icon small>mdi-currency-usd</v-icon> {{ car.price.toLocaleString() }} ريال
+                </v-list-item-subtitle>
+                <v-list-item-subtitle class="mt-2">
+                  <span :class="getStatusClasses(car.status)">
+                    {{ getStatusText(car.status) }}
+                  </span>
+                </v-list-item-subtitle>
+              </v-list-item-content>
+
+              <v-list-item-action>
+                <v-btn icon @click.stop="viewCarDetails(car.id)">
+                  <v-icon color="primary">mdi-chevron-left</v-icon>
+                </v-btn>
+              </v-list-item-action>
+            </v-list-item>
+
+            <v-divider v-if="index < recentCars.length - 1" :key="'divider-' + car.id" inset></v-divider>
+          </template>
+        </v-list>
+
+        <v-card-actions v-if="recentCars.length > 0">
+          <v-spacer></v-spacer>
+          <v-btn text color="primary" @click="navigateToCars">
+            عرض الكل
+            <v-icon left>mdi-arrow-left</v-icon>
+          </v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-flex>
+
+    <!-- Features Overview -->
+    <v-flex xs12 class="pa-2 mt-4">
+      <v-card elevation="2">
+        <v-card-title class="headline">
+          <v-icon left color="primary">mdi-star</v-icon>
+          الميزات الرئيسية
+        </v-card-title>
+        <v-divider></v-divider>
+        <v-list>
+          <v-list-item>
+            <v-list-item-avatar>
+              <v-icon color="success">mdi-check-circle</v-icon>
+            </v-list-item-avatar>
+            <v-list-item-content>
+              <v-list-item-title>إدارة شاملة للسيارات</v-list-item-title>
+              <v-list-item-subtitle>إضافة، تعديل، وحذف السيارات بسهولة</v-list-item-subtitle>
+            </v-list-item-content>
+          </v-list-item>
+
+          <v-divider inset></v-divider>
+
+          <v-list-item>
+            <v-list-item-avatar>
+              <v-icon color="info">mdi-magnify</v-icon>
+            </v-list-item-avatar>
+            <v-list-item-content>
+              <v-list-item-title>بحث وتصفية متقدمة</v-list-item-title>
+              <v-list-item-subtitle>ابحث عن السيارات حسب الماركة، الموديل، السعر، والمزيد</v-list-item-subtitle>
+            </v-list-item-content>
+          </v-list-item>
+
+          <v-divider inset></v-divider>
+
+          <v-list-item>
+            <v-list-item-avatar>
+              <v-icon color="orange">mdi-clock-fast</v-icon>
+            </v-list-item-avatar>
+            <v-list-item-content>
+              <v-list-item-title>واجهة سريعة ومستجيبة</v-list-item-title>
+              <v-list-item-subtitle>تصميم حديث يعمل على جميع الأجهزة</v-list-item-subtitle>
+            </v-list-item-content>
+          </v-list-item>
+
+          <v-divider inset></v-divider>
+
+          <v-list-item>
+            <v-list-item-avatar>
+              <v-icon color="error">mdi-shield-check</v-icon>
+            </v-list-item-avatar>
+            <v-list-item-content>
+              <v-list-item-title>آمن وموثوق</v-list-item-title>
+              <v-list-item-subtitle>حماية بياناتك وخصوصيتك</v-list-item-subtitle>
+            </v-list-item-content>
+          </v-list-item>
+        </v-list>
+      </v-card>
+    </v-flex>
+  </v-layout>
+</v-container>

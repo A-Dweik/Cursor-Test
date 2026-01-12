@@ -1,0 +1,252 @@
+<v-container fluid class="page-container">
+  <!-- Loading State -->
+  <div v-if="loading" class="text-center pa-12">
+    <v-progress-circular indeterminate color="primary"></v-progress-circular>
+    <p class="mt-4 body-1">جاري تحميل بيانات السيارة...</p>
+  </div>
+
+  <!-- Car Details -->
+  <div v-else-if="car">
+    <!-- Header with Back Button -->
+    <v-layout row wrap class="mb-4">
+      <v-flex xs12>
+        <v-btn text @click="navigateToCarList" class="mb-3">
+          <v-icon left>mdi-arrow-right</v-icon>
+          العودة إلى القائمة
+        </v-btn>
+        <h1 class="display-1 mb-2">تفاصيل السيارة</h1>
+      </v-flex>
+    </v-layout>
+
+    <v-layout row wrap>
+      <!-- Car Image Card -->
+      <v-flex xs12 md6 class="pa-2">
+        <v-card elevation="2">
+          <div class="car-image-large primary white--text">
+            <v-icon size="150" color="white">mdi-car</v-icon>
+          </div>
+        </v-card>
+      </v-flex>
+
+      <!-- Car Information Card -->
+      <v-flex xs12 md6 class="pa-2">
+        <v-card elevation="2" class="pa-4">
+          <v-card-title class="headline pa-0 mb-4">
+            {{ car.brand }} {{ car.model }}
+          </v-card-title>
+
+          <v-layout row wrap class="mb-4">
+            <v-flex xs12>
+              <span :class="getStatusClasses(car.status)">
+                {{ getStatusText(car.status) }}
+              </span>
+            </v-flex>
+          </v-layout>
+
+          <div class="display-2 primary--text mb-4">
+            {{ car.price.toLocaleString() }} ريال
+          </div>
+
+          <v-divider class="mb-4"></v-divider>
+
+          <!-- Car Details List -->
+          <v-list dense>
+            <v-list-item>
+              <v-list-item-icon>
+                <v-icon color="primary">mdi-calendar</v-icon>
+              </v-list-item-icon>
+              <v-list-item-content>
+                <v-list-item-subtitle>السنة</v-list-item-subtitle>
+                <v-list-item-title class="headline">{{ car.year }}</v-list-item-title>
+              </v-list-item-content>
+            </v-list-item>
+
+            <v-list-item>
+              <v-list-item-icon>
+                <v-icon color="primary">mdi-speedometer</v-icon>
+              </v-list-item-icon>
+              <v-list-item-content>
+                <v-list-item-subtitle>المسافة المقطوعة</v-list-item-subtitle>
+                <v-list-item-title class="headline">{{ car.mileage.toLocaleString() }} كم</v-list-item-title>
+              </v-list-item-content>
+            </v-list-item>
+
+            <v-list-item>
+              <v-list-item-icon>
+                <v-icon color="primary">mdi-palette</v-icon>
+              </v-list-item-icon>
+              <v-list-item-content>
+                <v-list-item-subtitle>اللون</v-list-item-subtitle>
+                <v-list-item-title class="headline">{{ car.color }}</v-list-item-title>
+              </v-list-item-content>
+            </v-list-item>
+          </v-list>
+
+          <v-divider class="my-4"></v-divider>
+
+          <!-- Action Buttons -->
+          <v-layout row wrap>
+            <v-flex xs12 sm6 class="pa-1">
+              <v-btn color="success" large block @click="editCar">
+                <v-icon left>mdi-pencil</v-icon>
+                تعديل
+              </v-btn>
+            </v-flex>
+            <v-flex xs12 sm6 class="pa-1">
+              <v-btn color="error" large block outlined @click="openDeleteDialog">
+                <v-icon left>mdi-delete</v-icon>
+                حذف
+              </v-btn>
+            </v-flex>
+          </v-layout>
+        </v-card>
+      </v-flex>
+
+      <!-- Description Card -->
+      <v-flex xs12 class="pa-2 mt-2">
+        <v-card elevation="2">
+          <v-card-title class="headline">
+            <v-icon left color="primary">mdi-text</v-icon>
+            الوصف
+          </v-card-title>
+          <v-divider></v-divider>
+          <v-card-text class="pa-4">
+            <p class="body-1">{{ car.description }}</p>
+          </v-card-text>
+        </v-card>
+      </v-flex>
+
+      <!-- Additional Details Card -->
+      <v-flex xs12 class="pa-2">
+        <v-card elevation="2">
+          <v-card-title class="headline">
+            <v-icon left color="primary">mdi-information</v-icon>
+            معلومات إضافية
+          </v-card-title>
+          <v-divider></v-divider>
+          <v-card-text class="pa-4">
+            <v-layout row wrap>
+              <v-flex xs12 sm6 md4 class="pa-2">
+                <div class="info-item">
+                  <div class="caption grey--text">تاريخ الإضافة</div>
+                  <div class="body-1">{{ formatDate(car.createdDate) }}</div>
+                </div>
+              </v-flex>
+              <v-flex xs12 sm6 md4 class="pa-2">
+                <div class="info-item">
+                  <div class="caption grey--text">آخر تحديث</div>
+                  <div class="body-1">{{ formatDate(car.updatedDate) }}</div>
+                </div>
+              </v-flex>
+              <v-flex xs12 sm6 md4 class="pa-2">
+                <div class="info-item">
+                  <div class="caption grey--text">رقم السيارة</div>
+                  <div class="body-1">#{{ car.id }}</div>
+                </div>
+              </v-flex>
+            </v-layout>
+          </v-card-text>
+        </v-card>
+      </v-flex>
+
+      <!-- Features Card -->
+      <v-flex xs12 class="pa-2">
+        <v-card elevation="2">
+          <v-card-title class="headline">
+            <v-icon left color="primary">mdi-star</v-icon>
+            المميزات
+          </v-card-title>
+          <v-divider></v-divider>
+          <v-card-text class="pa-4">
+            <v-layout row wrap>
+              <v-flex xs12 sm6 md4 class="pa-2">
+                <div class="feature-item">
+                  <v-icon color="success" class="mb-2">mdi-check-circle</v-icon>
+                  <div class="body-1">نظام فرامل ABS</div>
+                </div>
+              </v-flex>
+              <v-flex xs12 sm6 md4 class="pa-2">
+                <div class="feature-item">
+                  <v-icon color="success" class="mb-2">mdi-check-circle</v-icon>
+                  <div class="body-1">وسائد هوائية</div>
+                </div>
+              </v-flex>
+              <v-flex xs12 sm6 md4 class="pa-2">
+                <div class="feature-item">
+                  <v-icon color="success" class="mb-2">mdi-check-circle</v-icon>
+                  <div class="body-1">تكييف هواء</div>
+                </div>
+              </v-flex>
+              <v-flex xs12 sm6 md4 class="pa-2">
+                <div class="feature-item">
+                  <v-icon color="success" class="mb-2">mdi-check-circle</v-icon>
+                  <div class="body-1">نظام صوتي</div>
+                </div>
+              </v-flex>
+              <v-flex xs12 sm6 md4 class="pa-2">
+                <div class="feature-item">
+                  <v-icon color="success" class="mb-2">mdi-check-circle</v-icon>
+                  <div class="body-1">كاميرا خلفية</div>
+                </div>
+              </v-flex>
+              <v-flex xs12 sm6 md4 class="pa-2">
+                <div class="feature-item">
+                  <v-icon color="success" class="mb-2">mdi-check-circle</v-icon>
+                  <div class="body-1">نظام ملاحة GPS</div>
+                </div>
+              </v-flex>
+            </v-layout>
+          </v-card-text>
+        </v-card>
+      </v-flex>
+    </v-layout>
+
+    <!-- Delete Confirmation Dialog -->
+    <v-dialog v-model="deleteDialog" max-width="500">
+      <v-card>
+        <v-card-title class="headline error white--text">
+          <v-icon left color="white">mdi-alert</v-icon>
+          تأكيد الحذف
+        </v-card-title>
+        <v-card-text class="pa-4">
+          <p class="body-1">
+            هل أنت متأكد من حذف السيارة:
+            <strong>{{ car.brand }} {{ car.model }} ({{ car.year }})</strong>؟
+          </p>
+          <p class="body-2 error--text mt-2">
+            <v-icon small color="error">mdi-information</v-icon>
+            هذا الإجراء لا يمكن التراجع عنه
+          </p>
+        </v-card-text>
+        <v-card-actions class="pa-4">
+          <v-spacer></v-spacer>
+          <v-btn text @click="closeDeleteDialog">إلغاء</v-btn>
+          <v-btn color="error" @click="confirmDelete">حذف</v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
+  </div>
+</v-container>
+
+<style scoped>
+.car-image-large {
+  height: 400px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #1976D2 0%, #1565C0 100%);
+}
+
+.info-item {
+  padding: 12px;
+  background: #F5F5F5;
+  border-radius: 4px;
+}
+
+.feature-item {
+  text-align: center;
+  padding: 16px;
+  background: #F5F5F5;
+  border-radius: 4px;
+}
+</style>
