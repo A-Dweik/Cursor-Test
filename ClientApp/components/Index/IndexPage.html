@@ -1,0 +1,131 @@
+<v-container fluid class="page-container">
+  <!-- Page Header -->
+  <v-layout row wrap class="mb-6">
+    <v-flex xs12>
+      <h1 class="display-1 mb-2">نظام إدارة استئجار وبيع الكتب</h1>
+      <p class="subheading grey--text">مرحباً بك في نظام إدارة الكتب - يمكنك استئجار، شراء ومراجعة الكتب بسهولة</p>
+    </v-flex>
+  </v-layout>
+
+  <!-- Main Content -->
+  <v-layout row wrap>
+    <!-- Welcome Card -->
+    <v-flex xs12 md6 class="pa-2">
+      <v-card class="card-hover" elevation="2">
+        <v-card-title class="primary white--text">
+          <v-icon left color="white">mdi-hand-wave</v-icon>
+          <span class="headline">مرحباً</span>
+        </v-card-title>
+        <v-card-text class="pa-4">
+          <p class="body-1">
+            مرحباً بك في نظام إدارة استئجار وبيع الكتب. يمكنك تصفح الكتب المتاحة، استئجارها، شرائها، وكتابة مراجعات عنها.
+          </p>
+          <v-divider class="my-3"></v-divider>
+          <v-layout row wrap>
+            <v-flex xs6 class="text-center">
+              <v-icon color="primary" size="32">mdi-book-clock</v-icon>
+              <p class="caption mt-2 mb-0">استئجار</p>
+            </v-flex>
+            <v-flex xs6 class="text-center">
+              <v-icon color="info" size="32">mdi-cart</v-icon>
+              <p class="caption mt-2 mb-0">شراء</p>
+            </v-flex>
+          </v-layout>
+        </v-card-text>
+        <v-card-actions>
+          <v-spacer></v-spacer>
+          <v-btn color="primary" @click="navigateToBooks">
+            <v-icon left>mdi-book-open-variant</v-icon>
+            تصفح الكتب
+          </v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-flex>
+
+    <!-- Quick Stats Card -->
+    <v-flex xs12 md6 class="pa-2">
+      <v-card class="card-hover" elevation="2">
+        <v-card-title class="headline">إحصائيات سريعة</v-card-title>
+        <v-card-text>
+          <v-layout row wrap>
+            <v-flex xs6 class="text-center pa-4">
+              <div class="display-1 primary--text">150+</div>
+              <div class="caption grey--text">كتاب متاح</div>
+            </v-flex>
+            <v-flex xs6 class="text-center pa-4">
+              <div class="display-1 success--text">1200+</div>
+              <div class="caption grey--text">مراجعة</div>
+            </v-flex>
+          </v-layout>
+        </v-card-text>
+      </v-card>
+    </v-flex>
+
+    <!-- Features List -->
+    <v-flex xs12 class="pa-2 mt-4">
+      <v-card elevation="2">
+        <v-card-title class="headline">الميزات الأساسية</v-card-title>
+        <v-divider></v-divider>
+        <v-list>
+          <v-list-item>
+            <v-list-item-avatar>
+              <v-icon color="primary">mdi-book-search</v-icon>
+            </v-list-item-avatar>
+            <v-list-item-content>
+              <v-list-item-title>تصفح الكتب</v-list-item-title>
+              <v-list-item-subtitle>استعرض مجموعة كبيرة من الكتب المتنوعة</v-list-item-subtitle>
+            </v-list-item-content>
+          </v-list-item>
+
+          <v-divider inset></v-divider>
+
+          <v-list-item>
+            <v-list-item-avatar>
+              <v-icon color="primary">mdi-book-clock</v-icon>
+            </v-list-item-avatar>
+            <v-list-item-content>
+              <v-list-item-title>استئجار الكتب</v-list-item-title>
+              <v-list-item-subtitle>استأجر الكتب لفترة محددة بسهولة</v-list-item-subtitle>
+            </v-list-item-content>
+          </v-list-item>
+
+          <v-divider inset></v-divider>
+
+          <v-list-item>
+            <v-list-item-avatar>
+              <v-icon color="info">mdi-cart</v-icon>
+            </v-list-item-avatar>
+            <v-list-item-content>
+              <v-list-item-title>شراء الكتب</v-list-item-title>
+              <v-list-item-subtitle>اشتري الكتب واحتفظ بها للأبد</v-list-item-subtitle>
+            </v-list-item-content>
+          </v-list-item>
+
+          <v-divider inset></v-divider>
+
+          <v-list-item>
+            <v-list-item-avatar>
+              <v-icon color="info">mdi-star</v-icon>
+            </v-list-item-avatar>
+            <v-list-item-content>
+              <v-list-item-title>كتابة المراجعات</v-list-item-title>
+              <v-list-item-subtitle>شارك رأيك وقيم الكتب التي قرأتها</v-list-item-subtitle>
+            </v-list-item-content>
+          </v-list-item>
+
+          <v-divider inset></v-divider>
+
+          <v-list-item>
+            <v-list-item-avatar>
+              <v-icon color="secondary">mdi-account-circle</v-icon>
+            </v-list-item-avatar>
+            <v-list-item-content>
+              <v-list-item-title>إدارة حسابك</v-list-item-title>
+              <v-list-item-subtitle>تتبع الكتب المستأجرة، المشتراة والمراجعات الخاصة بك</v-list-item-subtitle>
+            </v-list-item-content>
+          </v-list-item>
+        </v-list>
+      </v-card>
+    </v-flex>
+  </v-layout>
+</v-container>
