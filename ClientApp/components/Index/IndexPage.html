@@ -2,8 +2,8 @@
   <!-- Page Header -->
   <v-layout row wrap class="mb-6">
     <v-flex xs12>
-      <h1 class="display-1 mb-2">نظام إدارة استئجار الكتب</h1>
-      <p class="subheading grey--text">مرحباً بك في نظام إدارة الكتب - يمكنك استئجار الكتب ومراجعتها بسهولة</p>
+      <h1 class="display-1 mb-2">نظام إدارة استئجار وبيع الكتب</h1>
+      <p class="subheading grey--text">مرحباً بك في نظام إدارة الكتب - يمكنك استئجار، شراء ومراجعة الكتب بسهولة</p>
     </v-flex>
   </v-layout>
 
@@ -18,8 +18,19 @@
         </v-card-title>
         <v-card-text class="pa-4">
           <p class="body-1">
-            مرحباً بك في نظام إدارة استئجار الكتب. يمكنك تصفح الكتب المتاحة، استئجارها، وكتابة مراجعات عنها.
+            مرحباً بك في نظام إدارة استئجار وبيع الكتب. يمكنك تصفح الكتب المتاحة، استئجارها، شرائها، وكتابة مراجعات عنها.
           </p>
+          <v-divider class="my-3"></v-divider>
+          <v-layout row wrap>
+            <v-flex xs6 class="text-center">
+              <v-icon color="primary" size="32">mdi-book-clock</v-icon>
+              <p class="caption mt-2 mb-0">استئجار</p>
+            </v-flex>
+            <v-flex xs6 class="text-center">
+              <v-icon color="info" size="32">mdi-cart</v-icon>
+              <p class="caption mt-2 mb-0">شراء</p>
+            </v-flex>
+          </v-layout>
         </v-card-text>
         <v-card-actions>
           <v-spacer></v-spacer>
@@ -70,11 +81,23 @@
 
           <v-list-item>
             <v-list-item-avatar>
-              <v-icon color="success">mdi-book-clock</v-icon>
+              <v-icon color="primary">mdi-book-clock</v-icon>
             </v-list-item-avatar>
             <v-list-item-content>
               <v-list-item-title>استئجار الكتب</v-list-item-title>
               <v-list-item-subtitle>استأجر الكتب لفترة محددة بسهولة</v-list-item-subtitle>
+            </v-list-item-content>
+          </v-list-item>
+
+          <v-divider inset></v-divider>
+
+          <v-list-item>
+            <v-list-item-avatar>
+              <v-icon color="info">mdi-cart</v-icon>
+            </v-list-item-avatar>
+            <v-list-item-content>
+              <v-list-item-title>شراء الكتب</v-list-item-title>
+              <v-list-item-subtitle>اشتري الكتب واحتفظ بها للأبد</v-list-item-subtitle>
             </v-list-item-content>
           </v-list-item>
 
@@ -94,11 +117,11 @@
 
           <v-list-item>
             <v-list-item-avatar>
-              <v-icon color="orange">mdi-account-circle</v-icon>
+              <v-icon color="secondary">mdi-account-circle</v-icon>
             </v-list-item-avatar>
             <v-list-item-content>
               <v-list-item-title>إدارة حسابك</v-list-item-title>
-              <v-list-item-subtitle>تتبع الكتب المستأجرة والمراجعات الخاصة بك</v-list-item-subtitle>
+              <v-list-item-subtitle>تتبع الكتب المستأجرة، المشتراة والمراجعات الخاصة بك</v-list-item-subtitle>
             </v-list-item-content>
           </v-list-item>
         </v-list>

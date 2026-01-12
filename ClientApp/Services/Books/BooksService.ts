@@ -1,7 +1,7 @@
 import AxiosService from '@/Services/AxiosService';
 import LoaderService from '@/Services/LoaderService';
 import { Inject, Service } from 'vue-di-container';
-import { BookModel, RentalModel, ReviewModel } from './BookModel';
+import { BookModel, RentalModel, ReviewModel, PurchaseModel } from './BookModel';
 
 @Service()
 export default class BooksService {
@@ -15,13 +15,15 @@ export default class BooksService {
             title: 'البرمجة الحديثة بلغة TypeScript',
             author: 'أحمد محمد',
             description: 'كتاب شامل يغطي أساسيات ومتقدمات TypeScript للمطورين',
-            coverImage: 'https://via.placeholder.com/200x300/1976D2/FFFFFF?text=TypeScript',
+            coverImage: 'https://via.placeholder.com/200x300/2196F3/FFFFFF?text=TypeScript',
             category: 'البرمجة',
             publishYear: 2023,
             isbn: '978-1-234-56789-0',
             availableCopies: 5,
             totalCopies: 10,
             rentalPricePerDay: 2.5,
+            purchasePrice: 45.00,
+            isForSale: true,
             rating: 4.5,
             reviewsCount: 42,
             isAvailable: true,
@@ -31,13 +33,15 @@ export default class BooksService {
             title: 'تطوير تطبيقات Vue.js',
             author: 'فاطمة علي',
             description: 'دليل عملي لبناء تطبيقات ويب تفاعلية باستخدام Vue.js',
-            coverImage: 'https://via.placeholder.com/200x300/4CAF50/FFFFFF?text=Vue.js',
+            coverImage: 'https://via.placeholder.com/200x300/1976D2/FFFFFF?text=Vue.js',
             category: 'البرمجة',
             publishYear: 2022,
             isbn: '978-1-234-56789-1',
             availableCopies: 3,
             totalCopies: 8,
             rentalPricePerDay: 3.0,
+            purchasePrice: 55.00,
+            isForSale: true,
             rating: 4.8,
             reviewsCount: 67,
             isAvailable: true,
@@ -47,13 +51,15 @@ export default class BooksService {
             title: 'أساسيات تصميم قواعد البيانات',
             author: 'خالد حسن',
             description: 'كتاب متخصص في تصميم وإدارة قواعد البيانات العلائقية',
-            coverImage: 'https://via.placeholder.com/200x300/FF5252/FFFFFF?text=Database',
+            coverImage: 'https://via.placeholder.com/200x300/1565C0/FFFFFF?text=Database',
             category: 'قواعد البيانات',
             publishYear: 2021,
             isbn: '978-1-234-56789-2',
             availableCopies: 0,
             totalCopies: 5,
             rentalPricePerDay: 2.0,
+            purchasePrice: 40.00,
+            isForSale: true,
             rating: 4.2,
             reviewsCount: 28,
             isAvailable: false,
@@ -63,13 +69,15 @@ export default class BooksService {
             title: 'الذكاء الاصطناعي والتعلم الآلي',
             author: 'سارة إبراهيم',
             description: 'مقدمة شاملة للذكاء الاصطناعي وتطبيقات التعلم الآلي',
-            coverImage: 'https://via.placeholder.com/200x300/9C27B0/FFFFFF?text=AI+ML',
+            coverImage: 'https://via.placeholder.com/200x300/1E88E5/FFFFFF?text=AI+ML',
             category: 'الذكاء الاصطناعي',
             publishYear: 2023,
             isbn: '978-1-234-56789-3',
             availableCopies: 7,
             totalCopies: 12,
             rentalPricePerDay: 3.5,
+            purchasePrice: 65.00,
+            isForSale: true,
             rating: 4.9,
             reviewsCount: 103,
             isAvailable: true,
@@ -79,13 +87,15 @@ export default class BooksService {
             title: 'أمن المعلومات والحماية السيبرانية',
             author: 'محمود عبدالله',
             description: 'دليل عملي لحماية الأنظمة والشبكات من التهديدات السيبرانية',
-            coverImage: 'https://via.placeholder.com/200x300/FF9800/FFFFFF?text=Security',
+            coverImage: 'https://via.placeholder.com/200x300/0D47A1/FFFFFF?text=Security',
             category: 'أمن المعلومات',
             publishYear: 2022,
             isbn: '978-1-234-56789-4',
             availableCopies: 4,
             totalCopies: 6,
             rentalPricePerDay: 2.8,
+            purchasePrice: 50.00,
+            isForSale: true,
             rating: 4.6,
             reviewsCount: 55,
             isAvailable: true,
@@ -95,13 +105,15 @@ export default class BooksService {
             title: 'تطوير تطبيقات الهاتف المحمول',
             author: 'نورا صالح',
             description: 'كتاب متخصص في تطوير تطبيقات iOS و Android',
-            coverImage: 'https://via.placeholder.com/200x300/00BCD4/FFFFFF?text=Mobile',
+            coverImage: 'https://via.placeholder.com/200x300/42A5F5/FFFFFF?text=Mobile',
             category: 'تطوير الهواتف',
             publishYear: 2023,
             isbn: '978-1-234-56789-5',
             availableCopies: 6,
             totalCopies: 10,
             rentalPricePerDay: 3.2,
+            purchasePrice: 60.00,
+            isForSale: true,
             rating: 4.7,
             reviewsCount: 89,
             isAvailable: true,
@@ -120,6 +132,19 @@ export default class BooksService {
             returnDate: null,
             status: 'active',
             totalCost: 35.0,
+        },
+    ];
+
+    private mockPurchases: PurchaseModel[] = [
+        {
+            id: 1,
+            bookId: 2,
+            bookTitle: 'تطوير تطبيقات Vue.js',
+            userId: '1',
+            userName: 'المستخدم الحالي',
+            purchaseDate: '2024-01-05',
+            price: 55.00,
+            status: 'completed',
         },
     ];
 
@@ -311,6 +336,52 @@ export default class BooksService {
         } catch (exception) {
             this.loaderService.HideLoader();
             return false;
+        }
+    }
+
+    public async purchaseBook(bookId: number): Promise<boolean> {
+        try {
+            this.loaderService.ShowLoader();
+            
+            // In production, this would be an API call
+            // const result = await this.axiosService.axiosInstance.post('api/purchases', { bookId });
+            
+            // Mock implementation
+            const book = this.mockBooks.find((b) => b.id === bookId);
+            if (book && book.isForSale) {
+                const purchase: PurchaseModel = {
+                    id: this.mockPurchases.length + 1,
+                    bookId: book.id,
+                    bookTitle: book.title,
+                    userId: '1',
+                    userName: 'المستخدم الحالي',
+                    purchaseDate: new Date().toISOString().split('T')[0],
+                    price: book.purchasePrice,
+                    status: 'completed',
+                };
+                
+                this.mockPurchases.push(purchase);
+                this.loaderService.HideLoader();
+                return Promise.resolve(true);
+            }
+            
+            this.loaderService.HideLoader();
+            return Promise.resolve(false);
+        } catch (exception) {
+            this.loaderService.HideLoader();
+            return false;
+        }
+    }
+
+    public async getMyPurchases(): Promise<PurchaseModel[]> {
+        try {
+            // In production, this would be an API call
+            // const result = await this.axiosService.axiosInstance.get<PurchaseModel[]>('api/purchases/my');
+            // return result.data;
+            
+            return Promise.resolve(this.mockPurchases);
+        } catch (exception) {
+            return [];
         }
     }
 

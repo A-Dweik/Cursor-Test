@@ -1,14 +1,18 @@
 <v-container fluid class="page-container">
   <!-- Page Header -->
   <v-layout row wrap class="mb-4">
-    <v-flex xs8 sm9>
+    <v-flex xs12 sm6>
       <h1 class="display-1 mb-2">مكتبة الكتب</h1>
-      <p class="subheading grey--text">استعرض واستأجر الكتب المفضلة لديك</p>
+      <p class="subheading grey--text">استعرض، استأجر أو اشتري الكتب المفضلة لديك</p>
     </v-flex>
-    <v-flex xs4 sm3 class="text-left">
-      <v-btn color="primary" @click="openMyRentalsDialog">
+    <v-flex xs12 sm6 class="text-left">
+      <v-btn color="primary" @click="openMyRentalsDialog" class="ma-1">
         <v-icon left>mdi-book-clock</v-icon>
-        كتبي المستأجرة
+        <span class="hide-on-mobile">كتبي المستأجرة</span>
+      </v-btn>
+      <v-btn color="info" @click="openMyPurchasesDialog" class="ma-1">
+        <v-icon left>mdi-book-check</v-icon>
+        <span class="hide-on-mobile">كتبي المشتراة</span>
       </v-btn>
     </v-flex>
   </v-layout>
@@ -99,9 +103,18 @@
             <v-chip small color="primary" text-color="white" class="ml-2">
               {{ book.category }}
             </v-chip>
-            <span class="body-2 font-weight-bold primary--text">
-              {{ book.rentalPricePerDay }} ر.س / يوم
-            </span>
+            <div class="mt-2">
+              <div class="caption grey--text">الإيجار:</div>
+              <span class="body-2 font-weight-bold primary--text">
+                {{ book.rentalPricePerDay }} ر.س / يوم
+              </span>
+            </div>
+            <div v-if="book.isForSale" class="mt-1">
+              <div class="caption grey--text">الشراء:</div>
+              <span class="body-2 font-weight-bold info--text">
+                {{ book.purchasePrice }} ر.س
+              </span>
+            </div>
           </div>
 
           <!-- Availability -->
@@ -126,11 +139,22 @@
           <v-spacer></v-spacer>
           <v-btn
             color="primary"
+            small
             @click="openRentDialog(book)"
             :disabled="!book.isAvailable"
+            class="ml-1"
           >
-            <v-icon left>mdi-book-plus</v-icon>
-            استئجار
+            <v-icon left small>mdi-book-clock</v-icon>
+            <span class="hide-on-mobile">إيجار</span>
+          </v-btn>
+          <v-btn
+            v-if="book.isForSale"
+            color="info"
+            small
+            @click="openBuyDialog(book)"
+          >
+            <v-icon left small>mdi-cart</v-icon>
+            <span class="hide-on-mobile">شراء</span>
           </v-btn>
         </v-card-actions>
       </v-card>
@@ -347,6 +371,50 @@
     </v-card>
   </v-dialog>
 
+  <!-- Buy Dialog -->
+  <v-dialog v-model="buyDialog" max-width="500">
+    <v-card>
+      <v-card-title class="info white--text">
+        <v-icon left color="white">mdi-cart</v-icon>
+        <span class="headline">شراء كتاب</span>
+      </v-card-title>
+
+      <v-card-text class="pt-4" v-if="selectedBook">
+        <div class="mb-4">
+          <h3 class="title mb-2">{{ selectedBook.title }}</h3>
+          <p class="body-1 grey--text">{{ selectedBook.author }}</p>
+        </div>
+
+        <v-card outlined color="blue lighten-5" class="pa-4 mb-4">
+          <v-layout row wrap align-center>
+            <v-flex xs6>
+              <p class="title mb-0">السعر:</p>
+            </v-flex>
+            <v-flex xs6 class="text-left">
+              <p class="display-1 info--text mb-0">{{ selectedBook.purchasePrice }} ر.س</p>
+            </v-flex>
+          </v-layout>
+        </v-card>
+
+        <v-alert type="info" outlined>
+          <div class="body-2">
+            <v-icon left>mdi-information</v-icon>
+            بعد الشراء، سيكون الكتاب ملكاً لك بشكل دائم
+          </div>
+        </v-alert>
+      </v-card-text>
+
+      <v-card-actions>
+        <v-spacer></v-spacer>
+        <v-btn text @click="buyDialog = false">إلغاء</v-btn>
+        <v-btn color="info" @click="confirmPurchase">
+          <v-icon left>mdi-cart</v-icon>
+          تأكيد الشراء
+        </v-btn>
+      </v-card-actions>
+    </v-card>
+  </v-dialog>
+
   <!-- My Rentals Dialog -->
   <v-dialog v-model="myRentalsDialog" max-width="900">
     <v-card>
@@ -402,6 +470,58 @@
       <v-card-actions>
         <v-spacer></v-spacer>
         <v-btn text @click="myRentalsDialog = false">إغلاق</v-btn>
+      </v-card-actions>
+    </v-card>
+  </v-dialog>
+
+  <!-- My Purchases Dialog -->
+  <v-dialog v-model="myPurchasesDialog" max-width="900">
+    <v-card>
+      <v-card-title class="info white--text">
+        <v-icon left color="white">mdi-book-check</v-icon>
+        <span class="headline">كتبي المشتراة</span>
+      </v-card-title>
+
+      <v-card-text class="pt-4">
+        <div v-if="myPurchases.length === 0" class="text-center pa-8">
+          <v-icon size="64" color="grey lighten-1">mdi-book-off-outline</v-icon>
+          <p class="title mt-4 grey--text">لا توجد كتب مشتراة</p>
+          <p class="body-1 grey--text">ابدأ بشراء كتاب الآن</p>
+        </div>
+
+        <v-list two-line v-else>
+          <v-list-item v-for="purchase in myPurchases" :key="purchase.id">
+            <v-list-item-avatar>
+              <v-icon color="info">mdi-book</v-icon>
+            </v-list-item-avatar>
+
+            <v-list-item-content>
+              <v-list-item-title class="title mb-2">{{ purchase.bookTitle }}</v-list-item-title>
+              <v-list-item-subtitle>
+                <v-layout row wrap>
+                  <v-flex xs12 sm6 class="mb-2">
+                    <v-icon small class="ml-1">mdi-calendar</v-icon>
+                    تاريخ الشراء: {{ purchase.purchaseDate }}
+                  </v-flex>
+                  <v-flex xs12 sm6 class="mb-2">
+                    <v-icon small class="ml-1">mdi-cash</v-icon>
+                    السعر: {{ purchase.price }} ر.س
+                  </v-flex>
+                  <v-flex xs12>
+                    <span :class="getPurchaseStatusClasses(purchase.status)">
+                      {{ getPurchaseStatusText(purchase.status) }}
+                    </span>
+                  </v-flex>
+                </v-layout>
+              </v-list-item-subtitle>
+            </v-list-item-content>
+          </v-list-item>
+        </v-list>
+      </v-card-text>
+
+      <v-card-actions>
+        <v-spacer></v-spacer>
+        <v-btn text @click="myPurchasesDialog = false">إغلاق</v-btn>
       </v-card-actions>
     </v-card>
   </v-dialog>

@@ -2,7 +2,7 @@ import { Component, Vue } from 'vue-property-decorator';
 import WithRender from './Books.html';
 import { Inject } from 'vue-di-container';
 import BooksService from '@/Services/Books/BooksService';
-import { BookModel, RentalModel, ReviewModel } from '@/Services/Books/BookModel';
+import { BookModel, RentalModel, ReviewModel, PurchaseModel } from '@/Services/Books/BookModel';
 
 @WithRender
 @Component({})
@@ -12,6 +12,7 @@ export default class Books extends Vue {
     public books: BookModel[] = [];
     public filteredBooks: BookModel[] = [];
     public myRentals: RentalModel[] = [];
+    public myPurchases: PurchaseModel[] = [];
     public selectedBook: BookModel | null = null;
     public selectedBookReviews: ReviewModel[] = [];
     public loading: boolean = false;
@@ -21,9 +22,11 @@ export default class Books extends Vue {
     
     // Dialog states
     public rentDialog: boolean = false;
+    public buyDialog: boolean = false;
     public reviewDialog: boolean = false;
     public detailsDialog: boolean = false;
     public myRentalsDialog: boolean = false;
+    public myPurchasesDialog: boolean = false;
     
     // Rental form
     public rentalDays: number = 7;
@@ -42,6 +45,7 @@ export default class Books extends Vue {
         await this.loadBooks();
         await this.loadCategories();
         await this.loadMyRentals();
+        await this.loadMyPurchases();
     }
 
     public async loadBooks() {
@@ -57,6 +61,10 @@ export default class Books extends Vue {
 
     public async loadMyRentals() {
         this.myRentals = await this.booksService.getMyRentals();
+    }
+
+    public async loadMyPurchases() {
+        this.myPurchases = await this.booksService.getMyPurchases();
     }
 
     public filterBooks() {
@@ -193,5 +201,57 @@ export default class Books extends Vue {
 
     public openMyRentalsDialog() {
         this.myRentalsDialog = true;
+    }
+
+    public openBuyDialog(book: BookModel) {
+        if (!book.isForSale) {
+            return;
+        }
+        this.selectedBook = book;
+        this.buyDialog = true;
+    }
+
+    public async confirmPurchase() {
+        if (this.selectedBook) {
+            const success = await this.booksService.purchaseBook(this.selectedBook.id);
+            if (success) {
+                this.buyDialog = false;
+                await this.loadMyPurchases();
+                alert('تم شراء الكتاب بنجاح!');
+            } else {
+                alert('فشل شراء الكتاب. يرجى المحاولة مرة أخرى.');
+            }
+        }
+    }
+
+    public openMyPurchasesDialog() {
+        this.myPurchasesDialog = true;
+    }
+
+    public getPurchaseStatusClasses(status: string): string {
+        const baseClasses = 'status--text status--rounded';
+        switch (status) {
+            case 'completed':
+                return `${baseClasses} status--blue`;
+            case 'pending':
+                return `${baseClasses} status--orange`;
+            case 'cancelled':
+                return `${baseClasses} status--red`;
+            default:
+                return baseClasses;
+        }
+    }
+
+    public getPurchaseStatusText(status: string): string {
+        switch (status) {
+            case 'completed':
+                return 'مكتمل';
+            case 'pending':
+                return 'قيد المعالجة';
+            case 'cancelled':
+                return 'ملغي';
+            default:
+                return status;
+        }
     }
 }

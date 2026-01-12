@@ -57,14 +57,14 @@ body {
   border-radius: 50%;
 }
 
-/* Status colors - Following Dashboard pattern */
+/* Status colors - Blue Theme */
 .status--green {
-  color: #36c5ba;
-  background-color: #e8f8f7;
+  color: #00BCD4;
+  background-color: #E0F7FA;
 }
 
 .status--green.status--bullet::before {
-  background-color: #36c5ba;
+  background-color: #00BCD4;
 }
 
 .status--red {
@@ -78,7 +78,7 @@ body {
 
 .status--blue {
   color: #2196F3;
-  background-color: #e3f2fd;
+  background-color: #E3F2FD;
 }
 
 .status--blue.status--bullet::before {
@@ -86,15 +86,33 @@ body {
 }
 
 .status--orange {
-  color: #ff9800;
-  background-color: #fff3e0;
+  color: #FFC107;
+  background-color: #FFF8E1;
 }
 
 .status--orange.status--bullet::before {
-  background-color: #ff9800;
+  background-color: #FFC107;
 }
 
-/* Buttons - Sigma-S Dashboard Pattern */
+.status--cyan {
+  color: #00BCD4;
+  background-color: #E0F7FA;
+}
+
+.status--cyan.status--bullet::before {
+  background-color: #00BCD4;
+}
+
+.status--light-blue {
+  color: #03A9F4;
+  background-color: #E1F5FE;
+}
+
+.status--light-blue.status--bullet::before {
+  background-color: #03A9F4;
+}
+
+/* Buttons - Blue Theme */
 .button {
   padding: 10px 20px;
   border: none;
@@ -107,23 +125,32 @@ body {
   display: inline-block;
 }
 
+.button--blueFill {
+  background-color: #2196F3;
+  color: white;
+}
+
+.button--blueFill:hover {
+  background-color: #1976D2;
+}
+
 .button--greenFill {
-  background-color: #36c5ba;
+  background-color: #00BCD4;
   color: white;
 }
 
 .button--greenFill:hover {
-  background-color: #2da89f;
+  background-color: #0097A7;
 }
 
 .button--border {
   background-color: transparent;
-  border: 1px solid #36c5ba;
-  color: #36c5ba;
+  border: 1px solid #2196F3;
+  color: #2196F3;
 }
 
 .button--border:hover {
-  background-color: #f0faf9;
+  background-color: #E3F2FD;
 }
 
 .button--smallWithRadius {

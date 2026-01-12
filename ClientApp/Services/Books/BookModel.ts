@@ -10,6 +10,8 @@ export interface BookModel {
     availableCopies: number;
     totalCopies: number;
     rentalPricePerDay: number;
+    purchasePrice: number;
+    isForSale: boolean;
     rating: number;
     reviewsCount: number;
     isAvailable: boolean;
@@ -26,6 +28,17 @@ export interface RentalModel {
     returnDate: string | null;
     status: 'active' | 'returned' | 'overdue';
     totalCost: number;
+}
+
+export interface PurchaseModel {
+    id: number;
+    bookId: number;
+    bookTitle: string;
+    userId: string;
+    userName: string;
+    purchaseDate: string;
+    price: number;
+    status: 'completed' | 'pending' | 'cancelled';
 }
 
 export interface ReviewModel {
