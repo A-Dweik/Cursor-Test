@@ -1,0 +1,9 @@
+{
+  "ApplicationInsights": {
+    "InstrumentationKey": "",
+    "ApplicationName": "CarSelling"
+  },
+  "Recaptcha": {
+    "SiteKey": "6LcD1bkUAAAAABM1N9Iq2eDrmPzmXPWfCVFaJh4_"
+  }
+}
