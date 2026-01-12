@@ -1,0 +1,107 @@
+<v-container fluid class="page-container">
+  <!-- Page Header -->
+  <v-layout row wrap class="mb-4">
+    <v-flex xs12 sm8>
+      <h1 class="display-1 mb-2">إدارة العملاء</h1>
+      <p class="subheading grey--text">قاعدة بيانات العملاء وسجل التعاملات</p>
+    </v-flex>
+    <v-flex xs12 sm4 class="text-right">
+      <v-btn color="primary" large @click="openAddDialog">
+        <v-icon left>mdi-account-plus</v-icon>
+        إضافة عميل
+      </v-btn>
+    </v-flex>
+  </v-layout>
+
+  <!-- Customers Table -->
+  <v-card elevation="2">
+    <v-data-table
+      :headers="headers"
+      :items="customers"
+      :loading="loading"
+      class="elevation-1"
+      :items-per-page="10"
+    >
+      <template v-slot:item.name="{ item }">
+        <v-icon left color="primary">mdi-account</v-icon>
+        {{ item.name }}
+      </template>
+
+      <template v-slot:item.totalPurchases="{ item }">
+        {{ item.totalPurchases }} ريال
+      </template>
+
+      <template v-slot:item.balance="{ item }">
+        <span :class="item.balance > 0 ? 'error--text' : 'success--text'">
+          {{ item.balance }} ريال
+        </span>
+      </template>
+
+      <template v-slot:item.status="{ item }">
+        <span :class="getStatusClasses(item.status)">
+          {{ getStatusText(item.status) }}
+        </span>
+      </template>
+
+      <template v-slot:item.actions="{ item }">
+        <v-btn icon @click="openEditDialog(item)">
+          <v-icon color="primary">mdi-pencil</v-icon>
+        </v-btn>
+        <v-btn icon @click="deleteCustomer(item)">
+          <v-icon color="error">mdi-delete</v-icon>
+        </v-btn>
+      </template>
+    </v-data-table>
+  </v-card>
+
+  <!-- Add/Edit Dialog -->
+  <v-dialog v-model="showDialog" max-width="600px">
+    <v-card>
+      <v-card-title class="headline primary white--text">
+        {{ editMode ? 'تعديل بيانات عميل' : 'إضافة عميل جديد' }}
+      </v-card-title>
+
+      <v-card-text class="pa-4">
+        <v-form>
+          <v-text-field
+            v-model="currentCustomer.name"
+            label="الاسم الكامل *"
+            outlined
+            required
+            class="mb-3"
+          ></v-text-field>
+
+          <v-text-field
+            v-model="currentCustomer.phone"
+            label="رقم الهاتف *"
+            outlined
+            required
+            class="mb-3"
+            placeholder="05xxxxxxxx"
+          ></v-text-field>
+
+          <v-text-field
+            v-model="currentCustomer.email"
+            label="البريد الإلكتروني (اختياري)"
+            outlined
+            type="email"
+            class="mb-3"
+          ></v-text-field>
+
+          <v-textarea
+            v-model="currentCustomer.address"
+            label="العنوان (اختياري)"
+            outlined
+            rows="3"
+          ></v-textarea>
+        </v-form>
+      </v-card-text>
+
+      <v-card-actions>
+        <v-spacer></v-spacer>
+        <v-btn text @click="closeDialog">إلغاء</v-btn>
+        <v-btn color="primary" @click="saveCustomer">حفظ</v-btn>
+      </v-card-actions>
+    </v-card>
+  </v-dialog>
+</v-container>

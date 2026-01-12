@@ -1,59 +1,60 @@
-# AmmanWeather
+# إدارة مبيعات الحليب واللحوم
 
-This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 21.0.2.
+نظام شامل لإدارة أعمال بيع حليب ولحوم الأبقار
 
-## Development server
+## الميزات
 
-To start a local development server, run:
+- **إدارة المخزون**: تتبع كميات الحليب واللحوم المتوفرة
+- **تسجيل المبيعات**: إضافة وإدارة عمليات البيع اليومية
+- **إدارة العملاء**: قاعدة بيانات العملاء وسجل التعاملات
+- **التقارير والإحصائيات**: تحليل المبيعات والأداء المالي
 
-```bash
-ng serve
-```
+## التقنيات المستخدمة
 
-Once the server is running, open your browser and navigate to `http://localhost:4200/`. The application will automatically reload whenever you modify any of the source files.
+- **Backend**: ASP.NET Core 3.1
+- **Frontend**: Vue.js 2.6 + TypeScript 4.5 + Vuetify 1.5
+- **Build**: MSBuild + Vue CLI 3.10 + npm/Webpack
 
-## Code scaffolding
-
-Angular CLI includes powerful code scaffolding tools. To generate a new component, run:
-
-```bash
-ng generate component component-name
-```
-
-For a complete list of available schematics (such as `components`, `directives`, or `pipes`), run:
+## التثبيت والتشغيل
 
 ```bash
-ng generate --help
+# تثبيت المكتبات
+npm install
+
+# بناء الواجهة الأمامية
+npm run build
+
+# استعادة المكتبات الخلفية
+dotnet restore
+
+# بناء التطبيق
+dotnet build
+
+# تشغيل التطبيق
+dotnet run
 ```
 
-## Building
+الوصول إلى التطبيق: `http://localhost:5010/applications/cowbusiness/`
 
-To build the project run:
+## البنية
 
-```bash
-ng build
+```
+/
+├── ClientApp/              # Frontend Vue.js application
+│   ├── components/         # Vue components
+│   │   ├── Products/       # Product management
+│   │   ├── Sales/          # Sales management
+│   │   ├── Customers/      # Customer management
+│   │   └── Analytics/      # Reports and analytics
+│   ├── Services/           # Business logic services
+│   ├── Models/             # TypeScript interfaces
+│   └── assets/             # Styles and static assets
+├── Config/                 # Configuration files
+├── Controller/             # API controllers
+├── Models/                 # Data models
+└── Pages/                  # Razor pages
 ```
 
-This will compile your project and store the build artifacts in the `dist/` directory. By default, the production build optimizes your application for performance and speed.
+## الترخيص
 
-## Running unit tests
-
-To execute unit tests with the [Vitest](https://vitest.dev/) test runner, use the following command:
-
-```bash
-ng test
-```
-
-## Running end-to-end tests
-
-For end-to-end (e2e) testing, run:
-
-```bash
-ng e2e
-```
-
-Angular CLI does not come with an end-to-end testing framework by default. You can choose one that suits your needs.
-
-## Additional Resources
-
-For more information on using the Angular CLI, including detailed command references, visit the [Angular CLI Overview and Command Reference](https://angular.dev/tools/cli) page.
+حقوق النشر © 2026 Najiz

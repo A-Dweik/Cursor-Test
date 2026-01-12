@@ -1,0 +1,142 @@
+<v-container fluid class="page-container">
+  <!-- Page Header -->
+  <v-layout row wrap class="mb-6">
+    <v-flex xs12>
+      <h1 class="display-1 mb-2">إدارة مبيعات الحليب واللحوم</h1>
+      <p class="subheading grey--text">نظام شامل لإدارة أعمال بيع حليب ولحوم الأبقار</p>
+    </v-flex>
+  </v-layout>
+
+  <!-- Loading State -->
+  <div v-if="loading" class="text-center pa-12">
+    <v-progress-circular indeterminate color="primary"></v-progress-circular>
+    <p class="mt-4 body-1">جاري التحميل...</p>
+  </div>
+
+  <!-- Main Content -->
+  <v-layout row wrap v-else>
+    <!-- Welcome Card -->
+    <v-flex xs12 md6 class="pa-2">
+      <v-card class="card-hover" elevation="2">
+        <v-card-title class="primary white--text">
+          <v-icon left color="white">mdi-hand-wave</v-icon>
+          <span class="headline">مرحباً بك</span>
+        </v-card-title>
+        <v-card-text class="pa-4">
+          <p class="body-1">
+            مرحباً بك في نظام إدارة مبيعات الحليب واللحوم. يساعدك هذا النظام على إدارة المخزون، تسجيل المبيعات، متابعة العملاء، ومراقبة الأداء المالي.
+          </p>
+        </v-card-text>
+      </v-card>
+    </v-flex>
+
+    <!-- Quick Stats Card -->
+    <v-flex xs12 md6 class="pa-2">
+      <v-card class="card-hover" elevation="2">
+        <v-card-title class="headline">إحصائيات سريعة</v-card-title>
+        <v-card-text>
+          <v-layout row wrap>
+            <v-flex xs6 class="text-center pa-4">
+              <div class="display-1 primary--text">0</div>
+              <div class="caption grey--text">المنتجات</div>
+            </v-flex>
+            <v-flex xs6 class="text-center pa-4">
+              <div class="display-1 success--text">0</div>
+              <div class="caption grey--text">المبيعات اليوم</div>
+            </v-flex>
+          </v-layout>
+        </v-card-text>
+      </v-card>
+    </v-flex>
+
+    <!-- Features List -->
+    <v-flex xs12 class="pa-2 mt-4">
+      <v-card elevation="2">
+        <v-card-title class="headline">الميزات الأساسية</v-card-title>
+        <v-divider></v-divider>
+        <v-list>
+          <v-list-item>
+            <v-list-item-avatar>
+              <v-icon color="primary">mdi-package-variant</v-icon>
+            </v-list-item-avatar>
+            <v-list-item-content>
+              <v-list-item-title>إدارة المخزون</v-list-item-title>
+              <v-list-item-subtitle>تتبع كميات الحليب واللحوم المتوفرة</v-list-item-subtitle>
+            </v-list-item-content>
+          </v-list-item>
+
+          <v-divider inset></v-divider>
+
+          <v-list-item>
+            <v-list-item-avatar>
+              <v-icon color="success">mdi-cart</v-icon>
+            </v-list-item-avatar>
+            <v-list-item-content>
+              <v-list-item-title>تسجيل المبيعات</v-list-item-title>
+              <v-list-item-subtitle>إضافة وإدارة عمليات البيع اليومية</v-list-item-subtitle>
+            </v-list-item-content>
+          </v-list-item>
+
+          <v-divider inset></v-divider>
+
+          <v-list-item>
+            <v-list-item-avatar>
+              <v-icon color="info">mdi-account-group</v-icon>
+            </v-list-item-avatar>
+            <v-list-item-content>
+              <v-list-item-title>إدارة العملاء</v-list-item-title>
+              <v-list-item-subtitle>قاعدة بيانات العملاء وسجل التعاملات</v-list-item-subtitle>
+            </v-list-item-content>
+          </v-list-item>
+
+          <v-divider inset></v-divider>
+
+          <v-list-item>
+            <v-list-item-avatar>
+              <v-icon color="orange">mdi-chart-line</v-icon>
+            </v-list-item-avatar>
+            <v-list-item-content>
+              <v-list-item-title>التقارير والإحصائيات</v-list-item-title>
+              <v-list-item-subtitle>تحليل المبيعات والأداء المالي</v-list-item-subtitle>
+            </v-list-item-content>
+          </v-list-item>
+        </v-list>
+      </v-card>
+    </v-flex>
+
+    <!-- Quick Actions -->
+    <v-flex xs12 class="pa-2 mt-4">
+      <v-card elevation="2">
+        <v-card-title class="headline">إجراءات سريعة</v-card-title>
+        <v-card-text>
+          <v-layout row wrap>
+            <v-flex xs12 sm6 md3 class="pa-2">
+              <v-btn color="primary" large block to="/sales">
+                <v-icon left>mdi-plus</v-icon>
+                مبيعة جديدة
+              </v-btn>
+            </v-flex>
+            <v-flex xs12 sm6 md3 class="pa-2">
+              <v-btn color="success" large block to="/products">
+                <v-icon left>mdi-package-variant-closed</v-icon>
+                إدارة المنتجات
+              </v-btn>
+            </v-flex>
+            <v-flex xs12 sm6 md3 class="pa-2">
+              <v-btn color="info" large block to="/customers">
+                <v-icon left>mdi-account-plus</v-icon>
+                إدارة العملاء
+              </v-btn>
+            </v-flex>
+            <v-flex xs12 sm6 md3 class="pa-2">
+              <v-btn color="orange" large block to="/analytics">
+                <v-icon left>mdi-file-chart</v-icon>
+                عرض التقارير
+              </v-btn>
+            </v-flex>
+          </v-layout>
+        </v-card-text>
+      </v-card>
+    </v-flex>
+  </v-layout>
+</v-container>

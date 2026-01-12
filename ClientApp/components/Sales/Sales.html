@@ -1,0 +1,171 @@
+<v-container fluid class="page-container">
+  <!-- Page Header -->
+  <v-layout row wrap class="mb-4">
+    <v-flex xs12 sm8>
+      <h1 class="display-1 mb-2">إدارة المبيعات</h1>
+      <p class="subheading grey--text">تسجيل وإدارة عمليات البيع</p>
+    </v-flex>
+    <v-flex xs12 sm4 class="text-right">
+      <v-btn color="primary" large @click="openAddDialog">
+        <v-icon left>mdi-plus</v-icon>
+        تسجيل مبيعة جديدة
+      </v-btn>
+    </v-flex>
+  </v-layout>
+
+  <!-- Sales Table -->
+  <v-card elevation="2">
+    <v-data-table
+      :headers="headers"
+      :items="sales"
+      :loading="loading"
+      class="elevation-1"
+      :items-per-page="10"
+    >
+      <template v-slot:item.saleDate="{ item }">
+        {{ formatDate(item.saleDate) }}
+      </template>
+
+      <template v-slot:item.productName="{ item }">
+        <v-icon :color="item.productType === 'milk' ? 'blue' : 'red'" left small>
+          {{ item.productType === 'milk' ? 'mdi-cup' : 'mdi-food-steak' }}
+        </v-icon>
+        {{ item.productName }}
+      </template>
+
+      <template v-slot:item.unitPrice="{ item }">
+        {{ item.unitPrice }} ريال
+      </template>
+
+      <template v-slot:item.totalAmount="{ item }">
+        <strong>{{ item.totalAmount }} ريال</strong>
+      </template>
+
+      <template v-slot:item.paymentStatus="{ item }">
+        <span :class="getPaymentStatusClasses(item.paymentStatus)">
+          {{ getPaymentStatusText(item.paymentStatus) }}
+        </span>
+      </template>
+
+      <template v-slot:item.actions="{ item }">
+        <v-btn icon>
+          <v-icon color="primary">mdi-eye</v-icon>
+        </v-btn>
+        <v-btn icon>
+          <v-icon color="info">mdi-printer</v-icon>
+        </v-btn>
+      </template>
+    </v-data-table>
+  </v-card>
+
+  <!-- Add Sale Dialog -->
+  <v-dialog v-model="showDialog" max-width="700px">
+    <v-card>
+      <v-card-title class="headline primary white--text">
+        تسجيل مبيعة جديدة
+      </v-card-title>
+
+      <v-card-text class="pa-4">
+        <v-form>
+          <v-select
+            v-model="currentSale.customerId"
+            :items="customers"
+            item-text="name"
+            item-value="id"
+            label="العميل"
+            outlined
+            required
+            class="mb-3"
+          >
+            <template v-slot:item="{ item }">
+              <v-list-item-content>
+                <v-list-item-title>{{ item.name }}</v-list-item-title>
+                <v-list-item-subtitle>{{ item.phone }}</v-list-item-subtitle>
+              </v-list-item-content>
+            </template>
+          </v-select>
+
+          <v-select
+            v-model="currentSale.productId"
+            :items="products"
+            item-text="name"
+            item-value="id"
+            label="المنتج"
+            outlined
+            required
+            class="mb-3"
+            @change="onProductChange"
+          >
+            <template v-slot:item="{ item }">
+              <v-list-item-avatar>
+                <v-icon :color="item.type === 'milk' ? 'blue' : 'red'">
+                  {{ item.type === 'milk' ? 'mdi-cup' : 'mdi-food-steak' }}
+                </v-icon>
+              </v-list-item-avatar>
+              <v-list-item-content>
+                <v-list-item-title>{{ item.name }}</v-list-item-title>
+                <v-list-item-subtitle>
+                  متوفر: {{ item.quantity }} {{ item.unit }} - السعر: {{ item.pricePerUnit }} ريال
+                </v-list-item-subtitle>
+              </v-list-item-content>
+            </template>
+          </v-select>
+
+          <v-alert v-if="selectedProduct" type="info" outlined class="mb-3">
+            الكمية المتوفرة: {{ selectedProduct.quantity }} {{ selectedProduct.unit }}
+          </v-alert>
+
+          <v-text-field
+            v-model.number="currentSale.quantity"
+            label="الكمية"
+            outlined
+            type="number"
+            required
+            class="mb-3"
+            :hint="selectedProduct ? `الوحدة: ${selectedProduct.unit}` : ''"
+            persistent-hint
+          ></v-text-field>
+
+          <v-text-field
+            v-model.number="currentSale.unitPrice"
+            label="سعر الوحدة (ريال)"
+            outlined
+            type="number"
+            required
+            class="mb-3"
+          ></v-text-field>
+
+          <v-alert type="success" outlined class="mb-3">
+            المبلغ الإجمالي: <strong>{{ calculatedTotal }} ريال</strong>
+          </v-alert>
+
+          <v-select
+            v-model="currentSale.paymentStatus"
+            :items="[
+              { text: 'مدفوع', value: 'paid' },
+              { text: 'مدفوع جزئياً', value: 'partial' },
+              { text: 'معلق', value: 'pending' }
+            ]"
+            label="حالة الدفع"
+            outlined
+            required
+            class="mb-3"
+          ></v-select>
+
+          <v-textarea
+            v-model="currentSale.notes"
+            label="ملاحظات (اختياري)"
+            outlined
+            rows="3"
+          ></v-textarea>
+        </v-form>
+      </v-card-text>
+
+      <v-card-actions>
+        <v-spacer></v-spacer>
+        <v-btn text @click="closeDialog">إلغاء</v-btn>
+        <v-btn color="primary" @click="saveSale">حفظ المبيعة</v-btn>
+      </v-card-actions>
+    </v-card>
+  </v-dialog>
+</v-container>
