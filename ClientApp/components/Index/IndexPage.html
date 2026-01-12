@@ -1,0 +1,101 @@
+<v-container fluid class="page-container">
+  <!-- Page Header -->
+  <v-layout row wrap class="mb-6">
+    <v-flex xs12>
+      <h1 class="display-1 mb-2">تطبيق تأجير الأراضي</h1>
+      <p class="subheading grey--text">مرحباً بك في تطبيق تأجير الأراضي - ابحث عن الأرض المناسبة لمشروعك</p>
+    </v-flex>
+  </v-layout>
+
+  <!-- Main Content -->
+  <v-layout row wrap>
+    <!-- Welcome Card -->
+    <v-flex xs12 md6 class="pa-2">
+      <v-card class="card-hover" elevation="2">
+        <v-card-title class="primary white--text">
+          <v-icon left color="white">mdi-map-marker</v-icon>
+          <span class="headline">مرحباً بك</span>
+        </v-card-title>
+        <v-card-text class="pa-4">
+          <p class="body-1">
+            مرحباً بك في تطبيق تأجير الأراضي. يمكنك من خلال هذا التطبيق البحث عن الأراضي المتاحة للإيجار وإدارة عروضك بسهولة.
+          </p>
+        </v-card-text>
+      </v-card>
+    </v-flex>
+
+    <!-- Quick Stats Card -->
+    <v-flex xs12 md6 class="pa-2">
+      <v-card class="card-hover" elevation="2">
+        <v-card-title class="headline">إحصائيات سريعة</v-card-title>
+        <v-card-text>
+          <v-layout row wrap>
+            <v-flex xs6 class="text-center pa-4">
+              <div class="display-1 primary--text">0</div>
+              <div class="caption grey--text">إجمالي الأراضي</div>
+            </v-flex>
+            <v-flex xs6 class="text-center pa-4">
+              <div class="display-1 success--text">0</div>
+              <div class="caption grey--text">متاح للإيجار</div>
+            </v-flex>
+          </v-layout>
+        </v-card-text>
+      </v-card>
+    </v-flex>
+
+    <!-- Features List -->
+    <v-flex xs12 class="pa-2 mt-4">
+      <v-card elevation="2">
+        <v-card-title class="headline">الميزات الأساسية</v-card-title>
+        <v-divider></v-divider>
+        <v-list>
+          <v-list-item>
+            <v-list-item-avatar>
+              <v-icon color="primary">mdi-magnify</v-icon>
+            </v-list-item-avatar>
+            <v-list-item-content>
+              <v-list-item-title>البحث السهل</v-list-item-title>
+              <v-list-item-subtitle>ابحث عن الأراضي حسب الموقع والمساحة والسعر</v-list-item-subtitle>
+            </v-list-item-content>
+          </v-list-item>
+
+          <v-divider inset></v-divider>
+
+          <v-list-item>
+            <v-list-item-avatar>
+              <v-icon color="success">mdi-view-list</v-icon>
+            </v-list-item-avatar>
+            <v-list-item-content>
+              <v-list-item-title>إدارة الأراضي</v-list-item-title>
+              <v-list-item-subtitle>أضف وعدل واحذف عروضك بسهولة</v-list-item-subtitle>
+            </v-list-item-content>
+          </v-list-item>
+
+          <v-divider inset></v-divider>
+
+          <v-list-item>
+            <v-list-item-avatar>
+              <v-icon color="info">mdi-file-document</v-icon>
+            </v-list-item-avatar>
+            <v-list-item-content>
+              <v-list-item-title>معلومات تفصيلية</v-list-item-title>
+              <v-list-item-subtitle>عرض جميع التفاصيل والصور للأراضي</v-list-item-subtitle>
+            </v-list-item-content>
+          </v-list-item>
+        </v-list>
+      </v-card>
+    </v-flex>
+
+    <!-- Action Buttons -->
+    <v-flex xs12 class="pa-2 mt-4 text-center">
+      <v-btn color="primary" large class="ma-2" @click="goToLandList">
+        <v-icon left>mdi-view-list</v-icon>
+        عرض جميع الأراضي
+      </v-btn>
+      <v-btn color="success" outlined large class="ma-2" @click="goToAddLand">
+        <v-icon left>mdi-plus</v-icon>
+        إضافة أرض جديدة
+      </v-btn>
+    </v-flex>
+  </v-layout>
+</v-container>

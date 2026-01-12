@@ -1,0 +1,213 @@
+<v-container fluid class="page-container">
+  <!-- Page Header -->
+  <v-layout row wrap class="mb-4">
+    <v-flex xs12>
+      <h1 class="display-1 mb-2">{{ isEditMode ? 'تعديل أرض' : 'إضافة أرض جديدة' }}</h1>
+      <p class="subheading grey--text">{{ isEditMode ? 'قم بتعديل معلومات الأرض' : 'أدخل معلومات الأرض الجديدة' }}</p>
+    </v-flex>
+  </v-layout>
+
+  <!-- Loading State -->
+  <div v-if="loading && isEditMode" class="text-center pa-12">
+    <v-progress-circular indeterminate color="primary" size="64"></v-progress-circular>
+    <p class="mt-4 body-1">جاري التحميل...</p>
+  </div>
+
+  <!-- Form -->
+  <v-layout row wrap v-else>
+    <v-flex xs12 md10 lg8>
+      <v-card elevation="2">
+        <v-card-text class="pa-4">
+          <v-form ref="form" v-model="valid">
+            <!-- Basic Information Section -->
+            <h3 class="title mb-4">المعلومات الأساسية</h3>
+
+            <v-text-field
+              v-model="land.title"
+              label="عنوان الأرض *"
+              :rules="[rules.required]"
+              outlined
+              class="mb-3"
+              prepend-inner-icon="mdi-format-title"
+            ></v-text-field>
+
+            <v-textarea
+              v-model="land.description"
+              label="الوصف *"
+              :rules="[rules.required]"
+              outlined
+              rows="4"
+              class="mb-3"
+              prepend-inner-icon="mdi-text"
+            ></v-textarea>
+
+            <v-text-field
+              v-model="land.location"
+              label="الموقع التفصيلي *"
+              :rules="[rules.required]"
+              outlined
+              class="mb-3"
+              prepend-inner-icon="mdi-map-marker"
+              hint="مثال: الرياض، حي النخيل، شارع الملك فهد"
+            ></v-text-field>
+
+            <v-select
+              v-model="land.city"
+              :items="cities"
+              label="المدينة *"
+              :rules="[rules.required]"
+              outlined
+              class="mb-3"
+              prepend-inner-icon="mdi-city"
+            ></v-select>
+
+            <v-divider class="my-4"></v-divider>
+
+            <!-- Property Details Section -->
+            <h3 class="title mb-4">تفاصيل العقار</h3>
+
+            <v-layout row wrap>
+              <v-flex xs12 sm6 class="pa-2">
+                <v-text-field
+                  v-model.number="land.area"
+                  label="المساحة (م²) *"
+                  :rules="[rules.required, rules.number]"
+                  type="number"
+                  outlined
+                  prepend-inner-icon="mdi-arrow-expand-all"
+                ></v-text-field>
+              </v-flex>
+
+              <v-flex xs12 sm6 class="pa-2">
+                <v-text-field
+                  v-model.number="land.pricePerMonth"
+                  label="السعر الشهري (ريال) *"
+                  :rules="[rules.required, rules.number]"
+                  type="number"
+                  outlined
+                  prepend-inner-icon="mdi-cash"
+                ></v-text-field>
+              </v-flex>
+
+              <v-flex xs12 sm6 class="pa-2">
+                <v-select
+                  v-model="land.status"
+                  :items="statusOptions"
+                  label="الحالة *"
+                  :rules="[rules.required]"
+                  outlined
+                  prepend-inner-icon="mdi-information"
+                ></v-select>
+              </v-flex>
+            </v-layout>
+
+            <v-divider class="my-4"></v-divider>
+
+            <!-- Owner Information Section -->
+            <h3 class="title mb-4">معلومات المالك</h3>
+
+            <v-text-field
+              v-model="land.ownerName"
+              label="اسم المالك *"
+              :rules="[rules.required]"
+              outlined
+              class="mb-3"
+              prepend-inner-icon="mdi-account"
+            ></v-text-field>
+
+            <v-layout row wrap>
+              <v-flex xs12 sm6 class="pa-2">
+                <v-text-field
+                  v-model="land.ownerPhone"
+                  label="رقم الجوال *"
+                  :rules="[rules.required, rules.phone]"
+                  outlined
+                  prepend-inner-icon="mdi-phone"
+                  hint="مثال: 0501234567"
+                ></v-text-field>
+              </v-flex>
+
+              <v-flex xs12 sm6 class="pa-2">
+                <v-text-field
+                  v-model="land.ownerEmail"
+                  label="البريد الإلكتروني *"
+                  :rules="[rules.required, rules.email]"
+                  type="email"
+                  outlined
+                  prepend-inner-icon="mdi-email"
+                ></v-text-field>
+              </v-flex>
+            </v-layout>
+
+            <v-divider class="my-4"></v-divider>
+
+            <!-- Features Section -->
+            <h3 class="title mb-4">المميزات</h3>
+
+            <v-layout row wrap align-center class="mb-3">
+              <v-flex xs10 sm10 class="pa-2">
+                <v-text-field
+                  v-model="newFeature"
+                  label="إضافة ميزة"
+                  outlined
+                  @keyup.enter="addFeature"
+                  prepend-inner-icon="mdi-plus-circle"
+                  hide-details
+                ></v-text-field>
+              </v-flex>
+              <v-flex xs2 sm2 class="pa-2">
+                <v-btn color="primary" @click="addFeature" icon large>
+                  <v-icon>mdi-plus</v-icon>
+                </v-btn>
+              </v-flex>
+            </v-layout>
+
+            <v-layout row wrap v-if="land.features.length > 0">
+              <v-flex xs12>
+                <v-chip
+                  v-for="(feature, index) in land.features"
+                  :key="index"
+                  close
+                  @click:close="removeFeature(index)"
+                  class="ml-2 mb-2"
+                  color="primary"
+                  outlined
+                >
+                  {{ feature }}
+                </v-chip>
+              </v-flex>
+            </v-layout>
+
+            <v-alert v-else type="info" outlined class="mb-3">
+              لم يتم إضافة أي مميزات بعد. يمكنك إضافة مميزات مثل: مياه، كهرباء، سور، طريق معبد، إلخ.
+            </v-alert>
+          </v-form>
+        </v-card-text>
+
+        <v-divider></v-divider>
+
+        <v-card-actions class="pa-4">
+          <v-spacer></v-spacer>
+          <v-btn
+            outlined
+            large
+            @click="cancel"
+            :disabled="loading"
+          >
+            إلغاء
+          </v-btn>
+          <v-btn
+            color="primary"
+            large
+            @click="submit"
+            :loading="loading"
+            :disabled="!valid || loading"
+          >
+            <v-icon left>{{ isEditMode ? 'mdi-content-save' : 'mdi-plus' }}</v-icon>
+            {{ isEditMode ? 'حفظ التعديلات' : 'إضافة الأرض' }}
+          </v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-flex>
+  </v-layout>
+</v-container>

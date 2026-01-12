@@ -1,0 +1,228 @@
+<v-container fluid class="page-container">
+  <!-- Loading State -->
+  <div v-if="loading" class="text-center pa-12">
+    <v-progress-circular indeterminate color="primary" size="64"></v-progress-circular>
+    <p class="mt-4 body-1">جاري التحميل...</p>
+  </div>
+
+  <!-- Land Details -->
+  <div v-else-if="land">
+    <!-- Page Header -->
+    <v-layout row wrap class="mb-4">
+      <v-flex xs12 sm8>
+        <v-btn text @click="goBack" class="mb-2">
+          <v-icon left>mdi-arrow-right</v-icon>
+          العودة للقائمة
+        </v-btn>
+        <h1 class="display-1 mb-2">{{ land.title }}</h1>
+        <p class="subheading grey--text">
+          <v-icon small>mdi-map-marker</v-icon>
+          {{ land.location }}
+        </p>
+      </v-flex>
+      <v-flex xs12 sm4 class="text-right">
+        <v-btn color="success" outlined large class="ml-2" @click="editLand">
+          <v-icon left>mdi-pencil</v-icon>
+          تعديل
+        </v-btn>
+        <v-btn color="error" outlined large @click="deleteLand">
+          <v-icon left>mdi-delete</v-icon>
+          حذف
+        </v-btn>
+      </v-flex>
+    </v-layout>
+
+    <v-layout row wrap>
+      <!-- Main Information Card -->
+      <v-flex xs12 md8 class="pa-2">
+        <v-card elevation="2" class="mb-4">
+          <v-card-title class="primary white--text">
+            <v-icon left color="white">mdi-information</v-icon>
+            <span class="headline">معلومات الأرض</span>
+          </v-card-title>
+          <v-card-text class="pa-4">
+            <v-layout row wrap>
+              <v-flex xs12 class="mb-4">
+                <h3 class="title mb-2">الوصف</h3>
+                <p class="body-1">{{ land.description }}</p>
+              </v-flex>
+
+              <v-flex xs12 sm6 class="mb-3">
+                <v-layout row wrap align-center>
+                  <v-flex xs2>
+                    <v-icon color="primary" large>mdi-map-marker</v-icon>
+                  </v-flex>
+                  <v-flex xs10>
+                    <div class="caption grey--text">الموقع</div>
+                    <div class="body-1 font-weight-bold">{{ land.location }}</div>
+                  </v-flex>
+                </v-layout>
+              </v-flex>
+
+              <v-flex xs12 sm6 class="mb-3">
+                <v-layout row wrap align-center>
+                  <v-flex xs2>
+                    <v-icon color="primary" large>mdi-city</v-icon>
+                  </v-flex>
+                  <v-flex xs10>
+                    <div class="caption grey--text">المدينة</div>
+                    <div class="body-1 font-weight-bold">{{ land.city }}</div>
+                  </v-flex>
+                </v-layout>
+              </v-flex>
+
+              <v-flex xs12 sm6 class="mb-3">
+                <v-layout row wrap align-center>
+                  <v-flex xs2>
+                    <v-icon color="success" large>mdi-arrow-expand-all</v-icon>
+                  </v-flex>
+                  <v-flex xs10>
+                    <div class="caption grey--text">المساحة</div>
+                    <div class="body-1 font-weight-bold">{{ formatArea(land.area) }}</div>
+                  </v-flex>
+                </v-layout>
+              </v-flex>
+
+              <v-flex xs12 sm6 class="mb-3">
+                <v-layout row wrap align-center>
+                  <v-flex xs2>
+                    <v-icon color="info" large>mdi-cash</v-icon>
+                  </v-flex>
+                  <v-flex xs10>
+                    <div class="caption grey--text">السعر الشهري</div>
+                    <div class="title primary--text font-weight-bold">{{ formatPrice(land.pricePerMonth) }}</div>
+                  </v-flex>
+                </v-layout>
+              </v-flex>
+
+              <v-flex xs12 sm6 class="mb-3">
+                <v-layout row wrap align-center>
+                  <v-flex xs2>
+                    <v-icon large>mdi-information</v-icon>
+                  </v-flex>
+                  <v-flex xs10>
+                    <div class="caption grey--text">الحالة</div>
+                    <div class="mt-1">
+                      <span :class="getStatusClasses(land.status)">
+                        {{ getStatusText(land.status) }}
+                      </span>
+                    </div>
+                  </v-flex>
+                </v-layout>
+              </v-flex>
+
+              <v-flex xs12 v-if="land.features && land.features.length > 0">
+                <v-divider class="my-4"></v-divider>
+                <h3 class="title mb-3">المميزات</h3>
+                <v-layout row wrap>
+                  <v-flex xs12 sm6 md4 v-for="(feature, index) in land.features" :key="index" class="mb-2">
+                    <v-layout row wrap align-center>
+                      <v-flex xs2>
+                        <v-icon color="success">mdi-check-circle</v-icon>
+                      </v-flex>
+                      <v-flex xs10>
+                        <span class="body-1">{{ feature }}</span>
+                      </v-flex>
+                    </v-layout>
+                  </v-flex>
+                </v-layout>
+              </v-flex>
+            </v-layout>
+          </v-card-text>
+        </v-card>
+      </v-flex>
+
+      <!-- Sidebar -->
+      <v-flex xs12 md4 class="pa-2">
+        <!-- Owner Information Card -->
+        <v-card elevation="2" class="mb-4">
+          <v-card-title class="headline">
+            <v-icon left>mdi-account</v-icon>
+            معلومات المالك
+          </v-card-title>
+          <v-divider></v-divider>
+          <v-list>
+            <v-list-item>
+              <v-list-item-avatar>
+                <v-icon>mdi-account-circle</v-icon>
+              </v-list-item-avatar>
+              <v-list-item-content>
+                <v-list-item-subtitle>الاسم</v-list-item-subtitle>
+                <v-list-item-title>{{ land.ownerName }}</v-list-item-title>
+              </v-list-item-content>
+            </v-list-item>
+
+            <v-divider inset></v-divider>
+
+            <v-list-item>
+              <v-list-item-avatar>
+                <v-icon>mdi-phone</v-icon>
+              </v-list-item-avatar>
+              <v-list-item-content>
+                <v-list-item-subtitle>الجوال</v-list-item-subtitle>
+                <v-list-item-title dir="ltr" class="text-right">{{ land.ownerPhone }}</v-list-item-title>
+              </v-list-item-content>
+              <v-list-item-action>
+                <v-btn icon :href="`tel:${land.ownerPhone}`">
+                  <v-icon color="success">mdi-phone</v-icon>
+                </v-btn>
+              </v-list-item-action>
+            </v-list-item>
+
+            <v-divider inset></v-divider>
+
+            <v-list-item>
+              <v-list-item-avatar>
+                <v-icon>mdi-email</v-icon>
+              </v-list-item-avatar>
+              <v-list-item-content>
+                <v-list-item-subtitle>البريد الإلكتروني</v-list-item-subtitle>
+                <v-list-item-title class="text-truncate">{{ land.ownerEmail }}</v-list-item-title>
+              </v-list-item-content>
+              <v-list-item-action>
+                <v-btn icon :href="`mailto:${land.ownerEmail}`">
+                  <v-icon color="info">mdi-email</v-icon>
+                </v-btn>
+              </v-list-item-action>
+            </v-list-item>
+          </v-list>
+        </v-card>
+
+        <!-- Metadata Card -->
+        <v-card elevation="2">
+          <v-card-title class="headline">
+            <v-icon left>mdi-calendar</v-icon>
+            معلومات إضافية
+          </v-card-title>
+          <v-divider></v-divider>
+          <v-list>
+            <v-list-item>
+              <v-list-item-content>
+                <v-list-item-subtitle>تاريخ الإضافة</v-list-item-subtitle>
+                <v-list-item-title>{{ formatDate(land.createdDate) }}</v-list-item-title>
+              </v-list-item-content>
+            </v-list-item>
+
+            <v-divider></v-divider>
+
+            <v-list-item>
+              <v-list-item-content>
+                <v-list-item-subtitle>آخر تحديث</v-list-item-subtitle>
+                <v-list-item-title>{{ formatDate(land.updatedDate) }}</v-list-item-title>
+              </v-list-item-content>
+            </v-list-item>
+
+            <v-divider></v-divider>
+
+            <v-list-item>
+              <v-list-item-content>
+                <v-list-item-subtitle>رقم المرجع</v-list-item-subtitle>
+                <v-list-item-title>#{{ land.id }}</v-list-item-title>
+              </v-list-item-content>
+            </v-list-item>
+          </v-list>
+        </v-card>
+      </v-flex>
+    </v-layout>
+  </div>
+</v-container>

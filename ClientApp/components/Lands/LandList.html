@@ -1,0 +1,242 @@
+<v-container fluid class="page-container">
+  <!-- Page Header -->
+  <v-layout row wrap class="mb-4">
+    <v-flex xs12 sm8>
+      <h1 class="display-1 mb-2">قائمة الأراضي</h1>
+      <p class="subheading grey--text">تصفح جميع الأراضي المتاحة للإيجار</p>
+    </v-flex>
+    <v-flex xs12 sm4 class="text-right">
+      <v-btn color="success" large @click="addNewLand">
+        <v-icon left>mdi-plus</v-icon>
+        إضافة أرض جديدة
+      </v-btn>
+    </v-flex>
+  </v-layout>
+
+  <!-- Search and Filter Section -->
+  <v-layout row wrap class="mb-4">
+    <v-flex xs12>
+      <v-card elevation="2">
+        <v-card-text>
+          <v-layout row wrap align-center>
+            <v-flex xs12 sm8 md9 class="pa-2">
+              <v-text-field
+                v-model="searchQuery"
+                label="البحث عن أرض (العنوان، الموقع، المدينة)"
+                prepend-inner-icon="mdi-magnify"
+                outlined
+                clearable
+                @keyup.enter="searchLands"
+                hide-details
+              ></v-text-field>
+            </v-flex>
+            <v-flex xs6 sm2 md1 class="pa-2">
+              <v-btn color="primary" large block @click="searchLands">
+                بحث
+              </v-btn>
+            </v-flex>
+            <v-flex xs6 sm2 md2 class="pa-2">
+              <v-btn outlined large block @click="showFilters = !showFilters">
+                <v-icon left>mdi-filter-variant</v-icon>
+                تصفية
+              </v-btn>
+            </v-flex>
+          </v-layout>
+
+          <!-- Advanced Filters -->
+          <v-expand-transition>
+            <div v-show="showFilters">
+              <v-divider class="my-4"></v-divider>
+              <v-layout row wrap>
+                <v-flex xs12 sm6 md3 class="pa-2">
+                  <v-select
+                    v-model="filterStatus"
+                    :items="statusOptions"
+                    label="الحالة"
+                    outlined
+                    hide-details
+                  ></v-select>
+                </v-flex>
+                <v-flex xs12 sm6 md3 class="pa-2">
+                  <v-select
+                    v-model="filterCity"
+                    :items="cities"
+                    label="المدينة"
+                    outlined
+                    hide-details
+                  ></v-select>
+                </v-flex>
+                <v-flex xs12 sm6 md3 class="pa-2">
+                  <v-text-field
+                    v-model.number="filterMinArea"
+                    label="المساحة الدنيا (م²)"
+                    type="number"
+                    outlined
+                    hide-details
+                  ></v-text-field>
+                </v-flex>
+                <v-flex xs12 sm6 md3 class="pa-2">
+                  <v-text-field
+                    v-model.number="filterMaxArea"
+                    label="المساحة القصوى (م²)"
+                    type="number"
+                    outlined
+                    hide-details
+                  ></v-text-field>
+                </v-flex>
+                <v-flex xs12 sm6 md3 class="pa-2">
+                  <v-text-field
+                    v-model.number="filterMinPrice"
+                    label="السعر الأدنى (ريال)"
+                    type="number"
+                    outlined
+                    hide-details
+                  ></v-text-field>
+                </v-flex>
+                <v-flex xs12 sm6 md3 class="pa-2">
+                  <v-text-field
+                    v-model.number="filterMaxPrice"
+                    label="السعر الأقصى (ريال)"
+                    type="number"
+                    outlined
+                    hide-details
+                  ></v-text-field>
+                </v-flex>
+                <v-flex xs12 sm6 md3 class="pa-2">
+                  <v-btn color="primary" large block @click="applyFilters">
+                    تطبيق التصفية
+                  </v-btn>
+                </v-flex>
+                <v-flex xs12 sm6 md3 class="pa-2">
+                  <v-btn outlined large block @click="clearFilters">
+                    مسح التصفية
+                  </v-btn>
+                </v-flex>
+              </v-layout>
+            </div>
+          </v-expand-transition>
+        </v-card-text>
+      </v-card>
+    </v-flex>
+  </v-layout>
+
+  <!-- Loading State -->
+  <div v-if="loading" class="text-center pa-12">
+    <v-progress-circular indeterminate color="primary" size="64"></v-progress-circular>
+    <p class="mt-4 body-1">جاري التحميل...</p>
+  </div>
+
+  <!-- Empty State -->
+  <div v-else-if="lands.length === 0" class="text-center pa-12">
+    <v-icon size="64" color="grey lighten-1">mdi-map-marker-off</v-icon>
+    <p class="title mt-4 grey--text">لا توجد أراضي</p>
+    <p class="body-1 grey--text">لم يتم العثور على أراضي مطابقة للبحث</p>
+    <v-btn color="primary" class="mt-4" @click="clearFilters">
+      عرض جميع الأراضي
+    </v-btn>
+  </div>
+
+  <!-- Lands List -->
+  <v-layout row wrap v-else>
+    <v-flex xs12 sm6 md4 v-for="land in lands" :key="land.id" class="pa-2">
+      <v-card class="card-hover" elevation="2" height="100%">
+        <v-card-title class="primary white--text">
+          <v-layout row wrap align-center>
+            <v-flex xs10>
+              <h3 class="headline text-truncate">{{ land.title }}</h3>
+            </v-flex>
+            <v-flex xs2 class="text-right">
+              <span :class="getStatusClasses(land.status)">
+                {{ getStatusText(land.status) }}
+              </span>
+            </v-flex>
+          </v-layout>
+        </v-card-title>
+
+        <v-card-text class="pa-4">
+          <v-layout row wrap>
+            <v-flex xs12 class="mb-3">
+              <div class="body-1" style="min-height: 60px;">
+                {{ land.description }}
+              </div>
+            </v-flex>
+
+            <v-flex xs12 class="mb-2">
+              <v-layout row wrap align-center>
+                <v-flex xs1>
+                  <v-icon color="primary">mdi-map-marker</v-icon>
+                </v-flex>
+                <v-flex xs11>
+                  <span class="body-2">{{ land.location }}</span>
+                </v-flex>
+              </v-layout>
+            </v-flex>
+
+            <v-flex xs12 class="mb-2">
+              <v-layout row wrap align-center>
+                <v-flex xs1>
+                  <v-icon color="success">mdi-arrow-expand-all</v-icon>
+                </v-flex>
+                <v-flex xs11>
+                  <span class="body-2">المساحة: {{ formatArea(land.area) }}</span>
+                </v-flex>
+              </v-layout>
+            </v-flex>
+
+            <v-flex xs12 class="mb-2">
+              <v-layout row wrap align-center>
+                <v-flex xs1>
+                  <v-icon color="info">mdi-cash</v-icon>
+                </v-flex>
+                <v-flex xs11>
+                  <span class="body-2 font-weight-bold">{{ formatPrice(land.pricePerMonth) }} / شهرياً</span>
+                </v-flex>
+              </v-layout>
+            </v-flex>
+
+            <v-flex xs12 v-if="land.features && land.features.length > 0">
+              <v-divider class="my-3"></v-divider>
+              <div class="caption grey--text mb-2">المميزات:</div>
+              <v-chip
+                v-for="(feature, index) in land.features.slice(0, 3)"
+                :key="index"
+                small
+                class="ml-1 mb-1"
+              >
+                {{ feature }}
+              </v-chip>
+              <span v-if="land.features.length > 3" class="caption grey--text">
+                +{{ land.features.length - 3 }} المزيد
+              </span>
+            </v-flex>
+          </v-layout>
+        </v-card-text>
+
+        <v-divider></v-divider>
+
+        <v-card-actions class="pa-3">
+          <v-layout row wrap>
+            <v-flex xs4 class="text-center">
+              <v-btn icon @click="viewLand(land)">
+                <v-icon color="primary">mdi-eye</v-icon>
+              </v-btn>
+              <div class="caption">عرض</div>
+            </v-flex>
+            <v-flex xs4 class="text-center">
+              <v-btn icon @click="editLand(land)">
+                <v-icon color="success">mdi-pencil</v-icon>
+              </v-btn>
+              <div class="caption">تعديل</div>
+            </v-flex>
+            <v-flex xs4 class="text-center">
+              <v-btn icon @click="deleteLand(land)">
+                <v-icon color="error">mdi-delete</v-icon>
+              </v-btn>
+              <div class="caption">حذف</div>
+            </v-flex>
+          </v-layout>
+        </v-card-actions>
+      </v-card>
+    </v-flex>
+  </v-layout>
+</v-container>
