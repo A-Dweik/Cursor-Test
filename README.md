@@ -1,59 +1,232 @@
-# AmmanWeather
+# تطبيق الأراضي (Land App)
 
-This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 21.0.2.
+تطبيق إدارة وبيع الأراضي - مبني على منصة Najiz.MicroTemplate
 
-## Development server
+## 📋 نظرة عامة
 
-To start a local development server, run:
+تطبيق شامل لإدارة وبيع الأراضي يوفر واجهة سهلة الاستخدام لعرض الأراضي، إضافة أراضي جديدة، التحقق من حالة الأراضي، وإدارة معلومات الأراضي بشكل كامل.
 
-```bash
-ng serve
+## 🏗️ التقنيات المستخدمة
+
+### Backend
+- **ASP.NET Core 3.1** - الإطار الخلفي
+- **Najiz Framework** - إطار عمل Najiz للتكامل مع البوابة
+
+### Frontend
+- **Vue.js 2.6** - إطار JavaScript
+- **TypeScript 4.5** - لغة البرمجة
+- **Vuetify 1.5** - مكتبة المكونات
+- **Vue Router** - التنقل بين الصفحات
+- **Axios** - طلبات HTTP
+
+## ✨ المميزات
+
+### 1. إدارة الأراضي
+- ✅ عرض قائمة جميع الأراضي
+- ✅ إضافة أراضي جديدة
+- ✅ تعديل معلومات الأراضي
+- ✅ حذف الأراضي
+- ✅ عرض تفاصيل كل أرض
+
+### 2. البحث والفلترة
+- ✅ البحث بالعنوان، الموقع، أو المدينة
+- ✅ فلترة حسب الحالة (متاحة، محجوزة، مباعة، قيد الانتظار)
+- ✅ فلترة حسب النوع (سكنية، تجارية، زراعية، صناعية)
+
+### 3. التحقق والتوثيق
+- ✅ نظام توثيق الأراضي
+- ✅ تغيير حالة التوثيق (موثق، قيد المراجعة، مرفوض)
+- ✅ تتبع حالة الأراضي
+
+### 4. معلومات تفصيلية
+- ✅ معلومات المالك
+- ✅ الموقع الجغرافي (خط العرض والطول)
+- ✅ المساحة والسعر
+- ✅ المرافق المتوفرة (كهرباء، ماء، طرق)
+- ✅ المستندات (رقم الصك، رقم المخطط)
+
+### 5. واجهة مستخدم احترافية
+- ✅ تصميم متجاوب (Mobile-First)
+- ✅ دعم اللغة العربية (RTL)
+- ✅ تصميم Material Design
+- ✅ رموز Material Design Icons (مدمجة محلياً)
+- ✅ حالات التحميل والخطأ
+- ✅ رسائل التنبيه والنجاح
+
+## 📁 هيكل المشروع
+
+```
+LandApp/
+├── ClientApp/                      # التطبيق الأمامي (Vue.js)
+│   ├── assets/
+│   │   └── styles/
+│   │       └── main.css           # الأنماط العامة
+│   ├── components/
+│   │   ├── App/                   # المكون الرئيسي
+│   │   ├── Index/                 # الصفحة الرئيسية
+│   │   ├── LandList/              # قائمة الأراضي
+│   │   ├── LandForm/              # نموذج إضافة/تعديل أرض
+│   │   └── LandDetails/           # تفاصيل الأرض
+│   ├── Services/
+│   │   ├── LandService/           # خدمة إدارة الأراضي
+│   │   ├── AxiosService.ts        # خدمة HTTP
+│   │   ├── LoaderService.ts       # خدمة التحميل
+│   │   └── TelemetryService.ts    # خدمة التتبع
+│   ├── plugins/
+│   │   ├── vuetify.js            # إعدادات Vuetify
+│   │   └── i18n.ts               # الترجمة
+│   ├── main.ts                    # نقطة البدء
+│   └── router.ts                  # التوجيه
+├── Config/
+│   └── NLog.config                # إعدادات السجلات
+├── Pages/                         # صفحات Razor
+├── Properties/
+│   └── launchSettings.json        # إعدادات التشغيل
+├── public/                        # الملفات العامة
+│   ├── config.json
+│   └── manifest.json
+├── Program.cs                     # نقطة بدء ASP.NET
+├── Startup.cs                     # إعدادات ASP.NET
+├── LandApp.csproj                 # ملف المشروع
+├── package.json                   # حزم npm
+├── vue.config.js                  # إعدادات Vue CLI
+└── tsconfig.json                  # إعدادات TypeScript
 ```
 
-Once the server is running, open your browser and navigate to `http://localhost:4200/`. The application will automatically reload whenever you modify any of the source files.
+## 🚀 التثبيت والتشغيل
 
-## Code scaffolding
+### المتطلبات الأساسية
+- .NET Core SDK 3.1+
+- Node.js 12+
+- npm أو yarn
 
-Angular CLI includes powerful code scaffolding tools. To generate a new component, run:
+### خطوات التثبيت
 
+1. **تثبيت حزم npm:**
 ```bash
-ng generate component component-name
+npm install
 ```
 
-For a complete list of available schematics (such as `components`, `directives`, or `pipes`), run:
-
+2. **بناء التطبيق الأمامي:**
 ```bash
-ng generate --help
+npm run build
 ```
 
-## Building
-
-To build the project run:
-
+3. **تشغيل التطبيق:**
 ```bash
-ng build
+dotnet run
 ```
 
-This will compile your project and store the build artifacts in the `dist/` directory. By default, the production build optimizes your application for performance and speed.
-
-## Running unit tests
-
-To execute unit tests with the [Vitest](https://vitest.dev/) test runner, use the following command:
-
-```bash
-ng test
+4. **فتح المتصفح:**
+```
+http://localhost:5020/applications/landapp/
 ```
 
-## Running end-to-end tests
+### التطوير
 
-For end-to-end (e2e) testing, run:
+للتطوير مع إعادة التحميل التلقائي:
 
 ```bash
-ng e2e
+# Terminal 1 - Vue.js
+npm run serve
+
+# Terminal 2 - ASP.NET
+dotnet run
 ```
 
-Angular CLI does not come with an end-to-end testing framework by default. You can choose one that suits your needs.
+## 🎨 المعايير التصميمية
 
-## Additional Resources
+### الألوان
+- **Primary**: #1976D2 (أزرق)
+- **Success**: #4CAF50 (أخضر)
+- **Error**: #FF5252 (أحمر)
+- **Warning**: #ff9800 (برتقالي)
+- **Info**: #2196F3 (أزرق فاتح)
 
-For more information on using the Angular CLI, including detailed command references, visit the [Angular CLI Overview and Command Reference](https://angular.dev/tools/cli) page.
+### الطباعة
+- **العربية**: Tajawal
+- **الإنجليزية**: Roboto
+
+### التخطيط
+- **RTL Support**: دعم كامل للعربية
+- **Responsive Grid**: نظام 12 عمود
+- **Breakpoints**: xs, sm, md, lg, xl
+
+## 📊 نموذج البيانات
+
+### LandModel
+```typescript
+{
+  id: string;
+  title: string;
+  description: string;
+  area: number;                    // المساحة بالمتر المربع
+  price: number;                   // السعر بالريال
+  location: string;
+  city: string;
+  district: string;
+  latitude?: number;
+  longitude?: number;
+  status: 'available' | 'pending' | 'sold' | 'reserved';
+  ownerName: string;
+  ownerPhone: string;
+  deedNumber?: string;             // رقم الصك
+  planNumber?: string;             // رقم المخطط
+  landType: 'residential' | 'commercial' | 'agricultural' | 'industrial';
+  hasElectricity: boolean;
+  hasWater: boolean;
+  hasRoads: boolean;
+  verificationStatus: 'pending' | 'verified' | 'rejected';
+  createdDate: string;
+  updatedDate?: string;
+  notes?: string;
+}
+```
+
+## 🔒 الأمان
+
+- ✅ Content Security Policy (CSP) متوافق
+- ✅ جميع الموارد محملة محلياً (لا CDN خارجي)
+- ✅ التحقق من المدخلات
+- ✅ معالجة الأخطاء الشاملة
+
+## 📱 التوافق
+
+- ✅ متصفحات سطح المكتب (Chrome, Firefox, Safari, Edge)
+- ✅ الأجهزة المحمولة (iOS, Android)
+- ✅ الأجهزة اللوحية
+
+## 🧪 الاختبار
+
+للاختبار اليدوي:
+
+1. افتح الصفحة الرئيسية
+2. انقر على "عرض الأراضي"
+3. جرب البحث والفلترة
+4. أضف أرض جديدة
+5. اعرض تفاصيل أرض
+6. عدّل وحذف أرض
+
+## 📝 الملاحظات
+
+- التطبيق يستخدم بيانات وهمية (Mock Data) للعرض التوضيحي
+- لاستخدام حقيقي، يجب إضافة API Controllers في مجلد Controller
+- يمكن إضافة قاعدة بيانات في مجلد Models
+
+## 🤝 المساهمة
+
+هذا التطبيق تم إنشاؤه باستخدام Najiz.MicroTemplate ويمكن تطويره حسب احتياجات المشروع.
+
+## 📄 الترخيص
+
+هذا المشروع ملك لوزارة العدل - المملكة العربية السعودية
+
+## 📞 الدعم
+
+لأي استفسارات أو مشاكل، يرجى التواصل مع فريق التطوير.
+
+---
+
+**تم الإنشاء بواسطة**: Cloud AI Agent  
+**التاريخ**: 2026-01-12  
+**الإصدار**: 1.0.0

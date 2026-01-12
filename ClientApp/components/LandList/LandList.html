@@ -1,0 +1,213 @@
+<v-container fluid class="page-container">
+  <!-- Page Header -->
+  <v-layout row wrap class="mb-4">
+    <v-flex xs12 sm8>
+      <h1 class="display-1 mb-2">إدارة الأراضي</h1>
+      <p class="subheading grey--text">عرض وإدارة جميع الأراضي المتاحة</p>
+    </v-flex>
+    <v-flex xs12 sm4 class="text-left">
+      <v-btn color="primary" large @click="addNewLand" class="mt-2">
+        <v-icon left>mdi-plus-circle</v-icon>
+        إضافة أرض جديدة
+      </v-btn>
+    </v-flex>
+  </v-layout>
+
+  <!-- Filters Card -->
+  <v-card class="mb-4" elevation="2">
+    <v-card-text>
+      <v-layout row wrap>
+        <!-- Search -->
+        <v-flex xs12 md4 class="pa-2">
+          <v-text-field
+            v-model="searchQuery"
+            label="البحث"
+            placeholder="ابحث عن أرض..."
+            prepend-inner-icon="mdi-magnify"
+            outlined
+            dense
+            clearable
+            hide-details
+          ></v-text-field>
+        </v-flex>
+
+        <!-- Status Filter -->
+        <v-flex xs12 sm6 md4 class="pa-2">
+          <v-select
+            v-model="filterStatus"
+            :items="statusOptions"
+            label="الحالة"
+            outlined
+            dense
+            hide-details
+          ></v-select>
+        </v-flex>
+
+        <!-- Type Filter -->
+        <v-flex xs12 sm6 md4 class="pa-2">
+          <v-select
+            v-model="filterType"
+            :items="typeOptions"
+            label="النوع"
+            outlined
+            dense
+            hide-details
+          ></v-select>
+        </v-flex>
+      </v-layout>
+    </v-card-text>
+  </v-card>
+
+  <!-- Loading State -->
+  <div v-if="loading" class="text-center pa-12">
+    <v-progress-circular indeterminate color="primary" size="64"></v-progress-circular>
+    <p class="mt-4 body-1">جاري التحميل...</p>
+  </div>
+
+  <!-- Empty State -->
+  <div v-else-if="filteredLands.length === 0" class="empty-state">
+    <v-icon size="64" color="grey lighten-1">mdi-map-marker-off</v-icon>
+    <p class="title mt-4 grey--text">لا توجد أراضي</p>
+    <p class="body-1 grey--text">لم يتم العثور على أراضي مطابقة للفلاتر المحددة</p>
+    <v-btn color="primary" class="mt-4" @click="addNewLand">
+      <v-icon left>mdi-plus</v-icon>
+      إضافة أرض جديدة
+    </v-btn>
+  </div>
+
+  <!-- Lands Grid -->
+  <v-layout row wrap v-else>
+    <v-flex 
+      v-for="land in filteredLands" 
+      :key="land.id"
+      xs12 
+      sm6 
+      md4 
+      lg3
+      class="pa-2"
+    >
+      <v-card class="card-hover" elevation="2" height="100%">
+        <!-- Land Image Placeholder -->
+        <v-img
+          :src="land.images && land.images.length > 0 ? land.images[0] : 'https://via.placeholder.com/400x250?text=No+Image'"
+          height="200"
+          class="grey lighten-2"
+        >
+          <v-layout column fill-height>
+            <v-card-title class="white--text">
+              <v-spacer></v-spacer>
+              <span :class="getStatusClasses(land.status)">
+                {{ getStatusText(land.status) }}
+              </span>
+            </v-card-title>
+            <v-spacer></v-spacer>
+          </v-layout>
+        </v-img>
+
+        <!-- Land Info -->
+        <v-card-text class="pa-3">
+          <h3 class="title mb-2 text-truncate">{{ land.title }}</h3>
+          
+          <v-layout row wrap class="mb-2">
+            <v-flex xs12>
+              <v-icon small color="grey">mdi-map-marker</v-icon>
+              <span class="caption grey--text mr-1">{{ land.location }}</span>
+            </v-flex>
+          </v-layout>
+
+          <v-layout row wrap class="mb-2">
+            <v-flex xs6>
+              <v-icon small color="primary">mdi-resize</v-icon>
+              <span class="body-2 mr-1">{{ formatArea(land.area) }}</span>
+            </v-flex>
+            <v-flex xs6>
+              <v-icon small color="success">mdi-cash</v-icon>
+              <span class="body-2 mr-1">{{ formatPrice(land.price) }}</span>
+            </v-flex>
+          </v-layout>
+
+          <v-layout row wrap class="mb-2">
+            <v-flex xs12>
+              <v-chip small outlined color="primary" class="ma-1">
+                <v-icon small left>mdi-office-building</v-icon>
+                {{ getLandTypeText(land.landType) }}
+              </v-chip>
+              <span :class="getVerificationClasses(land.verificationStatus)" class="ma-1">
+                {{ getVerificationText(land.verificationStatus) }}
+              </span>
+            </v-flex>
+          </v-layout>
+
+          <!-- Utilities -->
+          <v-layout row wrap class="mt-2">
+            <v-flex xs4 class="text-center">
+              <v-icon :color="land.hasElectricity ? 'success' : 'grey'">
+                mdi-lightning-bolt
+              </v-icon>
+            </v-flex>
+            <v-flex xs4 class="text-center">
+              <v-icon :color="land.hasWater ? 'success' : 'grey'">
+                mdi-water
+              </v-icon>
+            </v-flex>
+            <v-flex xs4 class="text-center">
+              <v-icon :color="land.hasRoads ? 'success' : 'grey'">
+                mdi-road
+              </v-icon>
+            </v-flex>
+          </v-layout>
+        </v-card-text>
+
+        <v-divider></v-divider>
+
+        <!-- Actions -->
+        <v-card-actions class="pa-2">
+          <v-btn icon @click="viewLand(land)">
+            <v-icon color="primary">mdi-eye</v-icon>
+          </v-btn>
+          <v-btn icon @click="editLand(land)">
+            <v-icon color="success">mdi-pencil</v-icon>
+          </v-btn>
+          <v-btn icon @click="deleteLand(land)">
+            <v-icon color="error">mdi-delete</v-icon>
+          </v-btn>
+          <v-spacer></v-spacer>
+          <v-btn small text color="primary" @click="viewLand(land)">
+            التفاصيل
+            <v-icon small left>mdi-arrow-left</v-icon>
+          </v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-flex>
+  </v-layout>
+
+  <!-- Stats Summary -->
+  <v-card class="mt-4" elevation="2" v-if="!loading && filteredLands.length > 0">
+    <v-card-text>
+      <v-layout row wrap>
+        <v-flex xs6 sm3 class="text-center pa-3">
+          <div class="headline primary--text">{{ filteredLands.length }}</div>
+          <div class="caption grey--text">إجمالي الأراضي</div>
+        </v-flex>
+        <v-flex xs6 sm3 class="text-center pa-3">
+          <div class="headline success--text">
+            {{ filteredLands.filter(l => l.status === 'available').length }}
+          </div>
+          <div class="caption grey--text">متاحة</div>
+        </v-flex>
+        <v-flex xs6 sm3 class="text-center pa-3">
+          <div class="headline orange--text">
+            {{ filteredLands.filter(l => l.status === 'pending').length }}
+          </div>
+          <div class="caption grey--text">قيد الانتظار</div>
+        </v-flex>
+        <v-flex xs6 sm3 class="text-center pa-3">
+          <div class="headline error--text">
+            {{ filteredLands.filter(l => l.status === 'sold').length }}
+          </div>
+          <div class="caption grey--text">مباعة</div>
+        </v-flex>
+      </v-layout>
+    </v-card-text>
+  </v-card>
+</v-container>

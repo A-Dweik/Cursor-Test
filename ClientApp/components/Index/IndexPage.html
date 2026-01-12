@@ -1,0 +1,187 @@
+<v-container fluid class="page-container">
+  <!-- Page Header -->
+  <v-layout row wrap class="mb-6">
+    <v-flex xs12>
+      <h1 class="display-1 mb-2">تطبيق الأراضي</h1>
+      <p class="subheading grey--text">إدارة وبيع الأراضي بسهولة وأمان</p>
+    </v-flex>
+  </v-layout>
+
+  <!-- Main Content -->
+  <v-layout row wrap>
+    <!-- Welcome Card -->
+    <v-flex xs12 md6 class="pa-2">
+      <v-card class="card-hover" elevation="2">
+        <v-card-title class="primary white--text">
+          <v-icon left color="white">mdi-hand-wave</v-icon>
+          <span class="headline">مرحباً بك</span>
+        </v-card-title>
+        <v-card-text class="pa-4">
+          <p class="body-1 mb-3">
+            مرحباً بك في تطبيق إدارة وبيع الأراضي. من خلال هذا التطبيق يمكنك:
+          </p>
+          <ul class="body-1">
+            <li>عرض جميع الأراضي المتاحة</li>
+            <li>إضافة أراضي جديدة للبيع</li>
+            <li>التحقق من حالة الأراضي</li>
+            <li>إدارة معلومات الأراضي</li>
+          </ul>
+        </v-card-text>
+        <v-card-actions>
+          <v-spacer></v-spacer>
+          <v-btn color="primary" @click="goToLands">
+            <v-icon left>mdi-map</v-icon>
+            عرض الأراضي
+          </v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-flex>
+
+    <!-- Quick Stats Card -->
+    <v-flex xs12 md6 class="pa-2">
+      <v-card class="card-hover" elevation="2">
+        <v-card-title class="headline">
+          <v-icon left color="primary">mdi-chart-box</v-icon>
+          إحصائيات سريعة
+        </v-card-title>
+        <v-card-text>
+          <v-layout row wrap>
+            <v-flex xs12 sm4 class="text-center pa-4">
+              <div class="display-1 primary--text">{{ totalLands }}</div>
+              <div class="caption grey--text">إجمالي الأراضي</div>
+            </v-flex>
+            <v-flex xs12 sm4 class="text-center pa-4">
+              <div class="display-1 success--text">{{ availableLands }}</div>
+              <div class="caption grey--text">متاحة للبيع</div>
+            </v-flex>
+            <v-flex xs12 sm4 class="text-center pa-4">
+              <div class="display-1 error--text">{{ soldLands }}</div>
+              <div class="caption grey--text">مباعة</div>
+            </v-flex>
+          </v-layout>
+        </v-card-text>
+      </v-card>
+    </v-flex>
+
+    <!-- Quick Actions Card -->
+    <v-flex xs12 class="pa-2 mt-4">
+      <v-card elevation="2">
+        <v-card-title class="headline">
+          <v-icon left color="primary">mdi-lightning-bolt</v-icon>
+          إجراءات سريعة
+        </v-card-title>
+        <v-divider></v-divider>
+        <v-card-text class="pa-4">
+          <v-layout row wrap>
+            <v-flex xs12 sm6 md3 class="pa-2">
+              <v-btn 
+                color="primary" 
+                large 
+                block 
+                @click="goToAddLand"
+                class="elevation-2"
+              >
+                <v-icon left>mdi-plus-circle</v-icon>
+                إضافة أرض جديدة
+              </v-btn>
+            </v-flex>
+            <v-flex xs12 sm6 md3 class="pa-2">
+              <v-btn 
+                color="info" 
+                large 
+                block 
+                @click="goToLands"
+                class="elevation-2"
+              >
+                <v-icon left>mdi-format-list-bulleted</v-icon>
+                عرض جميع الأراضي
+              </v-btn>
+            </v-flex>
+            <v-flex xs12 sm6 md3 class="pa-2">
+              <v-btn 
+                color="success" 
+                large 
+                block 
+                @click="goToLands"
+                class="elevation-2"
+              >
+                <v-icon left>mdi-filter</v-icon>
+                البحث والفلترة
+              </v-btn>
+            </v-flex>
+            <v-flex xs12 sm6 md3 class="pa-2">
+              <v-btn 
+                color="secondary" 
+                large 
+                block 
+                outlined
+                class="elevation-2"
+              >
+                <v-icon left>mdi-help-circle</v-icon>
+                المساعدة
+              </v-btn>
+            </v-flex>
+          </v-layout>
+        </v-card-text>
+      </v-card>
+    </v-flex>
+
+    <!-- Features List -->
+    <v-flex xs12 class="pa-2 mt-4">
+      <v-card elevation="2">
+        <v-card-title class="headline">
+          <v-icon left color="primary">mdi-star</v-icon>
+          مميزات التطبيق
+        </v-card-title>
+        <v-divider></v-divider>
+        <v-list>
+          <v-list-item>
+            <v-list-item-avatar>
+              <v-icon color="primary">mdi-map-marker-radius</v-icon>
+            </v-list-item-avatar>
+            <v-list-item-content>
+              <v-list-item-title>تحديد موقع الأرض بدقة</v-list-item-title>
+              <v-list-item-subtitle>إمكانية تحديد الموقع الجغرافي للأرض بدقة عالية</v-list-item-subtitle>
+            </v-list-item-content>
+          </v-list-item>
+
+          <v-divider inset></v-divider>
+
+          <v-list-item>
+            <v-list-item-avatar>
+              <v-icon color="success">mdi-file-document</v-icon>
+            </v-list-item-avatar>
+            <v-list-item-content>
+              <v-list-item-title>إدارة المستندات</v-list-item-title>
+              <v-list-item-subtitle>رفع وإدارة مستندات الملكية والصكوك</v-list-item-subtitle>
+            </v-list-item-content>
+          </v-list-item>
+
+          <v-divider inset></v-divider>
+
+          <v-list-item>
+            <v-list-item-avatar>
+              <v-icon color="info">mdi-shield-check</v-icon>
+            </v-list-item-avatar>
+            <v-list-item-content>
+              <v-list-item-title>التحقق من الأراضي</v-list-item-title>
+              <v-list-item-subtitle>التحقق من صحة معلومات الأرض وحالتها القانونية</v-list-item-subtitle>
+            </v-list-item-content>
+          </v-list-item>
+
+          <v-divider inset></v-divider>
+
+          <v-list-item>
+            <v-list-item-avatar>
+              <v-icon color="warning">mdi-cash-multiple</v-icon>
+            </v-list-item-avatar>
+            <v-list-item-content>
+              <v-list-item-title>إدارة الأسعار</v-list-item-title>
+              <v-list-item-subtitle>تحديد وتحديث أسعار الأراضي بسهولة</v-list-item-subtitle>
+            </v-list-item-content>
+          </v-list-item>
+        </v-list>
+      </v-card>
+    </v-flex>
+  </v-layout>
+</v-container>

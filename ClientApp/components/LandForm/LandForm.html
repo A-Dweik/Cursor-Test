@@ -1,0 +1,320 @@
+<v-container fluid class="page-container">
+  <!-- Page Header -->
+  <v-layout row wrap class="mb-4">
+    <v-flex xs12>
+      <h1 class="display-1 mb-2">
+        {{ isEditMode ? 'تعديل الأرض' : 'إضافة أرض جديدة' }}
+      </h1>
+      <p class="subheading grey--text">
+        {{ isEditMode ? 'تحديث معلومات الأرض' : 'إضافة أرض جديدة للبيع' }}
+      </p>
+    </v-flex>
+  </v-layout>
+
+  <!-- Loading State -->
+  <div v-if="loading && isEditMode" class="text-center pa-12">
+    <v-progress-circular indeterminate color="primary" size="64"></v-progress-circular>
+    <p class="mt-4 body-1">جاري التحميل...</p>
+  </div>
+
+  <!-- Form -->
+  <v-form ref="form" v-model="valid" v-else>
+    <!-- Basic Information Card -->
+    <v-card class="mb-4" elevation="2">
+      <v-card-title class="primary white--text">
+        <v-icon left color="white">mdi-information</v-icon>
+        <span class="headline">المعلومات الأساسية</span>
+      </v-card-title>
+      <v-card-text class="pa-4">
+        <v-layout row wrap>
+          <!-- Title -->
+          <v-flex xs12 class="pa-2">
+            <v-text-field
+              v-model="land.title"
+              label="عنوان الأرض"
+              :rules="[rules.required]"
+              outlined
+              required
+              placeholder="مثال: أرض سكنية في حي النرجس"
+            ></v-text-field>
+          </v-flex>
+
+          <!-- Description -->
+          <v-flex xs12 class="pa-2">
+            <v-textarea
+              v-model="land.description"
+              label="الوصف"
+              :rules="[rules.required]"
+              outlined
+              rows="3"
+              required
+              placeholder="وصف تفصيلي للأرض..."
+            ></v-textarea>
+          </v-flex>
+
+          <!-- Land Type -->
+          <v-flex xs12 sm6 class="pa-2">
+            <v-select
+              v-model="land.landType"
+              :items="landTypeOptions"
+              label="نوع الأرض"
+              :rules="[rules.required]"
+              outlined
+              required
+            ></v-select>
+          </v-flex>
+
+          <!-- Area -->
+          <v-flex xs12 sm6 class="pa-2">
+            <v-text-field
+              v-model.number="land.area"
+              label="المساحة (متر مربع)"
+              :rules="[rules.required, rules.number]"
+              outlined
+              type="number"
+              required
+              suffix="م²"
+            ></v-text-field>
+          </v-flex>
+
+          <!-- Price -->
+          <v-flex xs12 sm6 class="pa-2">
+            <v-text-field
+              v-model.number="land.price"
+              label="السعر"
+              :rules="[rules.required, rules.number]"
+              outlined
+              type="number"
+              required
+              suffix="ريال"
+            ></v-text-field>
+          </v-flex>
+        </v-layout>
+      </v-card-text>
+    </v-card>
+
+    <!-- Location Information Card -->
+    <v-card class="mb-4" elevation="2">
+      <v-card-title class="info white--text">
+        <v-icon left color="white">mdi-map-marker</v-icon>
+        <span class="headline">معلومات الموقع</span>
+      </v-card-title>
+      <v-card-text class="pa-4">
+        <v-layout row wrap>
+          <!-- City -->
+          <v-flex xs12 sm6 class="pa-2">
+            <v-text-field
+              v-model="land.city"
+              label="المدينة"
+              :rules="[rules.required]"
+              outlined
+              required
+            ></v-text-field>
+          </v-flex>
+
+          <!-- District -->
+          <v-flex xs12 sm6 class="pa-2">
+            <v-text-field
+              v-model="land.district"
+              label="الحي"
+              :rules="[rules.required]"
+              outlined
+              required
+            ></v-text-field>
+          </v-flex>
+
+          <!-- Location -->
+          <v-flex xs12 class="pa-2">
+            <v-text-field
+              v-model="land.location"
+              label="الموقع الكامل"
+              :rules="[rules.required]"
+              outlined
+              required
+              placeholder="مثال: حي النرجس، شمال الرياض"
+            ></v-text-field>
+          </v-flex>
+
+          <!-- Latitude -->
+          <v-flex xs12 sm6 class="pa-2">
+            <v-text-field
+              v-model.number="land.latitude"
+              label="خط العرض (اختياري)"
+              outlined
+              type="number"
+              step="0.000001"
+            ></v-text-field>
+          </v-flex>
+
+          <!-- Longitude -->
+          <v-flex xs12 sm6 class="pa-2">
+            <v-text-field
+              v-model.number="land.longitude"
+              label="خط الطول (اختياري)"
+              outlined
+              type="number"
+              step="0.000001"
+            ></v-text-field>
+          </v-flex>
+        </v-layout>
+      </v-card-text>
+    </v-card>
+
+    <!-- Owner Information Card -->
+    <v-card class="mb-4" elevation="2">
+      <v-card-title class="success white--text">
+        <v-icon left color="white">mdi-account</v-icon>
+        <span class="headline">معلومات المالك</span>
+      </v-card-title>
+      <v-card-text class="pa-4">
+        <v-layout row wrap>
+          <!-- Owner Name -->
+          <v-flex xs12 sm6 class="pa-2">
+            <v-text-field
+              v-model="land.ownerName"
+              label="اسم المالك"
+              :rules="[rules.required]"
+              outlined
+              required
+            ></v-text-field>
+          </v-flex>
+
+          <!-- Owner Phone -->
+          <v-flex xs12 sm6 class="pa-2">
+            <v-text-field
+              v-model="land.ownerPhone"
+              label="رقم جوال المالك"
+              :rules="[rules.required, rules.phone]"
+              outlined
+              required
+              placeholder="05xxxxxxxx"
+              dir="ltr"
+            ></v-text-field>
+          </v-flex>
+
+          <!-- Deed Number -->
+          <v-flex xs12 sm6 class="pa-2">
+            <v-text-field
+              v-model="land.deedNumber"
+              label="رقم الصك (اختياري)"
+              outlined
+            ></v-text-field>
+          </v-flex>
+
+          <!-- Plan Number -->
+          <v-flex xs12 sm6 class="pa-2">
+            <v-text-field
+              v-model="land.planNumber"
+              label="رقم المخطط (اختياري)"
+              outlined
+            ></v-text-field>
+          </v-flex>
+        </v-layout>
+      </v-card-text>
+    </v-card>
+
+    <!-- Utilities Card -->
+    <v-card class="mb-4" elevation="2">
+      <v-card-title class="warning white--text">
+        <v-icon left color="white">mdi-cog</v-icon>
+        <span class="headline">المرافق والخدمات</span>
+      </v-card-title>
+      <v-card-text class="pa-4">
+        <v-layout row wrap>
+          <v-flex xs12 sm4 class="pa-2">
+            <v-checkbox
+              v-model="land.hasElectricity"
+              label="كهرباء"
+              color="success"
+            >
+              <template v-slot:label>
+                <v-icon left>mdi-lightning-bolt</v-icon>
+                <span>كهرباء</span>
+              </template>
+            </v-checkbox>
+          </v-flex>
+
+          <v-flex xs12 sm4 class="pa-2">
+            <v-checkbox
+              v-model="land.hasWater"
+              label="ماء"
+              color="success"
+            >
+              <template v-slot:label>
+                <v-icon left>mdi-water</v-icon>
+                <span>ماء</span>
+              </template>
+            </v-checkbox>
+          </v-flex>
+
+          <v-flex xs12 sm4 class="pa-2">
+            <v-checkbox
+              v-model="land.hasRoads"
+              label="طرق"
+              color="success"
+            >
+              <template v-slot:label>
+                <v-icon left>mdi-road</v-icon>
+                <span>طرق مسفلتة</span>
+              </template>
+            </v-checkbox>
+          </v-flex>
+        </v-layout>
+      </v-card-text>
+    </v-card>
+
+    <!-- Notes Card -->
+    <v-card class="mb-4" elevation="2">
+      <v-card-title class="secondary white--text">
+        <v-icon left color="white">mdi-note-text</v-icon>
+        <span class="headline">ملاحظات إضافية</span>
+      </v-card-title>
+      <v-card-text class="pa-4">
+        <v-textarea
+          v-model="land.notes"
+          label="ملاحظات"
+          outlined
+          rows="3"
+          placeholder="أي ملاحظات أو معلومات إضافية..."
+        ></v-textarea>
+      </v-card-text>
+    </v-card>
+
+    <!-- Action Buttons -->
+    <v-card elevation="2">
+      <v-card-actions class="pa-4">
+        <v-btn
+          color="primary"
+          large
+          :loading="loading"
+          :disabled="!valid || loading"
+          @click="save"
+        >
+          <v-icon left>mdi-content-save</v-icon>
+          {{ isEditMode ? 'حفظ التعديلات' : 'إضافة الأرض' }}
+        </v-btn>
+        <v-btn
+          large
+          outlined
+          @click="cancel"
+          :disabled="loading"
+        >
+          <v-icon left>mdi-close</v-icon>
+          إلغاء
+        </v-btn>
+        <v-spacer></v-spacer>
+        <v-btn
+          large
+          text
+          color="error"
+          @click="reset"
+          :disabled="loading"
+          v-if="!isEditMode"
+        >
+          <v-icon left>mdi-refresh</v-icon>
+          إعادة تعيين
+        </v-btn>
+      </v-card-actions>
+    </v-card>
+  </v-form>
+</v-container>
