@@ -1,0 +1,408 @@
+<v-container fluid class="page-container">
+  <!-- Page Header -->
+  <v-layout row wrap class="mb-4">
+    <v-flex xs8 sm9>
+      <h1 class="display-1 mb-2">مكتبة الكتب</h1>
+      <p class="subheading grey--text">استعرض واستأجر الكتب المفضلة لديك</p>
+    </v-flex>
+    <v-flex xs4 sm3 class="text-left">
+      <v-btn color="primary" @click="openMyRentalsDialog">
+        <v-icon left>mdi-book-clock</v-icon>
+        كتبي المستأجرة
+      </v-btn>
+    </v-flex>
+  </v-layout>
+
+  <!-- Search and Filter -->
+  <v-layout row wrap class="mb-4">
+    <v-flex xs12 md8 class="pa-2">
+      <v-text-field
+        v-model="searchQuery"
+        @input="onSearchChange"
+        label="بحث عن كتاب..."
+        prepend-inner-icon="mdi-magnify"
+        outlined
+        clearable
+        hide-details
+      ></v-text-field>
+    </v-flex>
+    <v-flex xs12 md4 class="pa-2">
+      <v-select
+        v-model="selectedCategory"
+        @change="onCategoryChange"
+        :items="categories"
+        label="التصنيف"
+        outlined
+        hide-details
+      ></v-select>
+    </v-flex>
+  </v-layout>
+
+  <!-- Loading State -->
+  <div v-if="loading" class="text-center pa-12">
+    <v-progress-circular indeterminate color="primary" size="64"></v-progress-circular>
+    <p class="mt-4 body-1">جاري التحميل...</p>
+  </div>
+
+  <!-- Empty State -->
+  <div v-else-if="filteredBooks.length === 0" class="empty-state">
+    <v-icon size="64" color="grey lighten-1">mdi-book-off</v-icon>
+    <p class="title mt-4 grey--text">لا توجد كتب متاحة</p>
+    <p class="body-1 grey--text">جرب تغيير معايير البحث</p>
+  </div>
+
+  <!-- Books Grid -->
+  <v-layout row wrap v-else>
+    <v-flex xs12 sm6 md4 lg3 v-for="book in filteredBooks" :key="book.id" class="pa-2">
+      <v-card class="book-card" elevation="2" height="100%">
+        <!-- Book Cover -->
+        <v-img
+          :src="book.coverImage"
+          height="250"
+          class="white--text"
+        >
+          <v-container fill-height fluid pa-2>
+            <v-layout fill-height>
+              <v-flex xs12 align-end flexbox>
+                <span class="headline">{{ book.title }}</span>
+              </v-flex>
+            </v-layout>
+          </v-container>
+        </v-img>
+
+        <!-- Book Info -->
+        <v-card-title>
+          <div>
+            <h3 class="body-2 mb-1">{{ book.title }}</h3>
+            <p class="caption grey--text mb-0">{{ book.author }}</p>
+          </div>
+        </v-card-title>
+
+        <v-card-text>
+          <!-- Rating -->
+          <div class="mb-2">
+            <v-rating
+              :value="book.rating"
+              color="amber"
+              dense
+              half-increments
+              readonly
+              size="18"
+            ></v-rating>
+            <span class="caption grey--text mr-2">
+              ({{ book.reviewsCount }} مراجعة)
+            </span>
+          </div>
+
+          <!-- Category and Price -->
+          <div class="mb-2">
+            <v-chip small color="primary" text-color="white" class="ml-2">
+              {{ book.category }}
+            </v-chip>
+            <span class="body-2 font-weight-bold primary--text">
+              {{ book.rentalPricePerDay }} ر.س / يوم
+            </span>
+          </div>
+
+          <!-- Availability -->
+          <div>
+            <span v-if="book.isAvailable" :class="'status--text status--rounded status--green'">
+              متاح ({{ book.availableCopies }} نسخة)
+            </span>
+            <span v-else :class="'status--text status--rounded status--red'">
+              غير متاح
+            </span>
+          </div>
+        </v-card-text>
+
+        <!-- Actions -->
+        <v-card-actions>
+          <v-btn icon @click="openDetailsDialog(book)">
+            <v-icon color="primary">mdi-information</v-icon>
+          </v-btn>
+          <v-btn icon @click="openReviewDialog(book)">
+            <v-icon color="orange">mdi-star</v-icon>
+          </v-btn>
+          <v-spacer></v-spacer>
+          <v-btn
+            color="primary"
+            @click="openRentDialog(book)"
+            :disabled="!book.isAvailable"
+          >
+            <v-icon left>mdi-book-plus</v-icon>
+            استئجار
+          </v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-flex>
+  </v-layout>
+
+  <!-- Rent Dialog -->
+  <v-dialog v-model="rentDialog" max-width="500">
+    <v-card>
+      <v-card-title class="primary white--text">
+        <v-icon left color="white">mdi-book-plus</v-icon>
+        <span class="headline">استئجار كتاب</span>
+      </v-card-title>
+
+      <v-card-text class="pt-4" v-if="selectedBook">
+        <div class="mb-4">
+          <h3 class="title mb-2">{{ selectedBook.title }}</h3>
+          <p class="body-1 grey--text">{{ selectedBook.author }}</p>
+        </div>
+
+        <v-text-field
+          v-model.number="rentalDays"
+          label="عدد أيام الاستئجار"
+          type="number"
+          :rules="rentalDaysRules"
+          outlined
+          suffix="يوم"
+        ></v-text-field>
+
+        <v-divider class="my-4"></v-divider>
+
+        <v-layout row wrap>
+          <v-flex xs6>
+            <p class="body-2 grey--text">سعر اليوم الواحد:</p>
+          </v-flex>
+          <v-flex xs6 class="text-left">
+            <p class="body-1 font-weight-bold">{{ selectedBook.rentalPricePerDay }} ر.س</p>
+          </v-flex>
+
+          <v-flex xs6>
+            <p class="body-2 grey--text">عدد الأيام:</p>
+          </v-flex>
+          <v-flex xs6 class="text-left">
+            <p class="body-1">{{ rentalDays }} يوم</p>
+          </v-flex>
+
+          <v-flex xs12>
+            <v-divider class="my-2"></v-divider>
+          </v-flex>
+
+          <v-flex xs6>
+            <p class="title">المجموع:</p>
+          </v-flex>
+          <v-flex xs6 class="text-left">
+            <p class="title primary--text">{{ calculateRentalCost() }} ر.س</p>
+          </v-flex>
+        </v-layout>
+      </v-card-text>
+
+      <v-card-actions>
+        <v-spacer></v-spacer>
+        <v-btn text @click="rentDialog = false">إلغاء</v-btn>
+        <v-btn color="primary" @click="confirmRent">تأكيد الاستئجار</v-btn>
+      </v-card-actions>
+    </v-card>
+  </v-dialog>
+
+  <!-- Details Dialog -->
+  <v-dialog v-model="detailsDialog" max-width="700">
+    <v-card v-if="selectedBook">
+      <v-card-title class="primary white--text">
+        <v-icon left color="white">mdi-information</v-icon>
+        <span class="headline">تفاصيل الكتاب</span>
+      </v-card-title>
+
+      <v-card-text class="pt-4">
+        <v-layout row wrap>
+          <v-flex xs12 sm4 class="pa-2">
+            <v-img :src="selectedBook.coverImage" height="300"></v-img>
+          </v-flex>
+
+          <v-flex xs12 sm8 class="pa-2">
+            <h2 class="title mb-2">{{ selectedBook.title }}</h2>
+            <p class="body-1 mb-2"><strong>المؤلف:</strong> {{ selectedBook.author }}</p>
+            <p class="body-1 mb-2"><strong>التصنيف:</strong> {{ selectedBook.category }}</p>
+            <p class="body-1 mb-2"><strong>سنة النشر:</strong> {{ selectedBook.publishYear }}</p>
+            <p class="body-1 mb-2"><strong>ISBN:</strong> {{ selectedBook.isbn }}</p>
+            
+            <div class="mb-2">
+              <v-rating
+                :value="selectedBook.rating"
+                color="amber"
+                dense
+                half-increments
+                readonly
+                size="20"
+              ></v-rating>
+              <span class="body-2 grey--text mr-2">
+                {{ selectedBook.rating }} ({{ selectedBook.reviewsCount }} مراجعة)
+              </span>
+            </div>
+
+            <p class="body-1 mb-2">
+              <strong>السعر:</strong> 
+              <span class="primary--text">{{ selectedBook.rentalPricePerDay }} ر.س / يوم</span>
+            </p>
+
+            <p class="body-1">
+              <strong>التوفر:</strong>
+              <span v-if="selectedBook.isAvailable" class="success--text">
+                متاح ({{ selectedBook.availableCopies }} من {{ selectedBook.totalCopies }})
+              </span>
+              <span v-else class="error--text">غير متاح</span>
+            </p>
+          </v-flex>
+
+          <v-flex xs12 class="pa-2">
+            <h3 class="subheading mb-2">الوصف:</h3>
+            <p class="body-1">{{ selectedBook.description }}</p>
+          </v-flex>
+
+          <!-- Reviews Section -->
+          <v-flex xs12 class="pa-2 mt-4">
+            <h3 class="subheading mb-3">المراجعات</h3>
+            <v-divider class="mb-3"></v-divider>
+
+            <div v-if="selectedBookReviews.length === 0" class="text-center pa-4">
+              <p class="body-1 grey--text">لا توجد مراجعات بعد</p>
+            </div>
+
+            <v-card v-for="review in selectedBookReviews" :key="review.id" outlined class="mb-3">
+              <v-card-text>
+                <div class="mb-2">
+                  <v-rating
+                    :value="review.rating"
+                    color="amber"
+                    dense
+                    readonly
+                    size="16"
+                  ></v-rating>
+                </div>
+                <p class="body-2 mb-1"><strong>{{ review.userName }}</strong></p>
+                <p class="body-1">{{ review.comment }}</p>
+                <p class="caption grey--text">{{ review.reviewDate }}</p>
+              </v-card-text>
+            </v-card>
+          </v-flex>
+        </v-layout>
+      </v-card-text>
+
+      <v-card-actions>
+        <v-btn
+          color="primary"
+          @click="openReviewDialog(selectedBook)"
+        >
+          <v-icon left>mdi-star</v-icon>
+          إضافة مراجعة
+        </v-btn>
+        <v-spacer></v-spacer>
+        <v-btn text @click="detailsDialog = false">إغلاق</v-btn>
+        <v-btn
+          color="primary"
+          @click="openRentDialog(selectedBook); detailsDialog = false"
+          :disabled="!selectedBook.isAvailable"
+        >
+          <v-icon left>mdi-book-plus</v-icon>
+          استئجار
+        </v-btn>
+      </v-card-actions>
+    </v-card>
+  </v-dialog>
+
+  <!-- Review Dialog -->
+  <v-dialog v-model="reviewDialog" max-width="500">
+    <v-card>
+      <v-card-title class="primary white--text">
+        <v-icon left color="white">mdi-star</v-icon>
+        <span class="headline">إضافة مراجعة</span>
+      </v-card-title>
+
+      <v-card-text class="pt-4" v-if="selectedBook">
+        <h3 class="title mb-4">{{ selectedBook.title }}</h3>
+
+        <v-form ref="reviewForm" v-model="reviewValid">
+          <div class="mb-4">
+            <p class="body-2 mb-2">التقييم:</p>
+            <v-rating
+              v-model="reviewRating"
+              color="amber"
+              background-color="grey lighten-1"
+              hover
+              large
+            ></v-rating>
+          </div>
+
+          <v-textarea
+            v-model="reviewComment"
+            label="تعليقك"
+            :rules="[(v) => !!v || 'التعليق مطلوب', (v) => v.length >= 10 || 'التعليق يجب أن يكون 10 أحرف على الأقل']"
+            outlined
+            rows="5"
+            counter
+          ></v-textarea>
+        </v-form>
+      </v-card-text>
+
+      <v-card-actions>
+        <v-spacer></v-spacer>
+        <v-btn text @click="reviewDialog = false">إلغاء</v-btn>
+        <v-btn color="primary" @click="submitReview" :disabled="!reviewValid">
+          إرسال المراجعة
+        </v-btn>
+      </v-card-actions>
+    </v-card>
+  </v-dialog>
+
+  <!-- My Rentals Dialog -->
+  <v-dialog v-model="myRentalsDialog" max-width="900">
+    <v-card>
+      <v-card-title class="primary white--text">
+        <v-icon left color="white">mdi-book-clock</v-icon>
+        <span class="headline">كتبي المستأجرة</span>
+      </v-card-title>
+
+      <v-card-text class="pt-4">
+        <div v-if="myRentals.length === 0" class="text-center pa-8">
+          <v-icon size="64" color="grey lighten-1">mdi-book-off-outline</v-icon>
+          <p class="title mt-4 grey--text">لا توجد كتب مستأجرة</p>
+          <p class="body-1 grey--text">ابدأ باستئجار كتاب الآن</p>
+        </div>
+
+        <v-list two-line v-else>
+          <v-list-item v-for="rental in myRentals" :key="rental.id">
+            <v-list-item-content>
+              <v-list-item-title class="title mb-2">{{ rental.bookTitle }}</v-list-item-title>
+              <v-list-item-subtitle>
+                <v-layout row wrap>
+                  <v-flex xs12 sm6 class="mb-2">
+                    <v-icon small class="ml-1">mdi-calendar</v-icon>
+                    تاريخ الاستئجار: {{ rental.rentalDate }}
+                  </v-flex>
+                  <v-flex xs12 sm6 class="mb-2">
+                    <v-icon small class="ml-1">mdi-calendar-clock</v-icon>
+                    تاريخ الإرجاع: {{ rental.dueDate }}
+                  </v-flex>
+                  <v-flex xs12 sm6>
+                    <v-icon small class="ml-1">mdi-cash</v-icon>
+                    التكلفة: {{ rental.totalCost }} ر.س
+                  </v-flex>
+                  <v-flex xs12 sm6>
+                    <span :class="getStatusClasses(rental.status)">
+                      {{ getStatusText(rental.status) }}
+                    </span>
+                  </v-flex>
+                </v-layout>
+              </v-list-item-subtitle>
+            </v-list-item-content>
+
+            <v-list-item-action v-if="rental.status === 'active'">
+              <v-btn color="primary" @click="returnBook(rental)">
+                <v-icon left>mdi-keyboard-return</v-icon>
+                إرجاع
+              </v-btn>
+            </v-list-item-action>
+          </v-list-item>
+        </v-list>
+      </v-card-text>
+
+      <v-card-actions>
+        <v-spacer></v-spacer>
+        <v-btn text @click="myRentalsDialog = false">إغلاق</v-btn>
+      </v-card-actions>
+    </v-card>
+  </v-dialog>
+</v-container>
