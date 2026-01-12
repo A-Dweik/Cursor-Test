@@ -1,0 +1,175 @@
+<v-container fluid class="page-container">
+  <!-- Page Header -->
+  <v-layout row wrap class="mb-6">
+    <v-flex xs12>
+      <h1 class="display-1 mb-2">التقارير والإحصائيات</h1>
+      <p class="subheading grey--text">تحليل المبيعات والأداء المالي</p>
+    </v-flex>
+  </v-layout>
+
+  <!-- Loading State -->
+  <div v-if="loading" class="text-center pa-12">
+    <v-progress-circular indeterminate color="primary"></v-progress-circular>
+    <p class="mt-4 body-1">جاري تحميل الإحصائيات...</p>
+  </div>
+
+  <!-- Analytics Content -->
+  <v-layout row wrap v-else>
+    <!-- Stats Cards -->
+    <v-flex xs12 sm6 md3 class="pa-2">
+      <v-card class="card-hover" elevation="2">
+        <v-card-text class="text-center pa-4">
+          <v-icon size="48" color="primary">mdi-cash-multiple</v-icon>
+          <div class="display-1 primary--text mt-2">{{ totalRevenue }}</div>
+          <div class="caption grey--text">إجمالي الإيرادات (ريال)</div>
+        </v-card-text>
+      </v-card>
+    </v-flex>
+
+    <v-flex xs12 sm6 md3 class="pa-2">
+      <v-card class="card-hover" elevation="2">
+        <v-card-text class="text-center pa-4">
+          <v-icon size="48" color="success">mdi-trending-up</v-icon>
+          <div class="display-1 success--text mt-2">{{ todaySales }}</div>
+          <div class="caption grey--text">مبيعات اليوم (ريال)</div>
+        </v-card-text>
+      </v-card>
+    </v-flex>
+
+    <v-flex xs12 sm6 md3 class="pa-2">
+      <v-card class="card-hover" elevation="2">
+        <v-card-text class="text-center pa-4">
+          <v-icon size="48" color="info">mdi-package-variant</v-icon>
+          <div class="display-1 info--text mt-2">{{ totalProducts }}</div>
+          <div class="caption grey--text">عدد المنتجات</div>
+        </v-card-text>
+      </v-card>
+    </v-flex>
+
+    <v-flex xs12 sm6 md3 class="pa-2">
+      <v-card class="card-hover" elevation="2">
+        <v-card-text class="text-center pa-4">
+          <v-icon size="48" color="orange">mdi-account-group</v-icon>
+          <div class="display-1 orange--text mt-2">{{ totalCustomers }}</div>
+          <div class="caption grey--text">عدد العملاء</div>
+        </v-card-text>
+      </v-card>
+    </v-flex>
+
+    <!-- Low Stock Products -->
+    <v-flex xs12 md6 class="pa-2 mt-4">
+      <v-card elevation="2">
+        <v-card-title class="headline">
+          <v-icon left color="orange">mdi-alert</v-icon>
+          منتجات تحتاج إعادة تخزين
+        </v-card-title>
+        <v-divider></v-divider>
+
+        <v-list v-if="lowStockProducts.length > 0">
+          <v-list-item v-for="product in lowStockProducts" :key="product.id">
+            <v-list-item-avatar>
+              <v-icon :color="product.type === 'milk' ? 'blue' : 'red'">
+                {{ product.type === 'milk' ? 'mdi-cup' : 'mdi-food-steak' }}
+              </v-icon>
+            </v-list-item-avatar>
+
+            <v-list-item-content>
+              <v-list-item-title>{{ product.name }}</v-list-item-title>
+              <v-list-item-subtitle>
+                الكمية المتبقية: {{ product.quantity }} {{ product.unit }}
+              </v-list-item-subtitle>
+            </v-list-item-content>
+
+            <v-list-item-action>
+              <span :class="getStatusClasses(product.status)">
+                {{ getStatusText(product.status) }}
+              </span>
+            </v-list-item-action>
+          </v-list-item>
+        </v-list>
+
+        <v-card-text v-else class="text-center pa-8">
+          <v-icon size="64" color="success">mdi-check-circle</v-icon>
+          <p class="title mt-4">جميع المنتجات متوفرة بكميات كافية</p>
+        </v-card-text>
+      </v-card>
+    </v-flex>
+
+    <!-- Top Customers -->
+    <v-flex xs12 md6 class="pa-2 mt-4">
+      <v-card elevation="2">
+        <v-card-title class="headline">
+          <v-icon left color="success">mdi-star</v-icon>
+          أفضل العملاء
+        </v-card-title>
+        <v-divider></v-divider>
+
+        <v-list v-if="topCustomers.length > 0">
+          <v-list-item v-for="(customer, index) in topCustomers" :key="customer.id">
+            <v-list-item-avatar>
+              <v-chip :color="index === 0 ? 'gold' : index === 1 ? 'silver' : 'bronze'" dark>
+                {{ index + 1 }}
+              </v-chip>
+            </v-list-item-avatar>
+
+            <v-list-item-content>
+              <v-list-item-title>{{ customer.name }}</v-list-item-title>
+              <v-list-item-subtitle>{{ customer.phone }}</v-list-item-subtitle>
+            </v-list-item-content>
+
+            <v-list-item-action>
+              <div class="text-right">
+                <div class="title success--text">{{ customer.totalPurchases }} ريال</div>
+                <div class="caption grey--text">إجمالي المشتريات</div>
+              </div>
+            </v-list-item-action>
+          </v-list-item>
+        </v-list>
+
+        <v-card-text v-else class="text-center pa-8">
+          <v-icon size="64" color="grey">mdi-account-group</v-icon>
+          <p class="title mt-4">لا توجد بيانات عملاء</p>
+        </v-card-text>
+      </v-card>
+    </v-flex>
+
+    <!-- Recent Sales -->
+    <v-flex xs12 class="pa-2 mt-4">
+      <v-card elevation="2">
+        <v-card-title class="headline">
+          <v-icon left color="primary">mdi-history</v-icon>
+          آخر المبيعات
+        </v-card-title>
+        <v-divider></v-divider>
+
+        <v-list v-if="recentSales.length > 0" two-line>
+          <v-list-item v-for="sale in recentSales" :key="sale.id">
+            <v-list-item-avatar>
+              <v-icon :color="sale.productType === 'milk' ? 'blue' : 'red'">
+                {{ sale.productType === 'milk' ? 'mdi-cup' : 'mdi-food-steak' }}
+              </v-icon>
+            </v-list-item-avatar>
+
+            <v-list-item-content>
+              <v-list-item-title>{{ sale.productName }} - {{ sale.customerName }}</v-list-item-title>
+              <v-list-item-subtitle>
+                {{ formatDate(sale.saleDate) }} - الكمية: {{ sale.quantity }}
+              </v-list-item-subtitle>
+            </v-list-item-content>
+
+            <v-list-item-action>
+              <div class="text-right">
+                <div class="title primary--text">{{ sale.totalAmount }} ريال</div>
+              </div>
+            </v-list-item-action>
+          </v-list-item>
+        </v-list>
+
+        <v-card-text v-else class="text-center pa-8">
+          <v-icon size="64" color="grey">mdi-cart-off</v-icon>
+          <p class="title mt-4">لا توجد مبيعات</p>
+        </v-card-text>
+      </v-card>
+    </v-flex>
+  </v-layout>
+</v-container>
