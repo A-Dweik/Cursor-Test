@@ -1,0 +1,343 @@
+<v-container fluid class="page-container">
+  <!-- Loading State -->
+  <div v-if="loading" class="text-center pa-12">
+    <v-progress-circular indeterminate color="primary" size="64"></v-progress-circular>
+    <p class="mt-4 body-1">جاري التحميل...</p>
+  </div>
+
+  <div v-else-if="land">
+    <!-- Page Header -->
+    <v-layout row wrap class="mb-4">
+      <v-flex xs12 sm8>
+        <v-btn icon @click="goBack" class="mr-2">
+          <v-icon>mdi-arrow-right</v-icon>
+        </v-btn>
+        <h1 class="display-1 mb-2" style="display: inline-block;">{{ land.title }}</h1>
+        <div class="mt-2">
+          <span :class="getStatusClasses(land.status)" class="ml-2">
+            {{ getStatusText(land.status) }}
+          </span>
+          <span :class="getVerificationClasses(land.verificationStatus)">
+            {{ getVerificationText(land.verificationStatus) }}
+          </span>
+        </div>
+      </v-flex>
+      <v-flex xs12 sm4 class="text-left">
+        <v-btn color="success" large @click="editLand" class="mt-2 ml-2">
+          <v-icon left>mdi-pencil</v-icon>
+          تعديل
+        </v-btn>
+        <v-btn color="error" large outlined @click="deleteLand" class="mt-2">
+          <v-icon left>mdi-delete</v-icon>
+          حذف
+        </v-btn>
+      </v-flex>
+    </v-layout>
+
+    <!-- Main Content -->
+    <v-layout row wrap>
+      <!-- Left Column - Main Info -->
+      <v-flex xs12 md8 class="pa-2">
+        <!-- Basic Information Card -->
+        <v-card class="mb-4" elevation="2">
+          <v-card-title class="primary white--text">
+            <v-icon left color="white">mdi-information</v-icon>
+            <span class="headline">المعلومات الأساسية</span>
+          </v-card-title>
+          <v-card-text class="pa-4">
+            <v-layout row wrap>
+              <v-flex xs12 class="mb-3">
+                <div class="caption grey--text mb-1">الوصف</div>
+                <div class="body-1">{{ land.description }}</div>
+              </v-flex>
+
+              <v-flex xs12 sm6 class="mb-3">
+                <div class="caption grey--text mb-1">نوع الأرض</div>
+                <v-chip color="primary" outlined>
+                  <v-icon small left>mdi-office-building</v-icon>
+                  {{ getLandTypeText(land.landType) }}
+                </v-chip>
+              </v-flex>
+
+              <v-flex xs12 sm6 class="mb-3">
+                <div class="caption grey--text mb-1">المساحة</div>
+                <div class="title primary--text">
+                  <v-icon color="primary">mdi-resize</v-icon>
+                  {{ formatArea(land.area) }}
+                </div>
+              </v-flex>
+
+              <v-flex xs12 sm6 class="mb-3">
+                <div class="caption grey--text mb-1">السعر</div>
+                <div class="title success--text">
+                  <v-icon color="success">mdi-cash</v-icon>
+                  {{ formatPrice(land.price) }}
+                </div>
+              </v-flex>
+
+              <v-flex xs12 sm6 class="mb-3">
+                <div class="caption grey--text mb-1">السعر للمتر المربع</div>
+                <div class="body-1">
+                  {{ formatPrice(land.price / land.area) }}/م²
+                </div>
+              </v-flex>
+            </v-layout>
+          </v-card-text>
+        </v-card>
+
+        <!-- Location Card -->
+        <v-card class="mb-4" elevation="2">
+          <v-card-title class="info white--text">
+            <v-icon left color="white">mdi-map-marker</v-icon>
+            <span class="headline">الموقع</span>
+          </v-card-title>
+          <v-card-text class="pa-4">
+            <v-layout row wrap>
+              <v-flex xs12 sm6 class="mb-3">
+                <div class="caption grey--text mb-1">المدينة</div>
+                <div class="body-1">{{ land.city }}</div>
+              </v-flex>
+
+              <v-flex xs12 sm6 class="mb-3">
+                <div class="caption grey--text mb-1">الحي</div>
+                <div class="body-1">{{ land.district }}</div>
+              </v-flex>
+
+              <v-flex xs12 class="mb-3">
+                <div class="caption grey--text mb-1">الموقع الكامل</div>
+                <div class="body-1">
+                  <v-icon small>mdi-map-marker</v-icon>
+                  {{ land.location }}
+                </div>
+              </v-flex>
+
+              <v-flex xs12 sm6 class="mb-3" v-if="land.latitude">
+                <div class="caption grey--text mb-1">خط العرض</div>
+                <div class="body-2">{{ land.latitude }}</div>
+              </v-flex>
+
+              <v-flex xs12 sm6 class="mb-3" v-if="land.longitude">
+                <div class="caption grey--text mb-1">خط الطول</div>
+                <div class="body-2">{{ land.longitude }}</div>
+              </v-flex>
+            </v-layout>
+          </v-card-text>
+        </v-card>
+
+        <!-- Utilities Card -->
+        <v-card class="mb-4" elevation="2">
+          <v-card-title class="warning white--text">
+            <v-icon left color="white">mdi-cog</v-icon>
+            <span class="headline">المرافق والخدمات</span>
+          </v-card-title>
+          <v-card-text class="pa-4">
+            <v-layout row wrap>
+              <v-flex xs12 sm4 class="text-center pa-3">
+                <v-icon 
+                  :color="land.hasElectricity ? 'success' : 'grey'" 
+                  size="48"
+                >
+                  mdi-lightning-bolt
+                </v-icon>
+                <div class="body-1 mt-2">كهرباء</div>
+                <div class="caption" :class="land.hasElectricity ? 'success--text' : 'grey--text'">
+                  {{ land.hasElectricity ? 'متوفر' : 'غير متوفر' }}
+                </div>
+              </v-flex>
+
+              <v-flex xs12 sm4 class="text-center pa-3">
+                <v-icon 
+                  :color="land.hasWater ? 'success' : 'grey'" 
+                  size="48"
+                >
+                  mdi-water
+                </v-icon>
+                <div class="body-1 mt-2">ماء</div>
+                <div class="caption" :class="land.hasWater ? 'success--text' : 'grey--text'">
+                  {{ land.hasWater ? 'متوفر' : 'غير متوفر' }}
+                </div>
+              </v-flex>
+
+              <v-flex xs12 sm4 class="text-center pa-3">
+                <v-icon 
+                  :color="land.hasRoads ? 'success' : 'grey'" 
+                  size="48"
+                >
+                  mdi-road
+                </v-icon>
+                <div class="body-1 mt-2">طرق</div>
+                <div class="caption" :class="land.hasRoads ? 'success--text' : 'grey--text'">
+                  {{ land.hasRoads ? 'متوفر' : 'غير متوفر' }}
+                </div>
+              </v-flex>
+            </v-layout>
+          </v-card-text>
+        </v-card>
+
+        <!-- Notes Card -->
+        <v-card class="mb-4" elevation="2" v-if="land.notes">
+          <v-card-title class="secondary white--text">
+            <v-icon left color="white">mdi-note-text</v-icon>
+            <span class="headline">ملاحظات</span>
+          </v-card-title>
+          <v-card-text class="pa-4">
+            <div class="body-1">{{ land.notes }}</div>
+          </v-card-text>
+        </v-card>
+      </v-flex>
+
+      <!-- Right Column - Secondary Info -->
+      <v-flex xs12 md4 class="pa-2">
+        <!-- Owner Information Card -->
+        <v-card class="mb-4" elevation="2">
+          <v-card-title class="success white--text">
+            <v-icon left color="white">mdi-account</v-icon>
+            <span class="headline">معلومات المالك</span>
+          </v-card-title>
+          <v-card-text class="pa-4">
+            <div class="mb-3">
+              <div class="caption grey--text mb-1">اسم المالك</div>
+              <div class="body-1">
+                <v-icon small>mdi-account</v-icon>
+                {{ land.ownerName }}
+              </div>
+            </div>
+
+            <div class="mb-3">
+              <div class="caption grey--text mb-1">رقم الجوال</div>
+              <div class="body-1" dir="ltr">
+                <v-icon small>mdi-phone</v-icon>
+                {{ land.ownerPhone }}
+              </div>
+            </div>
+
+            <div class="mb-3" v-if="land.deedNumber">
+              <div class="caption grey--text mb-1">رقم الصك</div>
+              <div class="body-2">{{ land.deedNumber }}</div>
+            </div>
+
+            <div class="mb-3" v-if="land.planNumber">
+              <div class="caption grey--text mb-1">رقم المخطط</div>
+              <div class="body-2">{{ land.planNumber }}</div>
+            </div>
+          </v-card-text>
+        </v-card>
+
+        <!-- Actions Card -->
+        <v-card class="mb-4" elevation="2">
+          <v-card-title class="headline">
+            <v-icon left color="primary">mdi-lightning-bolt</v-icon>
+            إجراءات
+          </v-card-title>
+          <v-divider></v-divider>
+          <v-list>
+            <v-list-item @click="openStatusDialog">
+              <v-list-item-avatar>
+                <v-icon color="primary">mdi-swap-horizontal</v-icon>
+              </v-list-item-avatar>
+              <v-list-item-content>
+                <v-list-item-title>تغيير الحالة</v-list-item-title>
+              </v-list-item-content>
+            </v-list-item>
+
+            <v-divider></v-divider>
+
+            <v-list-item 
+              @click="openVerifyDialog('verified')"
+              v-if="land.verificationStatus !== 'verified'"
+            >
+              <v-list-item-avatar>
+                <v-icon color="success">mdi-check-circle</v-icon>
+              </v-list-item-avatar>
+              <v-list-item-content>
+                <v-list-item-title>توثيق الأرض</v-list-item-title>
+              </v-list-item-content>
+            </v-list-item>
+
+            <v-divider v-if="land.verificationStatus !== 'verified'"></v-divider>
+
+            <v-list-item 
+              @click="openVerifyDialog('rejected')"
+              v-if="land.verificationStatus !== 'rejected'"
+            >
+              <v-list-item-avatar>
+                <v-icon color="error">mdi-close-circle</v-icon>
+              </v-list-item-avatar>
+              <v-list-item-content>
+                <v-list-item-title>رفض الأرض</v-list-item-title>
+              </v-list-item-content>
+            </v-list-item>
+          </v-list>
+        </v-card>
+
+        <!-- Metadata Card -->
+        <v-card elevation="2">
+          <v-card-title class="headline">
+            <v-icon left color="info">mdi-information-outline</v-icon>
+            معلومات إضافية
+          </v-card-title>
+          <v-card-text class="pa-4">
+            <div class="mb-3">
+              <div class="caption grey--text mb-1">تاريخ الإضافة</div>
+              <div class="body-2">{{ formatDate(land.createdDate) }}</div>
+            </div>
+
+            <div class="mb-3" v-if="land.updatedDate">
+              <div class="caption grey--text mb-1">تاريخ آخر تحديث</div>
+              <div class="body-2">{{ formatDate(land.updatedDate) }}</div>
+            </div>
+
+            <div class="mb-3">
+              <div class="caption grey--text mb-1">رقم الأرض</div>
+              <div class="body-2">#{{ land.id }}</div>
+            </div>
+          </v-card-text>
+        </v-card>
+      </v-flex>
+    </v-layout>
+  </div>
+
+  <!-- Verify Dialog -->
+  <v-dialog v-model="verifyDialog" max-width="500">
+    <v-card>
+      <v-card-title class="headline">
+        {{ verifyAction === 'verified' ? 'توثيق الأرض' : 'رفض الأرض' }}
+      </v-card-title>
+      <v-card-text>
+        <p class="body-1">
+          هل أنت متأكد من {{ verifyAction === 'verified' ? 'توثيق' : 'رفض' }} هذه الأرض؟
+        </p>
+      </v-card-text>
+      <v-card-actions>
+        <v-spacer></v-spacer>
+        <v-btn text @click="verifyDialog = false">إلغاء</v-btn>
+        <v-btn 
+          :color="verifyAction === 'verified' ? 'success' : 'error'" 
+          @click="confirmVerify"
+        >
+          تأكيد
+        </v-btn>
+      </v-card-actions>
+    </v-card>
+  </v-dialog>
+
+  <!-- Status Dialog -->
+  <v-dialog v-model="statusDialog" max-width="500">
+    <v-card>
+      <v-card-title class="headline">تغيير حالة الأرض</v-card-title>
+      <v-card-text>
+        <v-select
+          v-model="newStatus"
+          :items="statusOptions"
+          label="الحالة الجديدة"
+          outlined
+        ></v-select>
+      </v-card-text>
+      <v-card-actions>
+        <v-spacer></v-spacer>
+        <v-btn text @click="statusDialog = false">إلغاء</v-btn>
+        <v-btn color="primary" @click="updateStatus">حفظ</v-btn>
+      </v-card-actions>
+    </v-card>
+  </v-dialog>
+</v-container>
