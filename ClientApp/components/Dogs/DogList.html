@@ -1,0 +1,174 @@
+<v-container fluid class="page-container">
+  <!-- Page Header -->
+  <v-layout row wrap class="mb-6">
+    <v-flex xs12>
+      <v-btn icon @click="$router.push('/')">
+        <v-icon color="primary">mdi-arrow-right</v-icon>
+      </v-btn>
+      <h1 class="display-1 mb-2 d-inline-block mr-3">الكلاب المتاحة للتبني</h1>
+      <p class="subheading grey--text">تصفح قائمة الكلاب وابحث عن رفيقك المثالي</p>
+    </v-flex>
+  </v-layout>
+
+  <!-- Filters -->
+  <v-layout row wrap class="mb-4">
+    <v-flex xs12 md4 class="pa-2">
+      <v-text-field
+        v-model="searchQuery"
+        label="بحث بالاسم أو السلالة"
+        prepend-inner-icon="mdi-magnify"
+        outlined
+        clearable
+        hide-details
+      ></v-text-field>
+    </v-flex>
+    
+    <v-flex xs6 md4 class="pa-2">
+      <v-select
+        v-model="selectedSize"
+        :items="[
+          { text: 'جميع الأحجام', value: 'all' },
+          { text: 'صغير', value: 'small' },
+          { text: 'متوسط', value: 'medium' },
+          { text: 'كبير', value: 'large' }
+        ]"
+        label="الحجم"
+        outlined
+        hide-details
+      ></v-select>
+    </v-flex>
+
+    <v-flex xs6 md4 class="pa-2">
+      <v-select
+        v-model="selectedGender"
+        :items="[
+          { text: 'الكل', value: 'all' },
+          { text: 'ذكر', value: 'male' },
+          { text: 'أنثى', value: 'female' }
+        ]"
+        label="الجنس"
+        outlined
+        hide-details
+      ></v-select>
+    </v-flex>
+  </v-layout>
+
+  <!-- Loading State -->
+  <div v-if="loading" class="text-center pa-12">
+    <v-progress-circular indeterminate color="primary" size="64"></v-progress-circular>
+    <p class="mt-4 body-1">جاري تحميل الكلاب المتاحة...</p>
+  </div>
+
+  <!-- Empty State -->
+  <div v-else-if="filteredDogs.length === 0" class="text-center pa-12">
+    <v-icon size="64" color="grey lighten-1">mdi-dog</v-icon>
+    <p class="title mt-4 grey--text">لا توجد نتائج</p>
+    <p class="body-1 grey--text">جرب تغيير معايير البحث أو الفلترة</p>
+  </div>
+
+  <!-- Dogs Grid -->
+  <v-layout row wrap v-else>
+    <v-flex
+      v-for="dog in filteredDogs"
+      :key="dog.id"
+      xs12
+      sm6
+      md4
+      lg3
+      class="pa-2"
+    >
+      <v-card class="card-hover" elevation="2" @click="viewDogDetails(dog.id)">
+        <!-- Dog Image -->
+        <v-img
+          :src="dog.imageUrl"
+          height="200px"
+          class="white--text align-end"
+          gradient="to bottom, rgba(0,0,0,.1), rgba(0,0,0,.5)"
+        >
+          <v-card-title class="pb-2">
+            <span class="headline white--text">{{ dog.nameAr }}</span>
+          </v-card-title>
+        </v-img>
+
+        <!-- Dog Info -->
+        <v-card-text class="pb-2">
+          <div class="mb-2">
+            <v-icon small color="primary">mdi-dog</v-icon>
+            <span class="mr-1 body-2">{{ dog.breedAr }}</span>
+          </div>
+
+          <v-layout row wrap class="mb-2">
+            <v-flex xs6>
+              <div>
+                <v-icon small>mdi-ruler</v-icon>
+                <span class="mr-1 body-2">{{ dog.sizeAr }}</span>
+              </div>
+            </v-flex>
+            <v-flex xs6>
+              <div>
+                <v-icon small>mdi-calendar</v-icon>
+                <span class="mr-1 body-2">{{ dog.age }} سنوات</span>
+              </div>
+            </v-flex>
+          </v-layout>
+
+          <v-layout row wrap class="mb-2">
+            <v-flex xs6>
+              <div>
+                <v-icon small>mdi-gender-male-female</v-icon>
+                <span class="mr-1 body-2">{{ dog.genderAr }}</span>
+              </div>
+            </v-flex>
+            <v-flex xs6>
+              <div>
+                <v-icon small>mdi-palette</v-icon>
+                <span class="mr-1 body-2">{{ dog.colorAr }}</span>
+              </div>
+            </v-flex>
+          </v-layout>
+
+          <!-- Health Badges -->
+          <v-layout row wrap class="mt-3">
+            <v-flex xs6 v-if="dog.vaccinated">
+              <v-chip small color="success" text-color="white">
+                <v-icon left small>mdi-needle</v-icon>
+                مطعم
+              </v-chip>
+            </v-flex>
+            <v-flex xs6 v-if="dog.goodWithKids">
+              <v-chip small color="info" text-color="white">
+                <v-icon left small>mdi-human-child</v-icon>
+                محب للأطفال
+              </v-chip>
+            </v-flex>
+          </v-layout>
+
+          <!-- Personality Preview -->
+          <p class="body-2 grey--text mt-3 text-truncate">
+            {{ dog.personalityAr }}
+          </p>
+        </v-card-text>
+
+        <!-- Status & Action -->
+        <v-card-actions>
+          <span :class="getStatusClasses(dog.adoptionStatus)">
+            {{ dog.adoptionStatusAr }}
+          </span>
+          <v-spacer></v-spacer>
+          <v-btn icon>
+            <v-icon color="primary">mdi-chevron-left</v-icon>
+          </v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-flex>
+  </v-layout>
+
+  <!-- Results Summary -->
+  <v-layout row wrap class="mt-4" v-if="!loading">
+    <v-flex xs12 class="text-center">
+      <p class="body-2 grey--text">
+        عرض {{ filteredDogs.length }} من أصل {{ dogs.length }} كلب متاح
+      </p>
+    </v-flex>
+  </v-layout>
+</v-container>
