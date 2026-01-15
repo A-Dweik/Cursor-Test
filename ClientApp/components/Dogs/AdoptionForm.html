@@ -1,0 +1,224 @@
+<v-container fluid class="page-container">
+  <!-- Loading State -->
+  <div v-if="loading" class="text-center pa-12">
+    <v-progress-circular indeterminate color="primary" size="64"></v-progress-circular>
+    <p class="mt-4 body-1">جاري التحميل...</p>
+  </div>
+
+  <!-- Form -->
+  <div v-else-if="dog">
+    <!-- Header -->
+    <v-layout row wrap class="mb-6">
+      <v-flex xs12>
+        <v-btn icon @click="cancel">
+          <v-icon color="primary">mdi-arrow-right</v-icon>
+        </v-btn>
+        <h1 class="display-1 mb-2 d-inline-block mr-3">طلب تبني {{ dog.nameAr }}</h1>
+        <p class="subheading grey--text">يرجى ملء جميع الحقول بدقة للمساعدة في إيجاد أفضل منزل لصديقنا</p>
+      </v-flex>
+    </v-layout>
+
+    <v-layout row wrap>
+      <!-- Dog Summary Card -->
+      <v-flex xs12 md4 class="pa-2">
+        <v-card elevation="4" class="sticky-card">
+          <v-img
+            :src="dog.imageUrl"
+            height="250px"
+          ></v-img>
+          <v-card-text>
+            <h3 class="title mb-2">{{ dog.nameAr }}</h3>
+            <p class="body-2 grey--text mb-1">
+              <v-icon small>mdi-dog</v-icon>
+              {{ dog.breedAr }}
+            </p>
+            <p class="body-2 grey--text mb-1">
+              <v-icon small>mdi-calendar</v-icon>
+              {{ dog.age }} سنوات
+            </p>
+            <p class="body-2 grey--text">
+              <v-icon small>mdi-gender-male-female</v-icon>
+              {{ dog.genderAr }}
+            </p>
+          </v-card-text>
+        </v-card>
+      </v-flex>
+
+      <!-- Application Form -->
+      <v-flex xs12 md8 class="pa-2">
+        <v-card elevation="4">
+          <v-card-title class="primary white--text">
+            <v-icon left color="white">mdi-file-document</v-icon>
+            <span class="headline">معلومات مقدم الطلب</span>
+          </v-card-title>
+
+          <v-card-text class="pa-4">
+            <v-form ref="form" v-model="valid">
+              <!-- Personal Information -->
+              <h3 class="title mb-3">المعلومات الشخصية</h3>
+
+              <v-text-field
+                v-model="application.applicantName"
+                label="الاسم الكامل *"
+                :rules="[rules.required, rules.minLength(3)]"
+                outlined
+                required
+              ></v-text-field>
+
+              <v-text-field
+                v-model="application.applicantEmail"
+                label="البريد الإلكتروني *"
+                :rules="[rules.required, rules.email]"
+                outlined
+                type="email"
+                required
+              ></v-text-field>
+
+              <v-text-field
+                v-model="application.applicantPhone"
+                label="رقم الهاتف *"
+                :rules="[rules.required, rules.phone]"
+                outlined
+                type="tel"
+                required
+              ></v-text-field>
+
+              <v-textarea
+                v-model="application.address"
+                label="العنوان الكامل *"
+                :rules="[rules.required, rules.minLength(10)]"
+                outlined
+                rows="3"
+                required
+              ></v-textarea>
+
+              <v-divider class="my-4"></v-divider>
+
+              <!-- Living Situation -->
+              <h3 class="title mb-3">معلومات السكن</h3>
+
+              <v-checkbox
+                v-model="application.hasYard"
+                label="هل لديك حديقة أو فناء خارجي؟"
+                color="primary"
+              ></v-checkbox>
+
+              <v-checkbox
+                v-model="application.hasPets"
+                label="هل لديك حيوانات أليفة أخرى؟"
+                color="primary"
+              ></v-checkbox>
+
+              <v-textarea
+                v-if="application.hasPets"
+                v-model="application.petDetails"
+                label="يرجى ذكر نوع وعدد الحيوانات الأليفة"
+                outlined
+                rows="2"
+              ></v-textarea>
+
+              <v-checkbox
+                v-model="application.hasChildren"
+                label="هل لديك أطفال؟"
+                color="primary"
+              ></v-checkbox>
+
+              <v-text-field
+                v-if="application.hasChildren"
+                v-model="application.childrenAges"
+                label="يرجى ذكر أعمار الأطفال"
+                outlined
+                placeholder="مثال: 5، 8، 12"
+              ></v-text-field>
+
+              <v-divider class="my-4"></v-divider>
+
+              <!-- Experience -->
+              <h3 class="title mb-3">الخبرة مع الحيوانات الأليفة</h3>
+
+              <v-checkbox
+                v-model="application.previousPetExperience"
+                label="هل لديك خبرة سابقة في تربية الكلاب؟"
+                color="primary"
+              ></v-checkbox>
+
+              <v-textarea
+                v-if="application.previousPetExperience"
+                v-model="application.experienceDetails"
+                label="يرجى وصف خبرتك"
+                outlined
+                rows="3"
+              ></v-textarea>
+
+              <v-divider class="my-4"></v-divider>
+
+              <!-- Reason for Adoption -->
+              <h3 class="title mb-3">سبب التبني</h3>
+
+              <v-textarea
+                v-model="application.reason"
+                label="لماذا تريد تبني {{ dog.nameAr }}؟ *"
+                :rules="[rules.required, rules.minLength(20)]"
+                outlined
+                rows="4"
+                required
+                hint="يرجى شرح سبب رغبتك في تبني هذا الكلب وكيف ستعتني به"
+                persistent-hint
+              ></v-textarea>
+            </v-form>
+          </v-card-text>
+
+          <v-card-actions class="pa-4">
+            <v-btn text large @click="cancel">
+              إلغاء
+            </v-btn>
+            <v-spacer></v-spacer>
+            <v-btn
+              color="primary"
+              large
+              :loading="submitting"
+              :disabled="!valid || submitting"
+              @click="submitApplication"
+            >
+              <v-icon left>mdi-send</v-icon>
+              تقديم الطلب
+            </v-btn>
+          </v-card-actions>
+        </v-card>
+      </v-flex>
+    </v-layout>
+
+    <!-- Important Notes -->
+    <v-layout row wrap class="mt-4">
+      <v-flex xs12>
+        <v-card color="info lighten-5" elevation="2">
+          <v-card-text>
+            <v-layout row wrap align-center>
+              <v-flex xs12 sm1 class="text-center">
+                <v-icon color="info" size="48">mdi-information</v-icon>
+              </v-flex>
+              <v-flex xs12 sm11>
+                <h3 class="title info--text mb-2">ملاحظات هامة</h3>
+                <ul class="body-1">
+                  <li>سيتم مراجعة طلبك خلال 2-3 أيام عمل</li>
+                  <li>قد نحتاج إلى زيارة منزلية للتأكد من ملاءمة البيئة</li>
+                  <li>جميع الكلاب مطعمة ومفحوصة صحياً قبل التبني</li>
+                  <li>نوفر دعماً كاملاً ونصائح للعناية بحيوانك الأليف الجديد</li>
+                </ul>
+              </v-flex>
+            </v-layout>
+          </v-card-text>
+        </v-card>
+      </v-flex>
+    </v-layout>
+  </div>
+
+  <!-- Dog Not Found -->
+  <div v-else class="text-center pa-12">
+    <v-icon size="64" color="error">mdi-alert-circle</v-icon>
+    <p class="title mt-4">الكلب غير موجود</p>
+    <v-btn color="primary" @click="$router.push('/dogs')" class="mt-4">
+      العودة إلى القائمة
+    </v-btn>
+  </div>
+</v-container>

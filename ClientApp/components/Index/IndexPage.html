@@ -1,0 +1,125 @@
+<v-container fluid class="page-container">
+  <!-- Page Header -->
+  <v-layout row wrap class="mb-6">
+    <v-flex xs12>
+      <h1 class="display-1 mb-2">تطبيق تبني الكلاب</h1>
+      <p class="subheading grey--text">مرحباً بك في تطبيق تبني الكلاب - ساعد في إيجاد منزل دافئ لأصدقائنا الأوفياء</p>
+    </v-flex>
+  </v-layout>
+
+  <!-- Loading State -->
+  <div v-if="loading" class="text-center pa-12">
+    <v-progress-circular indeterminate color="primary"></v-progress-circular>
+    <p class="mt-4 body-1">جاري التحميل...</p>
+  </div>
+
+  <!-- Main Content -->
+  <v-layout row wrap v-else>
+    <!-- Welcome Card -->
+    <v-flex xs12 md6 class="pa-2">
+      <v-card class="card-hover" elevation="2">
+        <v-card-title class="primary white--text">
+          <v-icon left color="white">mdi-paw</v-icon>
+          <span class="headline">مرحباً</span>
+        </v-card-title>
+        <v-card-text class="pa-4">
+          <p class="body-1">
+            مرحباً بك في تطبيق تبني الكلاب. هذا التطبيق يساعدك في العثور على صديق وفي لإضافته إلى عائلتك. جميع الكلاب المعروضة بحاجة إلى منزل دافئ ومحبة.
+          </p>
+        </v-card-text>
+      </v-card>
+    </v-flex>
+
+    <!-- Quick Stats Card -->
+    <v-flex xs12 md6 class="pa-2">
+      <v-card class="card-hover" elevation="2">
+        <v-card-title class="headline">إحصائيات سريعة</v-card-title>
+        <v-card-text>
+          <v-layout row wrap>
+            <v-flex xs6 class="text-center pa-4">
+              <div class="display-1 primary--text">12</div>
+              <div class="caption grey--text">كلاب متاحة للتبني</div>
+            </v-flex>
+            <v-flex xs6 class="text-center pa-4">
+              <div class="display-1 success--text">45</div>
+              <div class="caption grey--text">تم تبنيها بنجاح</div>
+            </v-flex>
+          </v-layout>
+        </v-card-text>
+      </v-card>
+    </v-flex>
+
+    <!-- Features List -->
+    <v-flex xs12 class="pa-2 mt-4">
+      <v-card elevation="2">
+        <v-card-title class="headline">
+          <v-icon left color="primary">mdi-star</v-icon>
+          الميزات الأساسية
+        </v-card-title>
+        <v-divider></v-divider>
+        <v-list>
+          <v-list-item>
+            <v-list-item-avatar>
+              <v-icon color="primary">mdi-check-circle</v-icon>
+            </v-list-item-avatar>
+            <v-list-item-content>
+              <v-list-item-title>تصفح الكلاب المتاحة</v-list-item-title>
+              <v-list-item-subtitle>شاهد جميع الكلاب التي تحتاج إلى منزل مع تفاصيل كاملة</v-list-item-subtitle>
+            </v-list-item-content>
+          </v-list-item>
+
+          <v-divider inset></v-divider>
+
+          <v-list-item>
+            <v-list-item-avatar>
+              <v-icon color="success">mdi-heart</v-icon>
+            </v-list-item-avatar>
+            <v-list-item-content>
+              <v-list-item-title>معلومات مفصلة</v-list-item-title>
+              <v-list-item-subtitle>تعرف على عمر الكلب، حجمه، شخصيته ومتطلباته الخاصة</v-list-item-subtitle>
+            </v-list-item-content>
+          </v-list-item>
+
+          <v-divider inset></v-divider>
+
+          <v-list-item>
+            <v-list-item-avatar>
+              <v-icon color="info">mdi-clipboard-check</v-icon>
+            </v-list-item-avatar>
+            <v-list-item-content>
+              <v-list-item-title>عملية تبني سهلة</v-list-item-title>
+              <v-list-item-subtitle>نموذج طلب تبني بسيط وواضح</v-list-item-subtitle>
+            </v-list-item-content>
+          </v-list-item>
+
+          <v-divider inset></v-divider>
+
+          <v-list-item>
+            <v-list-item-avatar>
+              <v-icon color="warning">mdi-shield-check</v-icon>
+            </v-list-item-avatar>
+            <v-list-item-content>
+              <v-list-item-title>متابعة وعناية</v-list-item-title>
+              <v-list-item-subtitle>دعم كامل ونصائح للعناية بحيوانك الأليف الجديد</v-list-item-subtitle>
+            </v-list-item-content>
+          </v-list-item>
+        </v-list>
+      </v-card>
+    </v-flex>
+
+    <!-- Call to Action -->
+    <v-flex xs12 class="pa-2 mt-4">
+      <v-card class="primary white--text" elevation="4">
+        <v-card-text class="pa-6 text-center">
+          <v-icon size="64" color="white" class="mb-4">mdi-dog</v-icon>
+          <h2 class="headline mb-3">هل أنت مستعد لتبني صديق جديد؟</h2>
+          <p class="body-1 mb-4">تصفح قائمة الكلاب المتاحة وابحث عن رفيقك المثالي اليوم</p>
+          <v-btn large outlined color="white" @click="$router.push('/dogs')">
+            <v-icon left>mdi-magnify</v-icon>
+            تصفح الكلاب المتاحة
+          </v-btn>
+        </v-card-text>
+      </v-card>
+    </v-flex>
+  </v-layout>
+</v-container>

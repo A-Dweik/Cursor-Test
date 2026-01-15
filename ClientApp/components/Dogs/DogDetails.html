@@ -1,0 +1,220 @@
+<v-container fluid class="page-container">
+  <!-- Loading State -->
+  <div v-if="loading" class="text-center pa-12">
+    <v-progress-circular indeterminate color="primary" size="64"></v-progress-circular>
+    <p class="mt-4 body-1">جاري التحميل...</p>
+  </div>
+
+  <!-- Not Found -->
+  <div v-else-if="!dog" class="text-center pa-12">
+    <v-icon size="64" color="error">mdi-alert-circle</v-icon>
+    <p class="title mt-4">الكلب غير موجود</p>
+    <v-btn color="primary" @click="goBack" class="mt-4">
+      العودة إلى القائمة
+    </v-btn>
+  </div>
+
+  <!-- Dog Details -->
+  <div v-else>
+    <!-- Header with Back Button -->
+    <v-layout row wrap class="mb-4">
+      <v-flex xs12>
+        <v-btn icon @click="goBack">
+          <v-icon color="primary">mdi-arrow-right</v-icon>
+        </v-btn>
+      </v-flex>
+    </v-layout>
+
+    <v-layout row wrap>
+      <!-- Dog Image Card -->
+      <v-flex xs12 md6 class="pa-2">
+        <v-card elevation="4">
+          <v-img
+            :src="dog.imageUrl"
+            height="400px"
+            class="white--text align-end"
+            gradient="to bottom, rgba(0,0,0,.1), rgba(0,0,0,.6)"
+          >
+            <v-card-title class="display-1 white--text pb-4">
+              {{ dog.nameAr }}
+            </v-card-title>
+          </v-img>
+          
+          <v-card-text class="pa-4">
+            <span :class="getStatusClasses(dog.adoptionStatus)">
+              {{ dog.adoptionStatusAr }}
+            </span>
+          </v-card-text>
+        </v-card>
+      </v-flex>
+
+      <!-- Dog Information Card -->
+      <v-flex xs12 md6 class="pa-2">
+        <v-card elevation="4">
+          <v-card-title class="primary white--text">
+            <v-icon left color="white">mdi-information</v-icon>
+            <span class="headline">المعلومات الأساسية</span>
+          </v-card-title>
+
+          <v-card-text class="pa-4">
+            <v-layout row wrap>
+              <!-- Basic Info -->
+              <v-flex xs12 class="mb-3">
+                <v-layout row wrap align-center>
+                  <v-flex xs2 sm1>
+                    <v-icon color="primary">mdi-dog</v-icon>
+                  </v-flex>
+                  <v-flex xs10 sm11>
+                    <div class="body-2 grey--text">السلالة</div>
+                    <div class="body-1">{{ dog.breedAr }}</div>
+                  </v-flex>
+                </v-layout>
+              </v-flex>
+
+              <v-flex xs12 sm6 class="mb-3">
+                <v-layout row wrap align-center>
+                  <v-flex xs2 sm2>
+                    <v-icon>mdi-calendar</v-icon>
+                  </v-flex>
+                  <v-flex xs10 sm10>
+                    <div class="body-2 grey--text">العمر</div>
+                    <div class="body-1">{{ dog.age }} سنوات</div>
+                  </v-flex>
+                </v-layout>
+              </v-flex>
+
+              <v-flex xs12 sm6 class="mb-3">
+                <v-layout row wrap align-center>
+                  <v-flex xs2 sm2>
+                    <v-icon>mdi-ruler</v-icon>
+                  </v-flex>
+                  <v-flex xs10 sm10>
+                    <div class="body-2 grey--text">الحجم</div>
+                    <div class="body-1">{{ dog.sizeAr }}</div>
+                  </v-flex>
+                </v-layout>
+              </v-flex>
+
+              <v-flex xs12 sm6 class="mb-3">
+                <v-layout row wrap align-center>
+                  <v-flex xs2 sm2>
+                    <v-icon>mdi-gender-male-female</v-icon>
+                  </v-flex>
+                  <v-flex xs10 sm10>
+                    <div class="body-2 grey--text">الجنس</div>
+                    <div class="body-1">{{ dog.genderAr }}</div>
+                  </v-flex>
+                </v-layout>
+              </v-flex>
+
+              <v-flex xs12 sm6 class="mb-3">
+                <v-layout row wrap align-center>
+                  <v-flex xs2 sm2>
+                    <v-icon>mdi-palette</v-icon>
+                  </v-flex>
+                  <v-flex xs10 sm10>
+                    <div class="body-2 grey--text">اللون</div>
+                    <div class="body-1">{{ dog.colorAr }}</div>
+                  </v-flex>
+                </v-layout>
+              </v-flex>
+
+              <!-- Health Status -->
+              <v-flex xs12 class="mt-4 mb-2">
+                <v-divider></v-divider>
+              </v-flex>
+
+              <v-flex xs12 class="mb-3">
+                <v-layout row wrap align-center>
+                  <v-flex xs2 sm1>
+                    <v-icon color="success">mdi-heart-pulse</v-icon>
+                  </v-flex>
+                  <v-flex xs10 sm11>
+                    <div class="body-2 grey--text">الحالة الصحية</div>
+                    <div class="body-1">{{ dog.healthStatusAr }}</div>
+                  </v-flex>
+                </v-layout>
+              </v-flex>
+
+              <!-- Health Badges -->
+              <v-flex xs12 class="mb-3">
+                <v-chip v-if="dog.vaccinated" color="success" text-color="white" class="ml-2">
+                  <v-icon left small>mdi-needle</v-icon>
+                  مطعم
+                </v-chip>
+                <v-chip v-if="dog.neutered" color="info" text-color="white" class="ml-2">
+                  <v-icon left small>mdi-check</v-icon>
+                  معقم
+                </v-chip>
+                <v-chip v-if="dog.goodWithKids" color="primary" text-color="white" class="ml-2">
+                  <v-icon left small>mdi-human-child</v-icon>
+                  محب للأطفال
+                </v-chip>
+                <v-chip v-if="dog.goodWithPets" color="warning" text-color="white" class="ml-2">
+                  <v-icon left small>mdi-paw</v-icon>
+                  متوافق مع حيوانات أخرى
+                </v-chip>
+              </v-flex>
+            </v-layout>
+          </v-card-text>
+        </v-card>
+      </v-flex>
+
+      <!-- Personality Card -->
+      <v-flex xs12 class="pa-2 mt-2">
+        <v-card elevation="4">
+          <v-card-title class="headline">
+            <v-icon left color="primary">mdi-emoticon-happy</v-icon>
+            الشخصية والسلوك
+          </v-card-title>
+          <v-card-text class="pa-4">
+            <p class="body-1">{{ dog.personalityAr }}</p>
+          </v-card-text>
+        </v-card>
+      </v-flex>
+
+      <!-- Description Card -->
+      <v-flex xs12 class="pa-2">
+        <v-card elevation="4">
+          <v-card-title class="headline">
+            <v-icon left color="primary">mdi-text</v-icon>
+            عن {{ dog.nameAr }}
+          </v-card-title>
+          <v-card-text class="pa-4">
+            <p class="body-1">{{ dog.descriptionAr }}</p>
+          </v-card-text>
+        </v-card>
+      </v-flex>
+
+      <!-- Adoption Call to Action -->
+      <v-flex xs12 class="pa-2" v-if="dog.adoptionStatus === 'available'">
+        <v-card class="primary white--text" elevation="4">
+          <v-card-text class="pa-6 text-center">
+            <v-icon size="48" color="white" class="mb-3">mdi-heart</v-icon>
+            <h2 class="headline mb-3">هل تريد تبني {{ dog.nameAr }}؟</h2>
+            <p class="body-1 mb-4">
+              املأ نموذج طلب التبني وسنتواصل معك في أقرب وقت ممكن
+            </p>
+            <v-btn large outlined color="white" @click="openAdoptionForm">
+              <v-icon left>mdi-file-document</v-icon>
+              تقديم طلب تبني
+            </v-btn>
+          </v-card-text>
+        </v-card>
+      </v-flex>
+
+      <!-- Pending Status Message -->
+      <v-flex xs12 class="pa-2" v-else-if="dog.adoptionStatus === 'pending'">
+        <v-card color="orange lighten-5" elevation="2">
+          <v-card-text class="pa-4 text-center">
+            <v-icon size="48" color="orange darken-2" class="mb-2">mdi-clock-outline</v-icon>
+            <h3 class="title orange--text text--darken-2 mb-2">طلب التبني قيد المراجعة</h3>
+            <p class="body-1">
+              يوجد طلب تبني قيد المراجعة لهذا الكلب. سنبلغك في حال توفره مستقبلاً.
+            </p>
+          </v-card-text>
+        </v-card>
+      </v-flex>
+    </v-layout>
+  </div>
+</v-container>
