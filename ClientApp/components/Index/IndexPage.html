@@ -1,0 +1,137 @@
+<!-- Title & Search Section -->
+<section class="titleSearch">
+  <div class="titleSearch__container">
+    <h1 class="titleSearch__title">آلة الحلويات الذكية</h1>
+    <div class="input--search" style="margin-top: 24px;">
+      <input 
+        type="text" 
+        class="input__field" 
+        placeholder="ابحث عن حلوى..." 
+        v-model="searchQuery"
+      />
+      <i class="input__icon mdi mdi-magnify"></i>
+    </div>
+  </div>
+</section>
+
+<!-- Filters Section -->
+<section class="filters">
+  <div class="filters__container">
+    <div class="filters__filterWrapper">
+      <input 
+        type="radio" 
+        name="filter" 
+        class="filters__filterCheck" 
+        id="filter-all"
+        :checked="selectedCategory === 'all'"
+        @change="selectCategory('all')"
+      >
+      <label for="filter-all" class="filters__filterLabel"></label>
+      <div class="filters__item" @click="selectCategory('all')">
+        <span class="filters__icon mdi mdi-food"></span>
+        <span class="filters__name">الكل ({{sweets.length}})</span>
+      </div>
+    </div>
+    
+    <div 
+      class="filters__filterWrapper" 
+      v-for="(category, index) in categories" 
+      :key="category"
+    >
+      <input 
+        type="radio" 
+        name="filter" 
+        class="filters__filterCheck" 
+        :id="'filter-' + index"
+        :checked="selectedCategory === category"
+        @change="selectCategory(category)"
+      >
+      <label :for="'filter-' + index" class="filters__filterLabel"></label>
+      <div class="filters__item" @click="selectCategory(category)">
+        <span class="filters__icon" :class="getCategoryIcon(category)"></span>
+        <span class="filters__name">{{category}} ({{sweets.filter(s => s.category === category).length}})</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Loading State -->
+<div v-if="loading" class="text-center pa-12">
+  <v-progress-circular indeterminate color="primary"></v-progress-circular>
+  <p class="mt-4 body-1">جاري التحميل...</p>
+</div>
+
+<!-- Sweets Grid -->
+<section class="dashboardServices" v-else>
+  <div class="dashboardServicesCards">
+    <!-- Sweet Card -->
+    <div 
+      class="dashboardServicesCards__card" 
+      v-for="sweet in filteredSweets" 
+      :key="sweet.id"
+      :style="!sweet.available ? 'opacity: 0.6; cursor: not-allowed;' : ''"
+    >
+      <div class="dashboardServicesCards__cardWrapper">
+        <!-- Category Badge with Icon -->
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+          <h6 class="dashboardServicesCards__serviceType" :class="getCategoryIcon(sweet.category)" style="margin: 0;">
+            <i :class="getCategoryIcon(sweet.category)" style="margin-left: 8px; color: #1B8354;"></i>
+            {{ sweet.category }}
+          </h6>
+          
+          <!-- Stock Status Badge -->
+          <span :class="getStatusClasses(sweet)">
+            {{ getStatusText(sweet) }}
+          </span>
+        </div>
+
+        <!-- Sweet Name (Arabic & English) -->
+        <h3 style="font-size: 1.25rem; font-weight: 600; color: #1f2937; margin-bottom: 8px;">
+          {{ sweet.name }}
+        </h3>
+        <p style="font-size: 0.875rem; color: #6b7280; margin-bottom: 12px;">
+          {{ sweet.nameEn }}
+        </p>
+
+        <!-- Description -->
+        <p class="dashboardServicesCards__serviceDescription">
+          {{ sweet.description }}
+        </p>
+
+        <!-- Price -->
+        <div style="display: flex; align-items: center; margin: 16px 0;">
+          <i class="mdi mdi-cash" style="color: #1B8354; font-size: 1.5rem; margin-left: 8px;"></i>
+          <span style="font-size: 1.5rem; font-weight: 700; color: #1B8354;">
+            {{ sweet.price }} ريال
+          </span>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="dashboardServicesCards__buttons">
+          <a 
+            class="dashboardServicesCards__buttonMore"
+            style="cursor: pointer;"
+          >
+            <i class="mdi mdi-information-outline" style="margin-left: 4px;"></i>
+            التفاصيل
+          </a>
+          <a 
+            @click.prevent="selectSweet(sweet)"
+            class="dashboardServicesCards__buttonFill"
+            :style="!sweet.available ? 'background-color: #9ca3af; cursor: not-allowed;' : 'cursor: pointer;'"
+          >
+            <i class="mdi mdi-cart-plus" style="margin-left: 4px;"></i>
+            {{ sweet.available ? 'اختيار' : 'غير متوفر' }}
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Empty State -->
+  <div v-if="filteredSweets.length === 0" class="empty-state">
+    <i class="mdi mdi-food-off empty-state-icon"></i>
+    <p class="title mt-4 grey--text">لا توجد حلويات متوفرة</p>
+    <p class="body-1 grey--text">جرب البحث بكلمات أخرى أو تصفح فئة مختلفة</p>
+  </div>
+</section>
