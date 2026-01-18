@@ -1,0 +1,253 @@
+<v-container fluid class="page-container">
+  <!-- Loading State -->
+  <div v-if="loading" class="text-center pa-12">
+    <v-progress-circular indeterminate color="primary" size="64"></v-progress-circular>
+    <p class="mt-4 body-1">جاري تحميل تفاصيل القطة...</p>
+  </div>
+
+  <!-- Cat Not Found -->
+  <div v-else-if="!cat" class="text-center pa-12">
+    <v-icon size="64" color="grey lighten-1">mdi-cat</v-icon>
+    <p class="title mt-4 grey--text">القطة غير موجودة</p>
+    <v-btn color="primary" class="mt-4" @click="goBack">
+      <v-icon left>mdi-arrow-right</v-icon>
+      العودة للرئيسية
+    </v-btn>
+  </div>
+
+  <!-- Cat Details -->
+  <v-layout row wrap v-else>
+    <!-- Back Button -->
+    <v-flex xs12 class="mb-4">
+      <v-btn text color="primary" @click="goBack">
+        <v-icon left>mdi-arrow-right</v-icon>
+        العودة إلى القائمة
+      </v-btn>
+    </v-flex>
+
+    <!-- Cat Image -->
+    <v-flex xs12 md6 class="pa-2">
+      <v-card elevation="2">
+        <v-img :src="cat.imageUrl" :alt="cat.name" height="500" contain></v-img>
+      </v-card>
+    </v-flex>
+
+    <!-- Cat Info -->
+    <v-flex xs12 md6 class="pa-2">
+      <v-card elevation="2" class="pa-4">
+        <v-card-title class="headline mb-2" style="color: #1B8354;">
+          <v-icon left color="primary" large>mdi-cat</v-icon>
+          {{ cat.name }}
+        </v-card-title>
+
+        <v-card-text>
+          <!-- Age Badge -->
+          <v-chip small class="mb-3" style="background-color: #e8f8f7; color: #36c5ba;">
+            {{ getAgeLabel(cat.age) }}
+          </v-chip>
+
+          <!-- Description -->
+          <p class="body-1 mb-4">{{ cat.description }}</p>
+
+          <v-divider class="my-4"></v-divider>
+
+          <!-- Details Grid -->
+          <v-layout row wrap>
+            <v-flex xs6 class="pa-2">
+              <div class="detail-item">
+                <v-icon color="primary" left>mdi-dog-side</v-icon>
+                <span class="caption grey--text">السلالة</span>
+                <div class="body-2">{{ cat.breed }}</div>
+              </div>
+            </v-flex>
+
+            <v-flex xs6 class="pa-2">
+              <div class="detail-item">
+                <v-icon color="primary" left>mdi-palette</v-icon>
+                <span class="caption grey--text">اللون</span>
+                <div class="body-2">{{ cat.color }}</div>
+              </div>
+            </v-flex>
+
+            <v-flex xs6 class="pa-2">
+              <div class="detail-item">
+                <v-icon color="primary" left>mdi-gender-male-female</v-icon>
+                <span class="caption grey--text">الجنس</span>
+                <div class="body-2">{{ cat.gender === 'male' ? 'ذكر' : 'أنثى' }}</div>
+              </div>
+            </v-flex>
+
+            <v-flex xs6 class="pa-2">
+              <div class="detail-item">
+                <v-icon color="primary" left>mdi-heart-pulse</v-icon>
+                <span class="caption grey--text">الحالة الصحية</span>
+                <div class="body-2">{{ cat.healthStatus }}</div>
+              </div>
+            </v-flex>
+
+            <v-flex xs6 class="pa-2">
+              <div class="detail-item">
+                <v-icon :color="cat.vaccinated ? 'success' : 'grey'" left>mdi-needle</v-icon>
+                <span class="caption grey--text">التطعيم</span>
+                <div class="body-2">{{ cat.vaccinated ? 'مطعم' : 'غير مطعم' }}</div>
+              </div>
+            </v-flex>
+
+            <v-flex xs6 class="pa-2">
+              <div class="detail-item">
+                <v-icon :color="cat.neutered ? 'success' : 'grey'" left>mdi-check-circle</v-icon>
+                <span class="caption grey--text">التعقيم</span>
+                <div class="body-2">{{ cat.neutered ? 'معقم' : 'غير معقم' }}</div>
+              </div>
+            </v-flex>
+          </v-layout>
+
+          <v-divider class="my-4"></v-divider>
+
+          <!-- Personality -->
+          <div class="mb-4">
+            <div class="caption grey--text mb-2">
+              <v-icon small color="primary" left>mdi-star</v-icon>
+              الشخصية
+            </div>
+            <v-chip v-for="trait in cat.personality" :key="trait" small class="ma-1" outlined color="primary">
+              {{ trait }}
+            </v-chip>
+          </div>
+
+          <v-divider class="my-4"></v-divider>
+
+          <!-- Adoption Fee -->
+          <div class="mb-4">
+            <div class="caption grey--text mb-1">
+              <v-icon small color="primary" left>mdi-cash</v-icon>
+              رسوم التبني
+            </div>
+            <div class="title" style="color: #1B8354;">
+              {{ cat.adoptionFee === 0 ? 'مجاني' : cat.adoptionFee + ' ريال' }}
+            </div>
+          </div>
+
+          <!-- Adoption Button -->
+          <v-btn 
+            color="primary" 
+            large 
+            block 
+            @click="openAdoptionDialog"
+            :disabled="!cat.availableForAdoption"
+            class="mt-4"
+          >
+            <v-icon left>mdi-heart</v-icon>
+            {{ cat.availableForAdoption ? 'تبني الآن' : 'تم التبني' }}
+          </v-btn>
+
+          <p v-if="!cat.availableForAdoption" class="caption text-center mt-2 grey--text">
+            هذه القطة تم تبنيها بالفعل
+          </p>
+        </v-card-text>
+      </v-card>
+    </v-flex>
+  </v-layout>
+
+  <!-- Adoption Dialog -->
+  <v-dialog v-model="showAdoptionDialog" max-width="600" persistent>
+    <v-card>
+      <v-card-title class="primary white--text">
+        <v-icon left color="white">mdi-form-textbox</v-icon>
+        <span class="headline">نموذج طلب التبني</span>
+        <v-spacer></v-spacer>
+        <v-btn icon @click="closeAdoptionDialog" color="white">
+          <v-icon>mdi-close</v-icon>
+        </v-btn>
+      </v-card-title>
+
+      <v-card-text class="pa-4">
+        <v-form ref="form" v-model="valid">
+          <v-text-field
+            v-model="adoptionForm.name"
+            label="الاسم الكامل"
+            :rules="[rules.required]"
+            outlined
+            color="primary"
+            class="mb-2"
+          ></v-text-field>
+
+          <v-text-field
+            v-model="adoptionForm.email"
+            label="البريد الإلكتروني"
+            :rules="[rules.required, rules.email]"
+            outlined
+            color="primary"
+            class="mb-2"
+            type="email"
+          ></v-text-field>
+
+          <v-text-field
+            v-model="adoptionForm.phone"
+            label="رقم الجوال"
+            :rules="[rules.required, rules.phone]"
+            outlined
+            color="primary"
+            class="mb-2"
+            type="tel"
+          ></v-text-field>
+
+          <v-textarea
+            v-model="adoptionForm.address"
+            label="العنوان"
+            :rules="[rules.required]"
+            outlined
+            color="primary"
+            rows="3"
+            class="mb-2"
+          ></v-textarea>
+
+          <v-checkbox
+            v-model="adoptionForm.hasExperience"
+            label="لدي خبرة سابقة في تربية القطط"
+            color="primary"
+          ></v-checkbox>
+
+          <v-checkbox
+            v-model="adoptionForm.hasPets"
+            label="لدي حيوانات أليفة أخرى"
+            color="primary"
+          ></v-checkbox>
+
+          <v-textarea
+            v-model="adoptionForm.reason"
+            label="لماذا تريد تبني هذه القطة؟"
+            :rules="[rules.required]"
+            outlined
+            color="primary"
+            rows="4"
+          ></v-textarea>
+        </v-form>
+      </v-card-text>
+
+      <v-card-actions>
+        <v-spacer></v-spacer>
+        <v-btn text @click="closeAdoptionDialog" :disabled="submitting">
+          إلغاء
+        </v-btn>
+        <v-btn 
+          color="primary" 
+          @click="submitAdoption" 
+          :loading="submitting"
+          :disabled="!valid"
+        >
+          <v-icon left>mdi-send</v-icon>
+          تقديم الطلب
+        </v-btn>
+      </v-card-actions>
+    </v-card>
+  </v-dialog>
+</v-container>
+
+<style scoped>
+.detail-item {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+</style>
