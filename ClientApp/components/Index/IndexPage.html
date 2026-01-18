@@ -1,0 +1,93 @@
+<v-container fluid class="page-container">
+  <!-- Page Header -->
+  <v-layout row wrap class="mb-6">
+    <v-flex xs12>
+      <h1 class="display-1 mb-2" style="color: #1B8354">متجر الهواتف المحمولة</h1>
+      <p class="subheading grey--text">مرحباً بك في متجر الهواتف المحمولة</p>
+    </v-flex>
+  </v-layout>
+
+  <!-- Main Content -->
+  <v-layout row wrap>
+    <!-- Welcome Card -->
+    <v-flex xs12 md6 class="pa-2">
+      <v-card class="card-hover" elevation="2">
+        <v-card-title class="primary white--text">
+          <v-icon left color="white">mdi-cellphone</v-icon>
+          <span class="headline">مرحباً</span>
+        </v-card-title>
+        <v-card-text class="pa-4">
+          <p class="body-1">
+            مرحباً بك في متجر الهواتف المحمولة. يمكنك تصفح وإدارة الهواتف المتاحة للبيع.
+          </p>
+          <v-btn color="primary" class="mt-3" to="/admin/phones">
+            <v-icon left>mdi-cog</v-icon>
+            لوحة التحكم
+          </v-btn>
+        </v-card-text>
+      </v-card>
+    </v-flex>
+
+    <!-- Quick Stats Card -->
+    <v-flex xs12 md6 class="pa-2">
+      <v-card class="card-hover" elevation="2">
+        <v-card-title class="headline">إحصائيات سريعة</v-card-title>
+        <v-card-text>
+          <v-layout row wrap>
+            <v-flex xs6 class="text-center pa-4">
+              <div class="display-1 primary--text">0</div>
+              <div class="caption grey--text">إجمالي الهواتف</div>
+            </v-flex>
+            <v-flex xs6 class="text-center pa-4">
+              <div class="display-1 success--text">0</div>
+              <div class="caption grey--text">متوفر</div>
+            </v-flex>
+          </v-layout>
+        </v-card-text>
+      </v-card>
+    </v-flex>
+
+    <!-- Features List -->
+    <v-flex xs12 class="pa-2 mt-4">
+      <v-card elevation="2">
+        <v-card-title class="headline">الميزات الأساسية</v-card-title>
+        <v-divider></v-divider>
+        <v-list>
+          <v-list-item>
+            <v-list-item-avatar>
+              <v-icon color="primary">mdi-plus-circle</v-icon>
+            </v-list-item-avatar>
+            <v-list-item-content>
+              <v-list-item-title>إضافة هواتف جديدة</v-list-item-title>
+              <v-list-item-subtitle>إضافة هواتف بكل سهولة مع جميع التفاصيل</v-list-item-subtitle>
+            </v-list-item-content>
+          </v-list-item>
+
+          <v-divider inset></v-divider>
+
+          <v-list-item>
+            <v-list-item-avatar>
+              <v-icon color="success">mdi-pencil</v-icon>
+            </v-list-item-avatar>
+            <v-list-item-content>
+              <v-list-item-title>تحرير وإدارة</v-list-item-title>
+              <v-list-item-subtitle>تعديل معلومات الهواتف بسهولة</v-list-item-subtitle>
+            </v-list-item-content>
+          </v-list-item>
+
+          <v-divider inset></v-divider>
+
+          <v-list-item>
+            <v-list-item-avatar>
+              <v-icon color="info">mdi-magnify</v-icon>
+            </v-list-item-avatar>
+            <v-list-item-content>
+              <v-list-item-title>بحث متقدم</v-list-item-title>
+              <v-list-item-subtitle>بحث سريع حسب الاسم والعلامة التجارية</v-list-item-subtitle>
+            </v-list-item-content>
+          </v-list-item>
+        </v-list>
+      </v-card>
+    </v-flex>
+  </v-layout>
+</v-container>
