@@ -67,7 +67,8 @@ export default class ProductDetails extends Vue {
     }
 
     public addToCart() {
-        alert(`تمت إضافة ${this.quantity} من ${this.product?.name} إلى السلة`);
+        const productName = this.product ? this.product.name : '';
+        alert(`تمت إضافة ${this.quantity} من ${productName} إلى السلة`);
         // In a real app, this would update cart state
     }
 
@@ -76,6 +77,7 @@ export default class ProductDetails extends Vue {
     }
 
     public get totalPrice(): number {
-        return (this.product?.price || 0) * this.quantity;
+        const price = this.product ? this.product.price : 0;
+        return price * this.quantity;
     }
 }
