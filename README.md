@@ -1,59 +1,119 @@
-# AmmanWeather
+# متجر الحلويات - Najiz Sweets Shop
 
-This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 21.0.2.
+A modern sweets selling microapp built with the Najiz.MicroTemplate architecture.
 
-## Development server
+## Technology Stack
 
-To start a local development server, run:
+- **Backend**: ASP.NET Core 3.1
+- **Frontend**: Vue.js 2.6 + TypeScript 4.5 + Vuetify 1.5
+- **Build**: MSBuild + Vue CLI 3.10 + npm/Webpack
 
-```bash
-ng serve
+## Features
+
+- 🍰 **Product Catalog**: Browse Eastern, Western sweets, and baked goods
+- 🔍 **Search & Filter**: Search products by name and filter by category
+- 📱 **Responsive Design**: Mobile-first design with RTL support
+- 🎨 **Najiz Design System**: Consistent branding with Najiz green (#1B8354)
+- 🔒 **CSP Compliant**: All assets bundled locally, no CDN violations
+- ♿ **Accessibility**: Full RTL support for Arabic users
+
+## Project Structure
+
+```
+SweetsShop/
+├── ClientApp/                  # Vue.js frontend
+│   ├── components/
+│   │   ├── App/               # Root component
+│   │   ├── Index/             # Home page
+│   │   ├── Products/          # Products listing (Najiz pattern)
+│   │   └── ProductDetails/    # Product detail page
+│   ├── Services/              # API services
+│   ├── plugins/               # Vue plugins (Vuetify, i18n)
+│   └── assets/styles/         # Global CSS
+├── Config/                    # NLog configuration
+├── Pages/                     # Razor pages
+├── Properties/                # Launch settings
+├── public/                    # Static assets
+└── dist/                      # Build output
 ```
 
-Once the server is running, open your browser and navigate to `http://localhost:4200/`. The application will automatically reload whenever you modify any of the source files.
+## Build Instructions
 
-## Code scaffolding
+### Prerequisites
+- Node.js 12+
+- .NET Core SDK 3.1
+- npm
 
-Angular CLI includes powerful code scaffolding tools. To generate a new component, run:
-
+### Install Dependencies
 ```bash
-ng generate component component-name
+npm install
 ```
 
-For a complete list of available schematics (such as `components`, `directives`, or `pipes`), run:
-
+### Build Frontend
 ```bash
-ng generate --help
+npm run build
 ```
 
-## Building
-
-To build the project run:
-
+### Run Application
 ```bash
-ng build
+dotnet run
 ```
 
-This will compile your project and store the build artifacts in the `dist/` directory. By default, the production build optimizes your application for performance and speed.
+Access at: `http://localhost:5003/applications/sweetsshop/`
 
-## Running unit tests
+## Design System
 
-To execute unit tests with the [Vitest](https://vitest.dev/) test runner, use the following command:
+### Colors
+- **Primary**: #1B8354 (Najiz Green)
+- **Success**: #1B8354
+- **Error**: #dc2626
+- **Warning**: #ea580c
+- **Info**: #2563eb
 
-```bash
-ng test
-```
+### Typography
+- **Font Family**: Almarai, Cairo, Segoe UI Arabic, Roboto
+- **Direction**: RTL (Right-to-Left)
+- **Language**: Arabic (primary)
 
-## Running end-to-end tests
+### Components
+- Uses Najiz design patterns for product listings
+- Vuetify components for forms and inputs
+- Custom CSS for app-specific styles
 
-For end-to-end (e2e) testing, run:
+## Critical Configurations
 
-```bash
-ng e2e
-```
+### CSP Compliance ✅
+- Material Design Icons bundled locally via @mdi/font
+- All assets loaded from npm packages
+- No external CDN links (except Google Fonts - allowed)
 
-Angular CLI does not come with an end-to-end testing framework by default. You can choose one that suits your needs.
+### Vuetify Configuration ✅
+- Icon font: `iconfont: 'mdi'` configured
+- RTL: `rtl: true` enabled
+- Theme: Najiz green colors
 
-## Additional Resources
+### TypeScript ✅
+- `strict: false` for Vue 2 compatibility
+- `useDefineForClassFields: false` for decorators
+- `skipLibCheck: true` for faster builds
 
-For more information on using the Angular CLI, including detailed command references, visit the [Angular CLI Overview and Command Reference](https://angular.dev/tools/cli) page.
+## Product Categories
+
+1. **حلويات شرقية** (Eastern Sweets)
+   - Baklava, Kunafa, Maamoul
+
+2. **حلويات غربية** (Western Sweets)
+   - Chocolate Cake, Donuts, Brownies
+
+3. **بسكويت ومخبوزات** (Cookies & Baked Goods)
+   - Chocolate Cookies, Butter Cookies
+
+## Deployment
+
+The app is configured for deployment at:
+- **Public Path**: `/applications/sweetsshop`
+- **Port**: 5003
+
+## License
+
+Najiz Platform - Ministry of Justice, Saudi Arabia
