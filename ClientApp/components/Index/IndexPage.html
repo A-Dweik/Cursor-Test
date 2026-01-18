@@ -1,0 +1,209 @@
+<v-container fluid class="page-container">
+  <!-- Page Header -->
+  <v-layout row wrap class="mb-6">
+    <v-flex xs12>
+      <h1 class="display-1 mb-2" style="color: #1B8354">طقس الزرقاء</h1>
+      <p class="subheading grey--text">معلومات الطقس الحالية لمدينة الزرقاء، الأردن</p>
+    </v-flex>
+  </v-layout>
+
+  <!-- Loading State -->
+  <div v-if="loading" class="text-center pa-12">
+    <v-progress-circular indeterminate color="primary" size="64"></v-progress-circular>
+    <p class="mt-4 body-1">جاري تحميل بيانات الطقس...</p>
+  </div>
+
+  <!-- Error State -->
+  <div v-else-if="error" class="text-center pa-12">
+    <v-icon size="64" color="error">mdi-alert-circle</v-icon>
+    <p class="title mt-4 error--text">{{ error }}</p>
+    <v-btn color="primary" outlined class="mt-4" @click="loadWeatherData">
+      <v-icon left>mdi-refresh</v-icon>
+      إعادة المحاولة
+    </v-btn>
+  </div>
+
+  <!-- Weather Content -->
+  <v-layout row wrap v-else-if="weatherData">
+    <!-- Current Weather Card -->
+    <v-flex xs12 md8 class="pa-2">
+      <v-card class="card-hover" elevation="4">
+        <v-card-title class="primary white--text">
+          <v-icon left color="white" large>{{ getWeatherIcon() }}</v-icon>
+          <span class="headline">{{ weatherData.cityName }}</span>
+          <v-spacer></v-spacer>
+          <v-btn icon @click="loadWeatherData" color="white">
+            <v-icon>mdi-refresh</v-icon>
+          </v-btn>
+        </v-card-title>
+        
+        <v-card-text class="pa-6">
+          <!-- Temperature Display -->
+          <div class="text-center mb-4">
+            <v-icon :color="getTemperatureColor()" class="weather-icon">
+              {{ getWeatherIcon() }}
+            </v-icon>
+            <div class="temperature-display">{{ weatherData.temperature }}°C</div>
+            <p class="title grey--text">{{ weatherData.description }}</p>
+          </div>
+
+          <v-divider class="my-4"></v-divider>
+
+          <!-- Weather Details -->
+          <v-layout row wrap>
+            <v-flex xs12 sm6 class="pa-2">
+              <div class="weather-detail">
+                <v-icon color="primary">mdi-thermometer</v-icon>
+                <span class="mr-2 body-1">الإحساس بـ:</span>
+                <strong>{{ weatherData.feelsLike }}°C</strong>
+              </div>
+            </v-flex>
+
+            <v-flex xs12 sm6 class="pa-2">
+              <div class="weather-detail">
+                <v-icon color="primary">mdi-water-percent</v-icon>
+                <span class="mr-2 body-1">الرطوبة:</span>
+                <strong>{{ weatherData.humidity }}%</strong>
+              </div>
+            </v-flex>
+
+            <v-flex xs12 sm6 class="pa-2">
+              <div class="weather-detail">
+                <v-icon color="primary">mdi-weather-windy</v-icon>
+                <span class="mr-2 body-1">سرعة الرياح:</span>
+                <strong>{{ weatherData.windSpeed }} م/ث</strong>
+              </div>
+            </v-flex>
+
+            <v-flex xs12 sm6 class="pa-2">
+              <div class="weather-detail">
+                <v-icon color="primary">mdi-gauge</v-icon>
+                <span class="mr-2 body-1">الضغط الجوي:</span>
+                <strong>{{ weatherData.pressure }} هكتوباسكال</strong>
+              </div>
+            </v-flex>
+          </v-layout>
+
+          <v-divider class="my-4"></v-divider>
+
+          <!-- Last Update -->
+          <div class="text-center">
+            <p class="caption grey--text">
+              <v-icon small>mdi-clock-outline</v-icon>
+              آخر تحديث: {{ lastUpdate }}
+            </p>
+          </div>
+        </v-card-text>
+      </v-card>
+    </v-flex>
+
+    <!-- Information Cards -->
+    <v-flex xs12 md4 class="pa-2">
+      <!-- About Zarqa Card -->
+      <v-card class="mb-4" elevation="2">
+        <v-card-title class="headline" style="color: #1B8354">
+          <v-icon left color="primary">mdi-city</v-icon>
+          عن الزرقاء
+        </v-card-title>
+        <v-card-text>
+          <p class="body-1">
+            الزرقاء هي ثاني أكبر مدينة في الأردن بعد عمان. تقع شمال شرق العاصمة عمان وتبعد عنها حوالي 25 كيلومتراً.
+          </p>
+          <v-divider class="my-3"></v-divider>
+          <div class="weather-detail">
+            <v-icon small color="primary">mdi-map-marker</v-icon>
+            <span class="caption">الإحداثيات: 32.0667° N, 36.1000° E</span>
+          </div>
+        </v-card-text>
+      </v-card>
+
+      <!-- Tips Card -->
+      <v-card elevation="2">
+        <v-card-title class="headline" style="color: #1B8354">
+          <v-icon left color="primary">mdi-lightbulb-on</v-icon>
+          نصائح
+        </v-card-title>
+        <v-card-text>
+          <v-list dense>
+            <v-list-item>
+              <v-list-item-avatar>
+                <v-icon small color="success">mdi-check-circle</v-icon>
+              </v-list-item-avatar>
+              <v-list-item-content>
+                <v-list-item-subtitle>تحديث تلقائي كل 10 دقائق</v-list-item-subtitle>
+              </v-list-item-content>
+            </v-list-item>
+
+            <v-divider inset></v-divider>
+
+            <v-list-item>
+              <v-list-item-avatar>
+                <v-icon small color="info">mdi-umbrella</v-icon>
+              </v-list-item-avatar>
+              <v-list-item-content>
+                <v-list-item-subtitle>تحقق من الطقس قبل الخروج</v-list-item-subtitle>
+              </v-list-item-content>
+            </v-list-item>
+
+            <v-divider inset></v-divider>
+
+            <v-list-item>
+              <v-list-item-avatar>
+                <v-icon small color="warning">mdi-white-balance-sunny</v-icon>
+              </v-list-item-avatar>
+              <v-list-item-content>
+                <v-list-item-subtitle>استخدم واقي الشمس في الأيام المشمسة</v-list-item-subtitle>
+              </v-list-item-content>
+            </v-list-item>
+          </v-list>
+        </v-card-text>
+      </v-card>
+    </v-flex>
+
+    <!-- Features Section -->
+    <v-flex xs12 class="pa-2 mt-4">
+      <v-card elevation="2">
+        <v-card-title class="headline" style="color: #1B8354">
+          <v-icon left color="primary">mdi-feature-search</v-icon>
+          مميزات التطبيق
+        </v-card-title>
+        <v-divider></v-divider>
+        <v-card-text>
+          <v-layout row wrap>
+            <v-flex xs12 sm6 md3 class="pa-3">
+              <div class="text-center">
+                <v-icon size="48" color="primary">mdi-update</v-icon>
+                <h3 class="title mt-2">تحديث مستمر</h3>
+                <p class="body-2 grey--text">بيانات الطقس محدثة بشكل دوري</p>
+              </div>
+            </v-flex>
+
+            <v-flex xs12 sm6 md3 class="pa-3">
+              <div class="text-center">
+                <v-icon size="48" color="success">mdi-map-marker-check</v-icon>
+                <h3 class="title mt-2">موقع دقيق</h3>
+                <p class="body-2 grey--text">بيانات خاصة بمدينة الزرقاء</p>
+              </div>
+            </v-flex>
+
+            <v-flex xs12 sm6 md3 class="pa-3">
+              <div class="text-center">
+                <v-icon size="48" color="info">mdi-translate</v-icon>
+                <h3 class="title mt-2">واجهة عربية</h3>
+                <p class="body-2 grey--text">واجهة مستخدم باللغة العربية</p>
+              </div>
+            </v-flex>
+
+            <v-flex xs12 sm6 md3 class="pa-3">
+              <div class="text-center">
+                <v-icon size="48" color="warning">mdi-cellphone</v-icon>
+                <h3 class="title mt-2">متجاوب</h3>
+                <p class="body-2 grey--text">يعمل على جميع الأجهزة</p>
+              </div>
+            </v-flex>
+          </v-layout>
+        </v-card-text>
+      </v-card>
+    </v-flex>
+  </v-layout>
+</v-container>

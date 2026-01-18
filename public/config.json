@@ -1,0 +1,13 @@
+{
+  "ApplicationInsights": {
+    "InstrumentationKey": "",
+    "ApplicationName": "ZarqaWeather"
+  },
+  "Recaptcha": {
+    "SiteKey": "6LcD1bkUAAAAABM1N9Iq2eDrmPzmXPWfCVFaJh4_"
+  },
+  "Weather": {
+    "ApiKey": "",
+    "UpdateInterval": 600000
+  }
+}
