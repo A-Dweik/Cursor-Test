@@ -9,8 +9,26 @@ interface Cat {
     color: string;
     description: string;
     adopted: boolean;
-    imageUrl: string;
+    gender: string;
+    vaccinated: boolean;
+    neutered: boolean;
+    healthStatus: string;
+    weight: string;
+    temperament: string[];
+    specialNeeds: string;
+    imageColor: string;
     category: string;
+    dateAdded: string;
+}
+
+interface AdoptionForm {
+    applicantName: string;
+    email: string;
+    phone: string;
+    address: string;
+    hasExperience: boolean;
+    hasPets: boolean;
+    reason: string;
 }
 
 @WithRender
@@ -19,15 +37,64 @@ export default class Index extends Vue {
     public loading: boolean = false;
     public cats: Cat[] = [];
     public selectedFilter: string = 'all';
+    public searchQuery: string = '';
+    
+    // Dialogs
+    public detailsDialog: boolean = false;
+    public adoptionDialog: boolean = false;
+    public addCatDialog: boolean = false;
+    public selectedCat: Cat | null = null;
+    
+    // Forms
+    public adoptionForm: AdoptionForm = {
+        applicantName: '',
+        email: '',
+        phone: '',
+        address: '',
+        hasExperience: false,
+        hasPets: false,
+        reason: ''
+    };
+    
+    public newCat: Cat = this.getEmptyCat();
+    
+    // Validation
+    public formValid: boolean = false;
+    public rules = {
+        required: (v: string) => !!v || 'هذا الحقل مطلوب',
+        email: (v: string) => /.+@.+\..+/.test(v) || 'البريد الإلكتروني غير صحيح',
+        phone: (v: string) => /^[0-9]{10}$/.test(v) || 'رقم الهاتف يجب أن يكون 10 أرقام'
+    };
 
     mounted() {
         this.loadCats();
     }
 
+    private getEmptyCat(): Cat {
+        return {
+            id: 0,
+            name: '',
+            age: '',
+            breed: '',
+            color: '',
+            description: '',
+            adopted: false,
+            gender: 'ذكر',
+            vaccinated: false,
+            neutered: false,
+            healthStatus: 'ممتاز',
+            weight: '',
+            temperament: [],
+            specialNeeds: '',
+            imageColor: '#1B8354',
+            category: 'قطط صغيرة',
+            dateAdded: new Date().toISOString().split('T')[0]
+        };
+    }
+
     private loadCats() {
         this.loading = true;
         
-        // Mock data - in real app, this would come from API
         this.cats = [
             {
                 id: 1,
@@ -35,10 +102,18 @@ export default class Index extends Vue {
                 age: 'سنتان',
                 breed: 'شيرازي',
                 color: 'أبيض',
-                description: 'قطة جميلة وهادئة، تحب اللعب والاهتمام. مناسبة للعائلات',
+                gender: 'أنثى',
+                description: 'قطة جميلة وهادئة، تحب اللعب والاهتمام. مناسبة للعائلات والأطفال',
                 adopted: false,
-                imageUrl: 'https://via.placeholder.com/300x200/1B8354/FFFFFF?text=لونا',
-                category: 'قطط صغيرة'
+                vaccinated: true,
+                neutered: true,
+                healthStatus: 'ممتاز',
+                weight: '4 كجم',
+                temperament: ['هادئة', 'ودودة', 'محبة للعب'],
+                specialNeeds: 'لا يوجد',
+                imageColor: '#1B8354',
+                category: 'قطط بالغة',
+                dateAdded: '2024-01-01'
             },
             {
                 id: 2,
@@ -46,10 +121,18 @@ export default class Index extends Vue {
                 age: '٣ سنوات',
                 breed: 'بريطاني قصير الشعر',
                 color: 'رمادي',
-                description: 'قط هادئ ومحب للنوم، يناسب الأشخاص الذين يعيشون بمفردهم',
+                gender: 'ذكر',
+                description: 'قط هادئ ومحب للنوم، يناسب الأشخاص الذين يعيشون بمفردهم أو كبار السن',
                 adopted: false,
-                imageUrl: 'https://via.placeholder.com/300x200/2563eb/FFFFFF?text=ميلو',
-                category: 'قطط بالغة'
+                vaccinated: true,
+                neutered: true,
+                healthStatus: 'جيد',
+                weight: '5.5 كجم',
+                temperament: ['هادئ', 'مستقل', 'محب للراحة'],
+                specialNeeds: 'يحتاج إلى طعام خاص',
+                imageColor: '#607D8B',
+                category: 'قطط بالغة',
+                dateAdded: '2023-12-15'
             },
             {
                 id: 3,
@@ -57,10 +140,18 @@ export default class Index extends Vue {
                 age: '٦ أشهر',
                 breed: 'مين كون',
                 color: 'برتقالي',
-                description: 'قط نشيط جداً ويحب اللعب والاستكشاف، يحتاج إلى مساحة كبيرة',
+                gender: 'ذكر',
+                description: 'قط نشيط جداً ويحب اللعب والاستكشاف، يحتاج إلى مساحة كبيرة للحركة',
                 adopted: false,
-                imageUrl: 'https://via.placeholder.com/300x200/ea580c/FFFFFF?text=سيمبا',
-                category: 'قطط صغيرة'
+                vaccinated: true,
+                neutered: false,
+                healthStatus: 'ممتاز',
+                weight: '3 كجم',
+                temperament: ['نشيط', 'فضولي', 'مرح'],
+                specialNeeds: 'لا يوجد',
+                imageColor: '#FF9800',
+                category: 'قطط صغيرة',
+                dateAdded: '2024-01-10'
             },
             {
                 id: 4,
@@ -68,10 +159,18 @@ export default class Index extends Vue {
                 age: '٥ سنوات',
                 breed: 'سيامي',
                 color: 'بيج وبني',
-                description: 'قطة ذكية ومخلصة، تحب التواصل مع أصحابها بشكل مستمر',
+                gender: 'أنثى',
+                description: 'قطة ذكية ومخلصة، تحب التواصل مع أصحابها بشكل مستمر وصوتها واضح',
                 adopted: false,
-                imageUrl: 'https://via.placeholder.com/300x200/7c3aed/FFFFFF?text=بيلا',
-                category: 'قطط بالغة'
+                vaccinated: true,
+                neutered: true,
+                healthStatus: 'ممتاز',
+                weight: '3.5 كجم',
+                temperament: ['ذكية', 'ثرثارة', 'مخلصة'],
+                specialNeeds: 'لا يوجد',
+                imageColor: '#795548',
+                category: 'قطط بالغة',
+                dateAdded: '2023-11-20'
             },
             {
                 id: 5,
@@ -79,10 +178,18 @@ export default class Index extends Vue {
                 age: '٤ أشهر',
                 breed: 'مصري ماو',
                 color: 'فضي',
-                description: 'قط صغير ونشيط، يحب اللعب ويتعلم بسرعة',
+                gender: 'ذكر',
+                description: 'قط صغير ونشيط، يحب اللعب ويتعلم بسرعة. مناسب للعائلات النشطة',
                 adopted: false,
-                imageUrl: 'https://via.placeholder.com/300x200/059669/FFFFFF?text=تشارلي',
-                category: 'قطط صغيرة'
+                vaccinated: true,
+                neutered: false,
+                healthStatus: 'ممتاز',
+                weight: '2 كجم',
+                temperament: ['نشيط', 'ذكي', 'اجتماعي'],
+                specialNeeds: 'لا يوجد',
+                imageColor: '#9E9E9E',
+                category: 'قطط صغيرة',
+                dateAdded: '2024-01-15'
             },
             {
                 id: 6,
@@ -90,10 +197,56 @@ export default class Index extends Vue {
                 age: '٧ سنوات',
                 breed: 'راغدول',
                 color: 'كريمي',
-                description: 'قطة هادئة ومريحة، مثالية لكبار السن أو العائلات الهادئة',
+                gender: 'أنثى',
+                description: 'قطة هادئة ومريحة، مثالية لكبار السن أو العائلات الهادئة. تحب الحضن',
                 adopted: true,
-                imageUrl: 'https://via.placeholder.com/300x200/9ca3af/FFFFFF?text=كوكي',
-                category: 'قطط بالغة'
+                vaccinated: true,
+                neutered: true,
+                healthStatus: 'جيد',
+                weight: '4.5 كجم',
+                temperament: ['هادئة جداً', 'محبة للحضن', 'مطيعة'],
+                specialNeeds: 'لا يوجد',
+                imageColor: '#F5DEB3',
+                category: 'قطط بالغة',
+                dateAdded: '2023-10-01'
+            },
+            {
+                id: 7,
+                name: 'فيليكس',
+                age: '١ سنة',
+                breed: 'بنغالي',
+                color: 'بني مرقط',
+                gender: 'ذكر',
+                description: 'قط نشيط جداً بمظهر بري، يحب التسلق واللعب في الماء. يحتاج إلى صاحب نشيط',
+                adopted: false,
+                vaccinated: true,
+                neutered: true,
+                healthStatus: 'ممتاز',
+                weight: '4 كجم',
+                temperament: ['نشيط جداً', 'رياضي', 'مغامر'],
+                specialNeeds: 'يحتاج إلى مساحة للتسلق',
+                imageColor: '#8B4513',
+                category: 'قطط بالغة',
+                dateAdded: '2024-01-05'
+            },
+            {
+                id: 8,
+                name: 'نالا',
+                age: '٣ أشهر',
+                breed: 'بيرشن',
+                color: 'أسود وأبيض',
+                gender: 'أنثى',
+                description: 'قطة صغيرة جميلة وهادئة، تحب الاهتمام والحضن. مناسبة للمبتدئين',
+                adopted: false,
+                vaccinated: true,
+                neutered: false,
+                healthStatus: 'ممتاز',
+                weight: '1.5 كجم',
+                temperament: ['هادئة', 'محبة', 'خجولة'],
+                specialNeeds: 'لا يوجد',
+                imageColor: '#000000',
+                category: 'قطط صغيرة',
+                dateAdded: '2024-01-18'
             }
         ];
 
@@ -103,16 +256,31 @@ export default class Index extends Vue {
     }
 
     get filteredCats() {
+        let filtered = this.cats;
+        
+        // Filter by adoption status
         if (this.selectedFilter === 'all') {
-            return this.cats.filter(cat => !cat.adopted);
+            filtered = filtered.filter(cat => !cat.adopted);
         } else if (this.selectedFilter === 'young') {
-            return this.cats.filter(cat => !cat.adopted && cat.category === 'قطط صغيرة');
+            filtered = filtered.filter(cat => !cat.adopted && cat.category === 'قطط صغيرة');
         } else if (this.selectedFilter === 'adult') {
-            return this.cats.filter(cat => !cat.adopted && cat.category === 'قطط بالغة');
+            filtered = filtered.filter(cat => !cat.adopted && cat.category === 'قطط بالغة');
         } else if (this.selectedFilter === 'adopted') {
-            return this.cats.filter(cat => cat.adopted);
+            filtered = filtered.filter(cat => cat.adopted);
         }
-        return this.cats;
+        
+        // Filter by search query
+        if (this.searchQuery) {
+            const query = this.searchQuery.toLowerCase();
+            filtered = filtered.filter(cat => 
+                cat.name.toLowerCase().includes(query) ||
+                cat.breed.toLowerCase().includes(query) ||
+                cat.color.toLowerCase().includes(query) ||
+                cat.description.toLowerCase().includes(query)
+            );
+        }
+        
+        return filtered;
     }
 
     get availableCatsCount() {
@@ -123,24 +291,88 @@ export default class Index extends Vue {
         return this.cats.filter(cat => cat.adopted).length;
     }
 
+    get youngCatsCount() {
+        return this.cats.filter(cat => !cat.adopted && cat.category === 'قطط صغيرة').length;
+    }
+
+    get adultCatsCount() {
+        return this.cats.filter(cat => !cat.adopted && cat.category === 'قطط بالغة').length;
+    }
+
     public filterCats(filter: string) {
         this.selectedFilter = filter;
     }
 
     public viewDetails(cat: Cat) {
-        alert(`تفاصيل القط: ${cat.name}\n\nالسلالة: ${cat.breed}\nالعمر: ${cat.age}\nاللون: ${cat.color}\n\n${cat.description}`);
+        this.selectedCat = cat;
+        this.detailsDialog = true;
     }
 
-    public adoptCat(cat: Cat) {
-        if (confirm(`هل تريد تبني ${cat.name}؟`)) {
-            cat.adopted = true;
-            alert(`تم تبني ${cat.name} بنجاح! سنتواصل معك قريباً لإكمال الإجراءات.`);
+    public openAdoptionDialog(cat: Cat) {
+        this.selectedCat = cat;
+        this.adoptionDialog = true;
+    }
+
+    public closeDetailsDialog() {
+        this.detailsDialog = false;
+        this.selectedCat = null;
+    }
+
+    public closeAdoptionDialog() {
+        this.adoptionDialog = false;
+        this.adoptionForm = {
+            applicantName: '',
+            email: '',
+            phone: '',
+            address: '',
+            hasExperience: false,
+            hasPets: false,
+            reason: ''
+        };
+    }
+
+    public submitAdoptionRequest() {
+        if (this.selectedCat) {
+            this.selectedCat.adopted = true;
+            this.closeAdoptionDialog();
+            alert(`تم إرسال طلب تبني ${this.selectedCat.name} بنجاح!\n\nسنتواصل معك قريباً على:\nالبريد الإلكتروني: ${this.adoptionForm.email}\nالهاتف: ${this.adoptionForm.phone}\n\nشكراً لاهتمامك بتبني القطط!`);
         }
     }
 
-    public getCategoryIcon(category: string): string {
-        if (category === 'قطط صغيرة') return 'icon-personal_account';
-        if (category === 'قطط بالغة') return 'icon-company';
-        return 'icon-service';
+    public openAddCatDialog() {
+        this.newCat = this.getEmptyCat();
+        this.addCatDialog = true;
+    }
+
+    public closeAddCatDialog() {
+        this.addCatDialog = false;
+        this.newCat = this.getEmptyCat();
+    }
+
+    public addNewCat() {
+        this.newCat.id = Math.max(...this.cats.map(c => c.id)) + 1;
+        this.cats.push({...this.newCat});
+        this.closeAddCatDialog();
+        alert(`تمت إضافة القط ${this.newCat.name} بنجاح!`);
+    }
+
+    public deleteCat(cat: Cat) {
+        if (confirm(`هل أنت متأكد من حذف ${cat.name}؟`)) {
+            const index = this.cats.findIndex(c => c.id === cat.id);
+            if (index > -1) {
+                this.cats.splice(index, 1);
+                alert(`تم حذف ${cat.name} بنجاح!`);
+            }
+        }
+    }
+
+    public getCategoryColor(category: string): string {
+        return category === 'قطط صغيرة' ? 'primary' : 'info';
+    }
+
+    public getHealthColor(status: string): string {
+        if (status === 'ممتاز') return 'success';
+        if (status === 'جيد') return 'info';
+        return 'warning';
     }
 }
