@@ -1,0 +1,220 @@
+<v-container fluid class="page-container">
+  <!-- Loading State -->
+  <div v-if="loading" class="text-center pa-12">
+    <v-progress-circular indeterminate color="primary" size="64"></v-progress-circular>
+    <p class="mt-4 body-1">جاري التحميل...</p>
+  </div>
+
+  <!-- Error State -->
+  <div v-else-if="!iphone" class="text-center pa-12">
+    <v-icon size="64" color="error">mdi-alert-circle</v-icon>
+    <p class="title mt-4">لم يتم العثور على الجهاز</p>
+    <v-btn color="primary" outlined class="mt-4" @click="goBack">
+      <v-icon left>mdi-arrow-right</v-icon>
+      العودة للقائمة
+    </v-btn>
+  </div>
+
+  <!-- iPhone Details -->
+  <div v-else>
+    <!-- Back Button -->
+    <v-layout row wrap class="mb-4">
+      <v-flex xs12>
+        <v-btn text color="primary" @click="goBack">
+          <v-icon left>mdi-arrow-right</v-icon>
+          العودة للقائمة
+        </v-btn>
+      </v-flex>
+    </v-layout>
+
+    <!-- Main Content -->
+    <v-layout row wrap>
+      <!-- Image Section -->
+      <v-flex xs12 md6 class="pa-3">
+        <v-card elevation="2" class="pa-6">
+          <div style="position: relative;">
+            <!-- Badge -->
+            <div v-if="iphone.isNew" class="iphone-badge">
+              <i class="mdi mdi-new-box" style="margin-left: 4px;"></i>
+              وصل حديثاً
+            </div>
+            <div v-else-if="iphone.isPopular" class="iphone-badge" style="background: linear-gradient(135deg, #ea580c 0%, #f59e0b 100%);">
+              <i class="mdi mdi-star" style="margin-left: 4px;"></i>
+              الأكثر مبيعاً
+            </div>
+
+            <!-- Image -->
+            <div class="text-center">
+              <img 
+                :src="iphone.image" 
+                :alt="iphone.nameAr"
+                style="width: 100%; max-width: 400px; height: auto; object-fit: contain;"
+              />
+            </div>
+          </div>
+        </v-card>
+      </v-flex>
+
+      <!-- Details Section -->
+      <v-flex xs12 md6 class="pa-3">
+        <v-card elevation="2" class="pa-6">
+          <!-- Title -->
+          <h1 class="display-1 mb-2" style="color: #1B8354">{{ iphone.nameAr }}</h1>
+          <p class="title mb-4" style="color: #4b5563">{{ iphone.name }}</p>
+          
+          <!-- Price -->
+          <div class="iphone-price mb-6">
+            {{ iphone.price }} ريال
+          </div>
+
+          <!-- Description -->
+          <p class="body-1 mb-6" style="color: #4b5563">
+            {{ iphone.descriptionAr }}
+          </p>
+
+          <v-divider class="my-4"></v-divider>
+
+          <!-- Color Selection -->
+          <div class="mb-6">
+            <h3 class="title mb-3" style="color: #1f2937">
+              <v-icon color="primary" left>mdi-palette</v-icon>
+              اللون
+            </h3>
+            <v-chip-group v-model="selectedColor" mandatory column>
+              <v-chip
+                v-for="color in iphone.colors"
+                :key="color"
+                :value="color"
+                color="primary"
+                outlined
+                label
+                @click="selectColor(color)"
+              >
+                {{ color }}
+              </v-chip>
+            </v-chip-group>
+          </div>
+
+          <!-- Storage Selection -->
+          <div class="mb-6">
+            <h3 class="title mb-3" style="color: #1f2937">
+              <v-icon color="primary" left>mdi-harddisk</v-icon>
+              السعة التخزينية
+            </h3>
+            <v-chip-group v-model="selectedStorage" mandatory column>
+              <v-chip
+                v-for="storage in iphone.storage.split('/')"
+                :key="storage.trim()"
+                :value="storage.trim()"
+                color="primary"
+                outlined
+                label
+                @click="selectStorage(storage.trim())"
+              >
+                {{ storage.trim() }}
+              </v-chip>
+            </v-chip-group>
+          </div>
+
+          <v-divider class="my-4"></v-divider>
+
+          <!-- Action Buttons -->
+          <v-layout row wrap class="mt-6">
+            <v-flex xs12 sm6 class="pa-2">
+              <v-btn 
+                color="primary" 
+                large 
+                block
+                elevation="2"
+              >
+                <v-icon left>mdi-cart</v-icon>
+                اشتر الآن
+              </v-btn>
+            </v-flex>
+            <v-flex xs12 sm6 class="pa-2">
+              <v-btn 
+                outlined 
+                color="primary" 
+                large 
+                block
+              >
+                <v-icon left>mdi-heart-outline</v-icon>
+                أضف للمفضلة
+              </v-btn>
+            </v-flex>
+          </v-layout>
+        </v-card>
+      </v-flex>
+
+      <!-- Specifications Card -->
+      <v-flex xs12 class="pa-3 mt-4">
+        <v-card elevation="2">
+          <v-card-title class="headline" style="background: #f0fdf4; color: #1B8354;">
+            <v-icon left color="primary">mdi-information</v-icon>
+            المواصفات التفصيلية
+          </v-card-title>
+          
+          <v-divider></v-divider>
+
+          <v-card-text class="pa-6">
+            <v-layout row wrap>
+              <!-- Screen -->
+              <v-flex xs12 sm6 md4 class="pa-3">
+                <div style="text-align: center; padding: 20px; background: #fafafa; border-radius: 12px; height: 100%;">
+                  <v-icon size="48" color="primary" class="mb-3">mdi-monitor</v-icon>
+                  <h4 class="title mb-2" style="color: #1f2937">الشاشة</h4>
+                  <p class="body-1" style="color: #4b5563">{{ iphone.screen }}</p>
+                </div>
+              </v-flex>
+
+              <!-- Chip -->
+              <v-flex xs12 sm6 md4 class="pa-3">
+                <div style="text-align: center; padding: 20px; background: #fafafa; border-radius: 12px; height: 100%;">
+                  <v-icon size="48" color="primary" class="mb-3">mdi-memory</v-icon>
+                  <h4 class="title mb-2" style="color: #1f2937">المعالج</h4>
+                  <p class="body-1" style="color: #4b5563">{{ iphone.chip }}</p>
+                </div>
+              </v-flex>
+
+              <!-- Camera -->
+              <v-flex xs12 sm6 md4 class="pa-3">
+                <div style="text-align: center; padding: 20px; background: #fafafa; border-radius: 12px; height: 100%;">
+                  <v-icon size="48" color="primary" class="mb-3">mdi-camera</v-icon>
+                  <h4 class="title mb-2" style="color: #1f2937">الكاميرا</h4>
+                  <p class="body-1" style="color: #4b5563">{{ iphone.camera }}</p>
+                </div>
+              </v-flex>
+
+              <!-- Battery -->
+              <v-flex xs12 sm6 md4 class="pa-3">
+                <div style="text-align: center; padding: 20px; background: #fafafa; border-radius: 12px; height: 100%;">
+                  <v-icon size="48" color="primary" class="mb-3">mdi-battery-charging</v-icon>
+                  <h4 class="title mb-2" style="color: #1f2937">البطارية</h4>
+                  <p class="body-1" style="color: #4b5563">{{ iphone.battery }}</p>
+                </div>
+              </v-flex>
+
+              <!-- Storage -->
+              <v-flex xs12 sm6 md4 class="pa-3">
+                <div style="text-align: center; padding: 20px; background: #fafafa; border-radius: 12px; height: 100%;">
+                  <v-icon size="48" color="primary" class="mb-3">mdi-harddisk</v-icon>
+                  <h4 class="title mb-2" style="color: #1f2937">السعة</h4>
+                  <p class="body-1" style="color: #4b5563">{{ iphone.storage }}</p>
+                </div>
+              </v-flex>
+
+              <!-- Model -->
+              <v-flex xs12 sm6 md4 class="pa-3">
+                <div style="text-align: center; padding: 20px; background: #fafafa; border-radius: 12px; height: 100%;">
+                  <v-icon size="48" color="primary" class="mb-3">mdi-barcode</v-icon>
+                  <h4 class="title mb-2" style="color: #1f2937">رقم الموديل</h4>
+                  <p class="body-1" style="color: #4b5563">{{ iphone.model }}</p>
+                </div>
+              </v-flex>
+            </v-layout>
+          </v-card-text>
+        </v-card>
+      </v-flex>
+    </v-layout>
+  </div>
+</v-container>
