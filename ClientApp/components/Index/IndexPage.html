@@ -1,0 +1,545 @@
+<v-container fluid class="pa-0">
+  <!-- Header Section -->
+  <v-layout row wrap class="primary white--text pa-6">
+    <v-flex xs12 class="text-center">
+      <v-icon size="80" color="white">mdi-cat</v-icon>
+      <h1 class="display-2 mb-3">منصة تبني القطط</h1>
+      <p class="title">اعثر على صديقك القادم من بين القطط المتاحة للتبني</p>
+    </v-flex>
+  </v-layout>
+
+  <!-- Search and Actions -->
+  <v-layout row wrap class="pa-4" style="background: #fafafa;">
+    <v-flex xs12 md8 class="pa-2">
+      <v-text-field
+        v-model="searchQuery"
+        outlined
+        label="ابحث عن قط (الاسم، السلالة، اللون...)"
+        prepend-inner-icon="mdi-magnify"
+        clearable
+        color="primary"
+        hide-details
+      ></v-text-field>
+    </v-flex>
+    <v-flex xs12 md4 class="pa-2">
+      <v-btn large block color="primary" @click="openAddCatDialog">
+        <v-icon left>mdi-plus</v-icon>
+        إضافة قط جديد
+      </v-btn>
+    </v-flex>
+  </v-layout>
+
+  <!-- Statistics Cards -->
+  <v-layout row wrap class="pa-4" style="background: #fafafa;">
+    <v-flex xs12 sm6 md3 class="pa-2">
+      <v-card class="text-center" elevation="3">
+        <v-card-text>
+          <v-icon size="48" color="primary">mdi-cat</v-icon>
+          <div class="display-1 mt-2">{{ availableCatsCount }}</div>
+          <div class="body-2 grey--text">قط متاح للتبني</div>
+        </v-card-text>
+      </v-card>
+    </v-flex>
+    <v-flex xs12 sm6 md3 class="pa-2">
+      <v-card class="text-center" elevation="3">
+        <v-card-text>
+          <v-icon size="48" color="success">mdi-check-circle</v-icon>
+          <div class="display-1 mt-2">{{ adoptedCatsCount }}</div>
+          <div class="body-2 grey--text">قط تم تبنيه</div>
+        </v-card-text>
+      </v-card>
+    </v-flex>
+    <v-flex xs12 sm6 md3 class="pa-2">
+      <v-card class="text-center" elevation="3">
+        <v-card-text>
+          <v-icon size="48" color="info">mdi-baby-face</v-icon>
+          <div class="display-1 mt-2">{{ youngCatsCount }}</div>
+          <div class="body-2 grey--text">قط صغير</div>
+        </v-card-text>
+      </v-card>
+    </v-flex>
+    <v-flex xs12 sm6 md3 class="pa-2">
+      <v-card class="text-center" elevation="3">
+        <v-card-text>
+          <v-icon size="48" color="warning">mdi-home-heart</v-icon>
+          <div class="display-1 mt-2">{{ adultCatsCount }}</div>
+          <div class="body-2 grey--text">قط بالغ</div>
+        </v-card-text>
+      </v-card>
+    </v-flex>
+  </v-layout>
+
+  <!-- Filter Chips -->
+  <v-layout row wrap class="pa-4 pt-0" style="background: #fafafa;">
+    <v-flex xs12>
+      <v-chip-group v-model="selectedFilter" mandatory active-class="primary--text" column>
+        <v-chip value="all" outlined>
+          <v-icon left>mdi-cat</v-icon>
+          جميع القطط ({{ availableCatsCount }})
+        </v-chip>
+        <v-chip value="young" outlined>
+          <v-icon left>mdi-baby-face</v-icon>
+          قطط صغيرة ({{ youngCatsCount }})
+        </v-chip>
+        <v-chip value="adult" outlined>
+          <v-icon left>mdi-home-heart</v-icon>
+          قطط بالغة ({{ adultCatsCount }})
+        </v-chip>
+        <v-chip value="adopted" outlined>
+          <v-icon left>mdi-check-circle</v-icon>
+          المتبناة ({{ adoptedCatsCount }})
+        </v-chip>
+      </v-chip-group>
+    </v-flex>
+  </v-layout>
+
+  <!-- Loading State -->
+  <v-layout v-if="loading" row wrap class="pa-12" style="background: #fafafa;">
+    <v-flex xs12 class="text-center">
+      <v-progress-circular indeterminate color="primary" size="64"></v-progress-circular>
+      <p class="mt-4 title grey--text">جاري تحميل القطط...</p>
+    </v-flex>
+  </v-layout>
+
+  <!-- Empty State -->
+  <v-layout v-else-if="filteredCats.length === 0" row wrap class="pa-12" style="background: #fafafa;">
+    <v-flex xs12 class="text-center">
+      <v-icon size="120" color="grey lighten-1">mdi-cat</v-icon>
+      <h2 class="headline mt-4 grey--text">لا توجد قطط متاحة</h2>
+      <p class="body-1 grey--text mt-2">جرب تغيير الفلتر أو البحث بكلمات مختلفة</p>
+    </v-flex>
+  </v-layout>
+
+  <!-- Cats Grid -->
+  <v-layout v-else row wrap class="pa-4" style="background: #fafafa;">
+    <v-flex xs12 sm6 md4 lg3 v-for="cat in filteredCats" :key="cat.id" class="pa-2">
+      <v-card class="card-hover" elevation="3" height="100%">
+        <!-- Cat Image Placeholder -->
+        <div :style="{
+          background: `linear-gradient(135deg, ${cat.imageColor} 0%, ${cat.imageColor}dd 100%)`,
+          height: '200px',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center'
+        }">
+          <v-icon size="80" color="white">mdi-cat</v-icon>
+        </div>
+
+        <!-- Cat Info -->
+        <v-card-title class="pb-2">
+          <span class="headline">{{ cat.name }}</span>
+          <v-spacer></v-spacer>
+          <v-icon :color="cat.gender === 'ذكر' ? 'blue' : 'pink'">
+            {{ cat.gender === 'ذكر' ? 'mdi-gender-male' : 'mdi-gender-female' }}
+          </v-icon>
+        </v-card-title>
+
+        <v-card-text class="pb-2">
+          <!-- Category Chip -->
+          <v-chip small :color="getCategoryColor(cat.category)" outlined class="mb-2">
+            <v-icon left small>{{ cat.category === 'قطط صغيرة' ? 'mdi-baby-face' : 'mdi-cat' }}</v-icon>
+            {{ cat.category }}
+          </v-chip>
+
+          <!-- Basic Info -->
+          <div class="body-2 mb-1">
+            <v-icon small color="primary">mdi-paw</v-icon>
+            <strong>السلالة:</strong> {{ cat.breed }}
+          </div>
+          <div class="body-2 mb-1">
+            <v-icon small color="primary">mdi-clock-outline</v-icon>
+            <strong>العمر:</strong> {{ cat.age }}
+          </div>
+          <div class="body-2 mb-1">
+            <v-icon small color="primary">mdi-palette</v-icon>
+            <strong>اللون:</strong> {{ cat.color }}
+          </div>
+          <div class="body-2 mb-2">
+            <v-icon small color="primary">mdi-weight-kilogram</v-icon>
+            <strong>الوزن:</strong> {{ cat.weight }}
+          </div>
+
+          <!-- Health Status -->
+          <v-chip x-small :color="getHealthColor(cat.healthStatus)" class="mr-1 mb-1">
+            <v-icon left x-small>mdi-heart-pulse</v-icon>
+            {{ cat.healthStatus }}
+          </v-chip>
+          <v-chip x-small color="success" v-if="cat.vaccinated" class="mr-1 mb-1">
+            <v-icon left x-small>mdi-needle</v-icon>
+            مُطعّم
+          </v-chip>
+          <v-chip x-small color="info" v-if="cat.neutered" class="mr-1 mb-1">
+            <v-icon left x-small>mdi-check</v-icon>
+            معقّم
+          </v-chip>
+
+          <!-- Description -->
+          <p class="body-2 mt-2 grey--text text--darken-2">{{ cat.description }}</p>
+
+          <!-- Adopted Badge -->
+          <v-chip v-if="cat.adopted" color="success" outlined class="mt-2">
+            <v-icon left small>mdi-check-circle</v-icon>
+            تم التبني
+          </v-chip>
+        </v-card-text>
+
+        <!-- Actions -->
+        <v-card-actions>
+          <v-btn text color="primary" @click="viewDetails(cat)">
+            <v-icon left>mdi-information</v-icon>
+            التفاصيل
+          </v-btn>
+          <v-spacer></v-spacer>
+          <v-btn icon color="error" @click="deleteCat(cat)">
+            <v-icon>mdi-delete</v-icon>
+          </v-btn>
+          <v-btn v-if="!cat.adopted" color="primary" @click="openAdoptionDialog(cat)">
+            <v-icon left>mdi-heart</v-icon>
+            تبني
+          </v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-flex>
+  </v-layout>
+
+  <!-- Benefits Section -->
+  <v-layout row wrap class="pa-6" style="background: white;">
+    <v-flex xs12 class="text-center mb-6">
+      <h2 class="display-1 primary--text">لماذا تبني قطة؟</h2>
+    </v-flex>
+    <v-flex xs12 md4 class="pa-3">
+      <v-card elevation="2" class="text-center pa-4" height="100%">
+        <v-icon size="60" color="primary">mdi-heart</v-icon>
+        <h3 class="headline mt-3 mb-2">أنقذ حياة</h3>
+        <p class="body-1 grey--text">عندما تتبنى قطة، فإنك تمنحها فرصة جديدة للحياة في منزل محب وآمن</p>
+      </v-card>
+    </v-flex>
+    <v-flex xs12 md4 class="pa-3">
+      <v-card elevation="2" class="text-center pa-4" height="100%">
+        <v-icon size="60" color="primary">mdi-emoticon-happy</v-icon>
+        <h3 class="headline mt-3 mb-2">رفيق مخلص</h3>
+        <p class="body-1 grey--text">القطط حيوانات مخلصة ومحبة، ستكون صديقك المفضل وتجلب السعادة لحياتك</p>
+      </v-card>
+    </v-flex>
+    <v-flex xs12 md4 class="pa-3">
+      <v-card elevation="2" class="text-center pa-4" height="100%">
+        <v-icon size="60" color="primary">mdi-home-heart</v-icon>
+        <h3 class="headline mt-3 mb-2">منزل مفعم بالحياة</h3>
+        <p class="body-1 grey--text">وجود قطة في المنزل يجلب البهجة والحيوية لجميع أفراد العائلة</p>
+      </v-card>
+    </v-flex>
+  </v-layout>
+
+  <!-- Cat Details Dialog -->
+  <v-dialog v-model="detailsDialog" max-width="700" v-if="selectedCat">
+    <v-card>
+      <v-card-title class="primary white--text">
+        <v-icon left color="white">mdi-cat</v-icon>
+        <span class="headline">{{ selectedCat.name }}</span>
+        <v-spacer></v-spacer>
+        <v-btn icon @click="closeDetailsDialog" color="white">
+          <v-icon>mdi-close</v-icon>
+        </v-btn>
+      </v-card-title>
+
+      <v-card-text class="pt-4">
+        <!-- Cat Image -->
+        <div :style="{
+          background: `linear-gradient(135deg, ${selectedCat.imageColor} 0%, ${selectedCat.imageColor}dd 100%)`,
+          height: '250px',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          borderRadius: '8px',
+          marginBottom: '20px'
+        }">
+          <v-icon size="120" color="white">mdi-cat</v-icon>
+        </div>
+
+        <!-- Detailed Info -->
+        <v-layout row wrap>
+          <v-flex xs6 class="pa-2">
+            <div class="caption grey--text">الاسم</div>
+            <div class="body-1"><strong>{{ selectedCat.name }}</strong></div>
+          </v-flex>
+          <v-flex xs6 class="pa-2">
+            <div class="caption grey--text">الجنس</div>
+            <div class="body-1">
+              <v-icon small :color="selectedCat.gender === 'ذكر' ? 'blue' : 'pink'">
+                {{ selectedCat.gender === 'ذكر' ? 'mdi-gender-male' : 'mdi-gender-female' }}
+              </v-icon>
+              {{ selectedCat.gender }}
+            </div>
+          </v-flex>
+          <v-flex xs6 class="pa-2">
+            <div class="caption grey--text">السلالة</div>
+            <div class="body-1">{{ selectedCat.breed }}</div>
+          </v-flex>
+          <v-flex xs6 class="pa-2">
+            <div class="caption grey--text">العمر</div>
+            <div class="body-1">{{ selectedCat.age }}</div>
+          </v-flex>
+          <v-flex xs6 class="pa-2">
+            <div class="caption grey--text">اللون</div>
+            <div class="body-1">{{ selectedCat.color }}</div>
+          </v-flex>
+          <v-flex xs6 class="pa-2">
+            <div class="caption grey--text">الوزن</div>
+            <div class="body-1">{{ selectedCat.weight }}</div>
+          </v-flex>
+          <v-flex xs12 class="pa-2">
+            <div class="caption grey--text">الحالة الصحية</div>
+            <v-chip small :color="getHealthColor(selectedCat.healthStatus)">
+              {{ selectedCat.healthStatus }}
+            </v-chip>
+          </v-flex>
+          <v-flex xs12 class="pa-2">
+            <div class="caption grey--text">التطعيمات والتعقيم</div>
+            <v-chip small color="success" class="mr-2" v-if="selectedCat.vaccinated">
+              <v-icon left x-small>mdi-check</v-icon>
+              مُطعّم
+            </v-chip>
+            <v-chip small color="info" v-if="selectedCat.neutered">
+              <v-icon left x-small>mdi-check</v-icon>
+              معقّم
+            </v-chip>
+          </v-flex>
+          <v-flex xs12 class="pa-2">
+            <div class="caption grey--text">المزاج والشخصية</div>
+            <v-chip small v-for="trait in selectedCat.temperament" :key="trait" class="mr-1 mb-1" outlined>
+              {{ trait }}
+            </v-chip>
+          </v-flex>
+          <v-flex xs12 class="pa-2">
+            <div class="caption grey--text">الوصف</div>
+            <div class="body-1">{{ selectedCat.description }}</div>
+          </v-flex>
+          <v-flex xs12 class="pa-2" v-if="selectedCat.specialNeeds !== 'لا يوجد'">
+            <div class="caption grey--text">احتياجات خاصة</div>
+            <div class="body-1">{{ selectedCat.specialNeeds }}</div>
+          </v-flex>
+          <v-flex xs12 class="pa-2">
+            <div class="caption grey--text">تاريخ الإضافة</div>
+            <div class="body-1">{{ selectedCat.dateAdded }}</div>
+          </v-flex>
+        </v-layout>
+      </v-card-text>
+
+      <v-card-actions>
+        <v-spacer></v-spacer>
+        <v-btn text @click="closeDetailsDialog">إغلاق</v-btn>
+        <v-btn v-if="!selectedCat.adopted" color="primary" @click="openAdoptionDialog(selectedCat); closeDetailsDialog()">
+          <v-icon left>mdi-heart</v-icon>
+          تبني الآن
+        </v-btn>
+      </v-card-actions>
+    </v-card>
+  </v-dialog>
+
+  <!-- Adoption Request Dialog -->
+  <v-dialog v-model="adoptionDialog" max-width="600" v-if="selectedCat">
+    <v-card>
+      <v-card-title class="primary white--text">
+        <v-icon left color="white">mdi-heart</v-icon>
+        <span class="headline">طلب تبني {{ selectedCat.name }}</span>
+        <v-spacer></v-spacer>
+        <v-btn icon @click="closeAdoptionDialog" color="white">
+          <v-icon>mdi-close</v-icon>
+        </v-btn>
+      </v-card-title>
+
+      <v-card-text class="pt-4">
+        <v-form v-model="formValid">
+          <v-text-field
+            v-model="adoptionForm.applicantName"
+            label="الاسم الكامل *"
+            :rules="[rules.required]"
+            outlined
+            prepend-inner-icon="mdi-account"
+          ></v-text-field>
+
+          <v-text-field
+            v-model="adoptionForm.email"
+            label="البريد الإلكتروني *"
+            :rules="[rules.required, rules.email]"
+            outlined
+            prepend-inner-icon="mdi-email"
+            type="email"
+          ></v-text-field>
+
+          <v-text-field
+            v-model="adoptionForm.phone"
+            label="رقم الهاتف *"
+            :rules="[rules.required, rules.phone]"
+            outlined
+            prepend-inner-icon="mdi-phone"
+          ></v-text-field>
+
+          <v-textarea
+            v-model="adoptionForm.address"
+            label="العنوان *"
+            :rules="[rules.required]"
+            outlined
+            prepend-inner-icon="mdi-home"
+            rows="2"
+          ></v-textarea>
+
+          <v-checkbox
+            v-model="adoptionForm.hasExperience"
+            label="هل لديك خبرة سابقة في تربية القطط؟"
+            color="primary"
+          ></v-checkbox>
+
+          <v-checkbox
+            v-model="adoptionForm.hasPets"
+            label="هل لديك حيوانات أليفة أخرى في المنزل؟"
+            color="primary"
+          ></v-checkbox>
+
+          <v-textarea
+            v-model="adoptionForm.reason"
+            label="لماذا تريد تبني هذا القط؟ *"
+            :rules="[rules.required]"
+            outlined
+            prepend-inner-icon="mdi-text"
+            rows="3"
+          ></v-textarea>
+        </v-form>
+      </v-card-text>
+
+      <v-card-actions>
+        <v-spacer></v-spacer>
+        <v-btn text @click="closeAdoptionDialog">إلغاء</v-btn>
+        <v-btn color="primary" :disabled="!formValid" @click="submitAdoptionRequest">
+          <v-icon left>mdi-send</v-icon>
+          إرسال الطلب
+        </v-btn>
+      </v-card-actions>
+    </v-card>
+  </v-dialog>
+
+  <!-- Add Cat Dialog -->
+  <v-dialog v-model="addCatDialog" max-width="700">
+    <v-card>
+      <v-card-title class="primary white--text">
+        <v-icon left color="white">mdi-plus</v-icon>
+        <span class="headline">إضافة قط جديد</span>
+        <v-spacer></v-spacer>
+        <v-btn icon @click="closeAddCatDialog" color="white">
+          <v-icon>mdi-close</v-icon>
+        </v-btn>
+      </v-card-title>
+
+      <v-card-text class="pt-4">
+        <v-form v-model="formValid">
+          <v-layout row wrap>
+            <v-flex xs12 md6 class="pa-2">
+              <v-text-field
+                v-model="newCat.name"
+                label="اسم القط *"
+                :rules="[rules.required]"
+                outlined
+              ></v-text-field>
+            </v-flex>
+            <v-flex xs12 md6 class="pa-2">
+              <v-select
+                v-model="newCat.gender"
+                :items="['ذكر', 'أنثى']"
+                label="الجنس *"
+                outlined
+              ></v-select>
+            </v-flex>
+            <v-flex xs12 md6 class="pa-2">
+              <v-text-field
+                v-model="newCat.breed"
+                label="السلالة *"
+                :rules="[rules.required]"
+                outlined
+              ></v-text-field>
+            </v-flex>
+            <v-flex xs12 md6 class="pa-2">
+              <v-text-field
+                v-model="newCat.age"
+                label="العمر *"
+                :rules="[rules.required]"
+                outlined
+              ></v-text-field>
+            </v-flex>
+            <v-flex xs12 md6 class="pa-2">
+              <v-text-field
+                v-model="newCat.color"
+                label="اللون *"
+                :rules="[rules.required]"
+                outlined
+              ></v-text-field>
+            </v-flex>
+            <v-flex xs12 md6 class="pa-2">
+              <v-text-field
+                v-model="newCat.weight"
+                label="الوزن *"
+                :rules="[rules.required]"
+                outlined
+              ></v-text-field>
+            </v-flex>
+            <v-flex xs12 md6 class="pa-2">
+              <v-select
+                v-model="newCat.category"
+                :items="['قطط صغيرة', 'قطط بالغة']"
+                label="الفئة *"
+                outlined
+              ></v-select>
+            </v-flex>
+            <v-flex xs12 md6 class="pa-2">
+              <v-select
+                v-model="newCat.healthStatus"
+                :items="['ممتاز', 'جيد', 'يحتاج رعاية']"
+                label="الحالة الصحية *"
+                outlined
+              ></v-select>
+            </v-flex>
+            <v-flex xs12 class="pa-2">
+              <v-textarea
+                v-model="newCat.description"
+                label="الوصف *"
+                :rules="[rules.required]"
+                outlined
+                rows="3"
+              ></v-textarea>
+            </v-flex>
+            <v-flex xs12 md6 class="pa-2">
+              <v-checkbox
+                v-model="newCat.vaccinated"
+                label="مُطعّم"
+                color="primary"
+              ></v-checkbox>
+            </v-flex>
+            <v-flex xs12 md6 class="pa-2">
+              <v-checkbox
+                v-model="newCat.neutered"
+                label="معقّم"
+                color="primary"
+              ></v-checkbox>
+            </v-flex>
+            <v-flex xs12 class="pa-2">
+              <v-text-field
+                v-model="newCat.specialNeeds"
+                label="احتياجات خاصة"
+                outlined
+                placeholder="لا يوجد"
+              ></v-text-field>
+            </v-flex>
+          </v-layout>
+        </v-form>
+      </v-card-text>
+
+      <v-card-actions>
+        <v-spacer></v-spacer>
+        <v-btn text @click="closeAddCatDialog">إلغاء</v-btn>
+        <v-btn color="primary" :disabled="!formValid" @click="addNewCat">
+          <v-icon left>mdi-check</v-icon>
+          إضافة
+        </v-btn>
+      </v-card-actions>
+    </v-card>
+  </v-dialog>
+</v-container>
