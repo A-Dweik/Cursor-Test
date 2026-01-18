@@ -1,59 +1,198 @@
-# AmmanWeather
+# تطبيق تبني القطط (Cat Adoption Application)
 
-This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 21.0.2.
+تطبيق ويب لتبني القطط مبني على Najiz.MicroTemplate باستخدام Vue.js 2.6 + Vuetify 1.5 + ASP.NET Core 3.1
 
-## Development server
+## ✨ الميزات
 
-To start a local development server, run:
+- 🐱 عرض قائمة القطط المتاحة للتبني مع الصور والتفاصيل
+- 🔍 فلترة القطط حسب العمر (صغيرة، شابة، بالغة)
+- 📝 صفحة تفاصيل لكل قطة مع معلومات كاملة
+- 💚 نموذج طلب تبني مع التحقق من البيانات
+- 🎨 تصميم متجاوب يتبع معايير Najiz Design System
+- 🌐 دعم كامل للغة العربية مع RTL
+- ♿ واجهة سهلة الاستخدام ومتاحة للجميع
 
-```bash
-ng serve
-```
+## 🏗️ البنية التقنية
 
-Once the server is running, open your browser and navigate to `http://localhost:4200/`. The application will automatically reload whenever you modify any of the source files.
+### Frontend
+- **Framework:** Vue.js 2.6.10
+- **UI Library:** Vuetify 1.5.14
+- **Language:** TypeScript 4.5.5
+- **Icons:** Material Design Icons (@mdi/font)
+- **State Management:** Vuex
+- **Routing:** Vue Router
+- **Build Tool:** Vue CLI 3.10 + Webpack
 
-## Code scaffolding
+### Backend
+- **Framework:** ASP.NET Core 3.1
+- **Language:** C# (.NET Core 3.1)
+- **Logging:** NLog
+- **Security:** Najiz.Web.Security + JWT Bearer
 
-Angular CLI includes powerful code scaffolding tools. To generate a new component, run:
+## 📦 المتطلبات
 
-```bash
-ng generate component component-name
-```
+- Node.js (v14 أو أحدث)
+- npm (v6 أو أحدث)
+- .NET Core SDK 3.1
 
-For a complete list of available schematics (such as `components`, `directives`, or `pipes`), run:
+## 🚀 التثبيت والتشغيل
 
-```bash
-ng generate --help
-```
-
-## Building
-
-To build the project run:
-
-```bash
-ng build
-```
-
-This will compile your project and store the build artifacts in the `dist/` directory. By default, the production build optimizes your application for performance and speed.
-
-## Running unit tests
-
-To execute unit tests with the [Vitest](https://vitest.dev/) test runner, use the following command:
-
-```bash
-ng test
-```
-
-## Running end-to-end tests
-
-For end-to-end (e2e) testing, run:
+### 1. تثبيت المكتبات
 
 ```bash
-ng e2e
+# تثبيت مكتبات Frontend
+npm install --legacy-peer-deps
+
+# استعادة مكتبات Backend
+dotnet restore
 ```
 
-Angular CLI does not come with an end-to-end testing framework by default. You can choose one that suits your needs.
+### 2. بناء التطبيق
 
-## Additional Resources
+```bash
+# بناء Frontend
+npm run build
 
-For more information on using the Angular CLI, including detailed command references, visit the [Angular CLI Overview and Command Reference](https://angular.dev/tools/cli) page.
+# بناء Backend
+dotnet build
+```
+
+### 3. تشغيل التطبيق
+
+```bash
+# تشغيل في وضع التطوير
+dotnet run
+
+# أو باستخدام
+dotnet watch run
+```
+
+الوصول للتطبيق: `http://localhost:5000/applications/catadoption/`
+
+## 📁 هيكل المشروع
+
+```
+CatAdoption/
+├── ClientApp/                  # Frontend (Vue.js)
+│   ├── assets/
+│   │   └── styles/            # ملفات CSS العامة
+│   ├── components/
+│   │   ├── App/               # المكون الرئيسي
+│   │   ├── Index/             # صفحة القائمة الرئيسية
+│   │   └── Cats/              # صفحة تفاصيل القطة
+│   ├── Services/
+│   │   ├── CatService.ts      # خدمة إدارة القطط
+│   │   ├── AxiosService.ts    # HTTP client
+│   │   ├── LoaderService.ts   # Loading state
+│   │   └── Models/            # TypeScript interfaces
+│   ├── plugins/               # Vue plugins
+│   ├── shared/                # Shared utilities
+│   ├── main.ts                # Entry point
+│   └── router.ts              # Vue Router config
+├── Config/                     # Configuration files
+├── Pages/                      # Razor Pages
+├── Properties/                 # Launch settings
+├── Program.cs                  # Backend entry point
+├── Startup.cs                  # Backend configuration
+└── CatAdoption.csproj         # Project file
+
+```
+
+## 🎨 معايير التصميم
+
+التطبيق يتبع معايير Najiz Design System:
+
+### الألوان
+- **Primary:** `#1B8354` (أخضر نجز)
+- **Secondary:** `#424242` (رمادي)
+- **Success:** `#1B8354` (أخضر)
+- **Error:** `#dc2626` (أحمر)
+
+### الخطوط
+- **Primary:** Almarai
+- **Secondary:** Cairo
+- **Fallback:** Segoe UI Arabic, Roboto
+
+### المكونات
+- يستخدم Najiz patterns (`.dashboardServicesCards`) للقوائم
+- Vuetify components للنماذج والحوارات
+- Material Design Icons لجميع الأيقونات
+
+## 🔒 CSP Compliance
+
+التطبيق متوافق مع Content Security Policy:
+- ✅ جميع الأيقونات محملة محلياً عبر `@mdi/font`
+- ✅ لا توجد روابط CDN محظورة
+- ✅ Google Fonts فقط (مسموح في CSP)
+- ✅ جميع المكتبات مثبتة عبر npm
+
+## 🐱 البيانات التجريبية
+
+التطبيق يحتوي على 6 قطط تجريبية:
+1. **لولو** - قطة صغيرة شيرازية
+2. **سمسم** - قط شاب بريطاني
+3. **ميمي** - قطة بالغة سيامي
+4. **فهد** - قط صغير تابي
+5. **نونو** - قطة شابة فارسية
+6. **بوسي** - قط بالغ مين كون
+
+## 📱 الصفحات
+
+### 1. الصفحة الرئيسية (`/`)
+- عرض جميع القطط المتاحة
+- فلترة حسب العمر
+- بطاقات تفاعلية مع صور
+- أزرار للتفاصيل والتبني
+
+### 2. صفحة التفاصيل (`/cat/:id`)
+- صورة كبيرة للقطة
+- معلومات كاملة (السلالة، اللون، الجنس، الحالة الصحية)
+- سمات الشخصية
+- نموذج طلب التبني
+
+## ✅ التحقق من البناء
+
+بعد تشغيل `npm run build`، تأكد من:
+
+```bash
+dist/
+├── css/
+│   ├── chunk-vendors.css      # ~483KB (يحتوي Vuetify CSS)
+│   └── index.css              # ~3KB (التطبيق)
+├── fonts/                      # Material Design Icons
+│   ├── materialdesignicons-webfont.woff2
+│   ├── materialdesignicons-webfont.woff
+│   └── ...
+├── js/
+│   ├── chunk-vendors.js       # ~900KB (Vue + Vuetify)
+│   └── index.js               # ~49KB (التطبيق)
+└── index.html                  # Entry point
+```
+
+## 🔧 استكشاف الأخطاء
+
+### الأيقونات لا تظهر
+- تأكد من تثبيت `@mdi/font`: `npm install @mdi/font`
+- تأكد من استيراد CSS في `main.ts`: `import '@mdi/font/css/materialdesignicons.css'`
+- تأكد من إعداد `iconfont: 'mdi'` في `vuetify.js`
+
+### مشاكل البناء
+- استخدم `--legacy-peer-deps`: `npm install --legacy-peer-deps`
+- امسح `node_modules` وأعد التثبيت: `rm -rf node_modules package-lock.json && npm install --legacy-peer-deps`
+
+### تداخل النصوص على الموبايل
+- تأكد من أن مجموع أعمدة Grid = 12 لكل breakpoint (xs, sm, md)
+
+## 📄 الترخيص
+
+هذا المشروع هو جزء من منصة نجز (Najiz Platform)
+
+## 👥 المساهمة
+
+تطوير: Cloud AI Agent
+القالب: Najiz.MicroTemplate
+التصميم: Najiz Design System
+
+---
+
+تم التطوير باستخدام ❤️ و ☕
