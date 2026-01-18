@@ -1,0 +1,114 @@
+<v-container fluid class="page-container">
+  <!-- Page Header -->
+  <v-layout row wrap class="mb-6">
+    <v-flex xs12>
+      <h1 class="display-1 mb-2" style="color: #1B8354">متجر الحلويات</h1>
+      <p class="subheading grey--text">اكتشف أشهى الحلويات العربية والعالمية</p>
+    </v-flex>
+  </v-layout>
+
+  <!-- Loading State -->
+  <div v-if="loading" class="text-center pa-12">
+    <v-progress-circular indeterminate color="primary"></v-progress-circular>
+    <p class="mt-4 body-1">جاري التحميل...</p>
+  </div>
+
+  <!-- Main Content -->
+  <v-layout row wrap v-else>
+    <!-- Welcome Card -->
+    <v-flex xs12 md6 class="pa-2">
+      <v-card class="card-hover" elevation="2">
+        <v-card-title class="primary white--text">
+          <v-icon left color="white">mdi-candy</v-icon>
+          <span class="headline">مرحباً بك</span>
+        </v-card-title>
+        <v-card-text class="pa-4">
+          <p class="body-1">
+            مرحباً بك في متجر الحلويات. نقدم لك أفضل الحلويات الشرقية والغربية المصنوعة بأجود المكونات.
+          </p>
+          <v-btn color="primary" class="mt-3" to="/products">
+            تصفح المنتجات
+            <v-icon right>mdi-arrow-left</v-icon>
+          </v-btn>
+        </v-card-text>
+      </v-card>
+    </v-flex>
+
+    <!-- Quick Stats Card -->
+    <v-flex xs12 md6 class="pa-2">
+      <v-card class="card-hover" elevation="2">
+        <v-card-title class="headline">إحصائيات المتجر</v-card-title>
+        <v-card-text>
+          <v-layout row wrap>
+            <v-flex xs6 class="text-center pa-4">
+              <div class="display-1 primary--text">50+</div>
+              <div class="caption grey--text">منتج متوفر</div>
+            </v-flex>
+            <v-flex xs6 class="text-center pa-4">
+              <div class="display-1 success--text">1000+</div>
+              <div class="caption grey--text">عميل سعيد</div>
+            </v-flex>
+          </v-layout>
+        </v-card-text>
+      </v-card>
+    </v-flex>
+
+    <!-- Categories -->
+    <v-flex xs12 class="pa-2 mt-4">
+      <v-card elevation="2">
+        <v-card-title class="headline">التصنيفات</v-card-title>
+        <v-divider></v-divider>
+        <v-list>
+          <v-list-item>
+            <v-list-item-avatar>
+              <v-icon color="primary">mdi-cupcake</v-icon>
+            </v-list-item-avatar>
+            <v-list-item-content>
+              <v-list-item-title>حلويات شرقية</v-list-item-title>
+              <v-list-item-subtitle>بقلاوة، كنافة، معمول وغيرها</v-list-item-subtitle>
+            </v-list-item-content>
+            <v-list-item-action>
+              <v-btn icon to="/products?category=eastern">
+                <v-icon>mdi-chevron-left</v-icon>
+              </v-btn>
+            </v-list-item-action>
+          </v-list-item>
+
+          <v-divider inset></v-divider>
+
+          <v-list-item>
+            <v-list-item-avatar>
+              <v-icon color="success">mdi-cake</v-icon>
+            </v-list-item-avatar>
+            <v-list-item-content>
+              <v-list-item-title>حلويات غربية</v-list-item-title>
+              <v-list-item-subtitle>كيك، دونات، براونيز وغيرها</v-list-item-subtitle>
+            </v-list-item-content>
+            <v-list-item-action>
+              <v-btn icon to="/products?category=western">
+                <v-icon>mdi-chevron-left</v-icon>
+              </v-btn>
+            </v-list-item-action>
+          </v-list-item>
+
+          <v-divider inset></v-divider>
+
+          <v-list-item>
+            <v-list-item-avatar>
+              <v-icon color="info">mdi-cookie</v-icon>
+            </v-list-item-avatar>
+            <v-list-item-content>
+              <v-list-item-title>بسكويت ومخبوزات</v-list-item-title>
+              <v-list-item-subtitle>بسكويت محلى، كوكيز، غريبة</v-list-item-subtitle>
+            </v-list-item-content>
+            <v-list-item-action>
+              <v-btn icon to="/products?category=cookies">
+                <v-icon>mdi-chevron-left</v-icon>
+              </v-btn>
+            </v-list-item-action>
+          </v-list-item>
+        </v-list>
+      </v-card>
+    </v-flex>
+  </v-layout>
+</v-container>

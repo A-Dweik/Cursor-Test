@@ -1,0 +1,213 @@
+<v-container fluid class="page-container">
+  <!-- Back Button -->
+  <v-layout row wrap class="mb-4">
+    <v-flex xs12>
+      <v-btn text color="primary" @click="goBack">
+        <v-icon right>mdi-arrow-right</v-icon>
+        العودة للمنتجات
+      </v-btn>
+    </v-flex>
+  </v-layout>
+
+  <!-- Loading State -->
+  <div v-if="loading" class="text-center pa-12">
+    <v-progress-circular indeterminate color="primary" size="64"></v-progress-circular>
+    <p class="mt-4 body-1">جاري تحميل المنتج...</p>
+  </div>
+
+  <!-- Product Details -->
+  <v-layout row wrap v-else-if="product">
+    <!-- Product Image -->
+    <v-flex xs12 md6 class="pa-2">
+      <v-card elevation="2">
+        <v-img 
+          :src="product.image" 
+          :alt="product.name"
+          height="400"
+          contain
+        ></v-img>
+      </v-card>
+    </v-flex>
+
+    <!-- Product Info -->
+    <v-flex xs12 md6 class="pa-2">
+      <v-card elevation="2" class="pa-4">
+        <!-- Category Badge -->
+        <v-chip small color="primary" text-color="white" class="mb-3">
+          {{ product.categoryAr }}
+        </v-chip>
+
+        <!-- Product Name -->
+        <h1 class="display-1 mb-2" style="color: #1B8354">{{ product.name }}</h1>
+        <p class="subheading grey--text mb-4">{{ product.nameEn }}</p>
+
+        <!-- Price -->
+        <div class="mb-4">
+          <span class="display-1 product-price">{{ product.price }} ريال</span>
+          <span class="caption grey--text mr-2">للكيلو</span>
+        </div>
+
+        <!-- Description -->
+        <v-divider class="mb-4"></v-divider>
+        <h3 class="title mb-2">الوصف</h3>
+        <p class="body-1 mb-4">{{ product.description }}</p>
+
+        <!-- Ingredients -->
+        <v-divider class="mb-4"></v-divider>
+        <h3 class="title mb-2">المكونات</h3>
+        <p class="body-1 mb-4">{{ product.ingredients }}</p>
+
+        <!-- Weight -->
+        <div class="mb-4">
+          <v-icon color="primary" small>mdi-weight</v-icon>
+          <span class="body-1 mr-2">الوزن: {{ product.weight }}</span>
+        </div>
+
+        <!-- Quantity Selector -->
+        <v-divider class="mb-4"></v-divider>
+        <v-layout row wrap align-center class="mb-4">
+          <v-flex xs12 sm4>
+            <h3 class="title">الكمية</h3>
+          </v-flex>
+          <v-flex xs12 sm8>
+            <v-layout row align-center>
+              <v-btn icon @click="quantity = Math.max(1, quantity - 1)">
+                <v-icon>mdi-minus</v-icon>
+              </v-btn>
+              <v-text-field
+                v-model.number="quantity"
+                type="number"
+                min="1"
+                outlined
+                dense
+                hide-details
+                class="mx-3"
+                style="max-width: 100px;"
+              ></v-text-field>
+              <v-btn icon @click="quantity++">
+                <v-icon>mdi-plus</v-icon>
+              </v-btn>
+            </v-layout>
+          </v-flex>
+        </v-layout>
+
+        <!-- Total Price -->
+        <v-card color="grey lighten-4" flat class="pa-3 mb-4">
+          <v-layout row wrap align-center>
+            <v-flex xs6>
+              <span class="title">المجموع:</span>
+            </v-flex>
+            <v-flex xs6 class="text-left">
+              <span class="display-1 product-price">{{ totalPrice }} ريال</span>
+            </v-flex>
+          </v-layout>
+        </v-card>
+
+        <!-- Action Buttons -->
+        <v-layout row wrap>
+          <v-flex xs12 sm6 class="pa-1">
+            <v-btn 
+              color="primary" 
+              large 
+              block
+              @click="addToCart"
+            >
+              <v-icon left>mdi-cart-plus</v-icon>
+              إضافة للسلة
+            </v-btn>
+          </v-flex>
+          <v-flex xs12 sm6 class="pa-1">
+            <v-btn 
+              color="success" 
+              large 
+              block
+              outlined
+            >
+              <v-icon left>mdi-phone</v-icon>
+              اطلب الآن
+            </v-btn>
+          </v-flex>
+        </v-layout>
+
+        <!-- Stock Status -->
+        <div class="mt-3 text-center">
+          <v-icon color="success" small>mdi-check-circle</v-icon>
+          <span class="caption success--text mr-1">متوفر في المخزون</span>
+        </div>
+      </v-card>
+    </v-flex>
+
+    <!-- Additional Info -->
+    <v-flex xs12 class="pa-2 mt-4">
+      <v-card elevation="2">
+        <v-tabs v-model="activeTab" color="primary">
+          <v-tab>معلومات إضافية</v-tab>
+          <v-tab>سياسة الإرجاع</v-tab>
+          <v-tab>التقييمات</v-tab>
+        </v-tabs>
+
+        <v-tabs-items v-model="activeTab">
+          <v-tab-item>
+            <v-card-text>
+              <h3 class="title mb-3">معلومات المنتج</h3>
+              <v-layout row wrap>
+                <v-flex xs12 sm6 class="pa-2">
+                  <v-icon color="primary" small>mdi-package-variant</v-icon>
+                  <span class="body-1 mr-2">التعبئة: علبة فاخرة</span>
+                </v-flex>
+                <v-flex xs12 sm6 class="pa-2">
+                  <v-icon color="primary" small>mdi-clock-outline</v-icon>
+                  <span class="body-1 mr-2">مدة الصلاحية: 7 أيام</span>
+                </v-flex>
+                <v-flex xs12 sm6 class="pa-2">
+                  <v-icon color="primary" small>mdi-thermometer</v-icon>
+                  <span class="body-1 mr-2">التخزين: في الثلاجة</span>
+                </v-flex>
+                <v-flex xs12 sm6 class="pa-2">
+                  <v-icon color="primary" small>mdi-factory</v-icon>
+                  <span class="body-1 mr-2">المنشأ: محلي</span>
+                </v-flex>
+              </v-layout>
+            </v-card-text>
+          </v-tab-item>
+
+          <v-tab-item>
+            <v-card-text>
+              <h3 class="title mb-3">سياسة الإرجاع والاستبدال</h3>
+              <p class="body-1">
+                يمكنك إرجاع أو استبدال المنتج خلال 24 ساعة من الاستلام في حالة وجود عيب في المنتج أو عدم مطابقته للمواصفات.
+              </p>
+              <ul class="body-1 mt-3">
+                <li>يجب أن يكون المنتج في حالته الأصلية</li>
+                <li>يجب إبلاغنا خلال 24 ساعة من الاستلام</li>
+                <li>سيتم فحص المنتج قبل الموافقة على الإرجاع</li>
+              </ul>
+            </v-card-text>
+          </v-tab-item>
+
+          <v-tab-item>
+            <v-card-text>
+              <h3 class="title mb-3">تقييمات العملاء</h3>
+              <v-layout row wrap align-center class="mb-4">
+                <v-flex xs12 sm6>
+                  <div class="display-1">4.8</div>
+                  <v-rating
+                    :value="4.8"
+                    color="warning"
+                    dense
+                    half-increments
+                    readonly
+                    size="20"
+                  ></v-rating>
+                  <div class="caption grey--text">بناءً على 24 تقييم</div>
+                </v-flex>
+              </v-layout>
+              <v-divider class="mb-4"></v-divider>
+              <p class="body-1 grey--text text-center">لا توجد تقييمات بعد. كن أول من يقيم هذا المنتج!</p>
+            </v-card-text>
+          </v-tab-item>
+        </v-tabs-items>
+      </v-card>
+    </v-flex>
+  </v-layout>
+</v-container>
