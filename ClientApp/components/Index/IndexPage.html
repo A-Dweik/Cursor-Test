@@ -1,0 +1,263 @@
+<!-- Title & Search Section -->
+<section class="titleSearch">
+  <div class="titleSearch__container">
+    <h1 class="titleSearch__title">متجر سامسونج للهواتف</h1>
+    <p class="titleSearch__subtitle" style="color: #6b7280; font-size: 1.1rem; margin-top: 8px;">
+      اكتشف أحدث هواتف جالكسي بأفضل الأسعار
+    </p>
+    <div class="input--search">
+      <input 
+        type="text" 
+        class="input__field" 
+        placeholder="ابحث عن هاتف..."
+        v-model="searchQuery"
+      />
+      <i class="input__icon mdi mdi-magnify"></i>
+    </div>
+  </div>
+</section>
+
+<!-- Filters Section -->
+<section class="filters">
+  <div class="filters__container">
+    <!-- Series Filters -->
+    <div class="filters__filterWrapper">
+      <input 
+        type="radio" 
+        name="series" 
+        class="filters__filterCheck" 
+        id="filter-all"
+        :checked="selectedSeries === 'all'"
+        @change="selectFilter('series', 'all')"
+      >
+      <label for="filter-all" class="filters__filterLabel"></label>
+      <div class="filters__item">
+        <span class="filters__icon mdi mdi-cellphone"></span>
+        <span class="filters__name">جميع الهواتف</span>
+      </div>
+    </div>
+
+    <div class="filters__filterWrapper">
+      <input 
+        type="radio" 
+        name="series" 
+        class="filters__filterCheck" 
+        id="filter-s-series"
+        :checked="selectedSeries === 's-series'"
+        @change="selectFilter('series', 's-series')"
+      >
+      <label for="filter-s-series" class="filters__filterLabel"></label>
+      <div class="filters__item">
+        <span class="filters__icon mdi mdi-star"></span>
+        <span class="filters__name">سلسلة S (الرائدة)</span>
+      </div>
+    </div>
+
+    <div class="filters__filterWrapper">
+      <input 
+        type="radio" 
+        name="series" 
+        class="filters__filterCheck" 
+        id="filter-z-series"
+        :checked="selectedSeries === 'z-series'"
+        @change="selectFilter('series', 'z-series')"
+      >
+      <label for="filter-z-series" class="filters__filterLabel"></label>
+      <div class="filters__item">
+        <span class="filters__icon mdi mdi-card-account-details"></span>
+        <span class="filters__name">سلسلة Z (القابلة للطي)</span>
+      </div>
+    </div>
+
+    <div class="filters__filterWrapper">
+      <input 
+        type="radio" 
+        name="series" 
+        class="filters__filterCheck" 
+        id="filter-a-series"
+        :checked="selectedSeries === 'a-series'"
+        @change="selectFilter('series', 'a-series')"
+      >
+      <label for="filter-a-series" class="filters__filterLabel"></label>
+      <div class="filters__item">
+        <span class="filters__icon mdi mdi-wallet"></span>
+        <span class="filters__name">سلسلة A (الاقتصادية)</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Price Range Filters -->
+  <div class="filters__container" style="margin-top: 16px;">
+    <div class="filters__filterWrapper">
+      <input 
+        type="radio" 
+        name="price" 
+        class="filters__filterCheck" 
+        id="filter-price-all"
+        :checked="selectedPriceRange === 'all'"
+        @change="selectFilter('price', 'all')"
+      >
+      <label for="filter-price-all" class="filters__filterLabel"></label>
+      <div class="filters__item">
+        <span class="filters__icon mdi mdi-currency-usd"></span>
+        <span class="filters__name">جميع الأسعار</span>
+      </div>
+    </div>
+
+    <div class="filters__filterWrapper">
+      <input 
+        type="radio" 
+        name="price" 
+        class="filters__filterCheck" 
+        id="filter-budget"
+        :checked="selectedPriceRange === 'budget'"
+        @change="selectFilter('price', 'budget')"
+      >
+      <label for="filter-budget" class="filters__filterLabel"></label>
+      <div class="filters__item">
+        <span class="filters__icon mdi mdi-tag"></span>
+        <span class="filters__name">أقل من 1,000 ر.س</span>
+      </div>
+    </div>
+
+    <div class="filters__filterWrapper">
+      <input 
+        type="radio" 
+        name="price" 
+        class="filters__filterCheck" 
+        id="filter-mid"
+        :checked="selectedPriceRange === 'mid'"
+        @change="selectFilter('price', 'mid')"
+      >
+      <label for="filter-mid" class="filters__filterLabel"></label>
+      <div class="filters__item">
+        <span class="filters__icon mdi mdi-tag-multiple"></span>
+        <span class="filters__name">1,000 - 3,000 ر.س</span>
+      </div>
+    </div>
+
+    <div class="filters__filterWrapper">
+      <input 
+        type="radio" 
+        name="price" 
+        class="filters__filterCheck" 
+        id="filter-premium"
+        :checked="selectedPriceRange === 'premium'"
+        @change="selectFilter('price', 'premium')"
+      >
+      <label for="filter-premium" class="filters__filterLabel"></label>
+      <div class="filters__item">
+        <span class="filters__icon mdi mdi-diamond-stone"></span>
+        <span class="filters__name">3,000 - 5,000 ر.س</span>
+      </div>
+    </div>
+
+    <div class="filters__filterWrapper">
+      <input 
+        type="radio" 
+        name="price" 
+        class="filters__filterCheck" 
+        id="filter-flagship"
+        :checked="selectedPriceRange === 'flagship'"
+        @change="selectFilter('price', 'flagship')"
+      >
+      <label for="filter-flagship" class="filters__filterLabel"></label>
+      <div class="filters__item">
+        <span class="filters__icon mdi mdi-crown"></span>
+        <span class="filters__name">أكثر من 5,000 ر.س</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Products Grid -->
+<section class="dashboardServices">
+  <!-- Loading State -->
+  <div v-if="loading" class="text-center pa-12">
+    <v-progress-circular indeterminate color="primary"></v-progress-circular>
+    <p class="mt-4 body-1">جاري تحميل الهواتف...</p>
+  </div>
+
+  <!-- Empty State -->
+  <div v-else-if="filteredPhones.length === 0" class="empty-state">
+    <i class="mdi mdi-cellphone-off empty-state-icon"></i>
+    <p class="title mt-4">لم يتم العثور على هواتف</p>
+    <p class="body-1 grey--text">جرب تغيير معايير البحث أو الفلاتر</p>
+  </div>
+
+  <!-- Products Cards -->
+  <div v-else class="dashboardServicesCards">
+    <div class="dashboardServicesCards__card" v-for="phone in filteredPhones" :key="phone.id">
+      <div class="dashboardServicesCards__cardWrapper">
+        <!-- Product Image -->
+        <div style="text-align: center; margin-bottom: 16px;">
+          <img 
+            :src="phone.imageUrl" 
+            :alt="phone.name"
+            style="max-width: 100%; height: 200px; object-fit: contain;"
+            @error="$event.target.src='https://via.placeholder.com/200x200?text=Samsung'"
+          />
+        </div>
+
+        <!-- Product Header with Badges -->
+        <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px;">
+          <h6 class="dashboardServicesCards__serviceType" style="margin-bottom: 0; flex: 1;">
+            <i class="mdi mdi-cellphone ml-2" style="color: #1B8354;"></i>
+            {{ phone.name }}
+          </h6>
+          <div style="display: flex; gap: 4px;">
+            <span v-if="phone.isNew" class="product-badge product-badge--new">جديد</span>
+            <span v-if="phone.onSale" class="product-badge product-badge--sale">خصم</span>
+          </div>
+        </div>
+
+        <!-- Product Description -->
+        <p class="dashboardServicesCards__serviceDescription">
+          {{ phone.description }}
+        </p>
+
+        <!-- Product Specs -->
+        <div style="margin: 12px 0; padding: 12px; background-color: #f9fafb; border-radius: 8px;">
+          <p style="font-size: 13px; color: #4b5563; margin-bottom: 6px;" v-for="spec in phone.specs.slice(0, 3)" :key="spec">
+            <i class="mdi mdi-check-circle" style="color: #1B8354; font-size: 14px;"></i>
+            {{ spec }}
+          </p>
+        </div>
+
+        <!-- Storage & Color Info -->
+        <div style="display: flex; gap: 16px; margin: 12px 0; font-size: 13px; color: #6b7280;">
+          <span>
+            <i class="mdi mdi-memory"></i>
+            {{ phone.storage }}
+          </span>
+          <span>
+            <i class="mdi mdi-palette"></i>
+            {{ phone.color }}
+          </span>
+        </div>
+
+        <!-- Price Section -->
+        <div style="margin: 16px 0;">
+          <div v-if="phone.onSale && phone.originalPrice" style="text-decoration: line-through; color: #9ca3af; font-size: 14px;">
+            {{ formatPrice(phone.originalPrice) }}
+          </div>
+          <div class="product-price">
+            {{ formatPrice(phone.price) }}
+          </div>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="dashboardServicesCards__buttons">
+          <a @click="viewDetails(phone)" class="dashboardServicesCards__buttonMore">
+            <i class="mdi mdi-information-outline ml-1"></i>
+            التفاصيل
+          </a>
+          <a @click="buyNow(phone)" class="dashboardServicesCards__buttonFill">
+            <i class="mdi mdi-cart ml-1"></i>
+            اشتري الآن
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>

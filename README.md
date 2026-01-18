@@ -1,59 +1,94 @@
-# AmmanWeather
+# متجر سامسونج للهواتف - Samsung Phone Store
 
-This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 21.0.2.
+A Vue.js 2.6 + TypeScript application for selling Samsung phones, built using the Najiz.MicroTemplate framework.
 
-## Development server
+## Features
 
-To start a local development server, run:
+- 📱 Complete Samsung phone catalog (Galaxy S, Z, and A series)
+- 🔍 Search and filter functionality
+- 💰 Price range filtering
+- 🏷️ Product badges (New, On Sale)
+- 📊 Product specifications display
+- 🎨 Najiz design system with RTL support
+- 🌐 Arabic-first interface
 
+## Technology Stack
+
+- **Frontend**: Vue.js 2.6 + TypeScript 4.5 + Vuetify 1.5
+- **Backend**: ASP.NET Core 3.1
+- **Build**: Vue CLI 3.10 + MSBuild
+
+## Getting Started
+
+### Prerequisites
+
+- Node.js (v12+)
+- .NET Core SDK 3.1
+- npm
+
+### Installation
+
+1. Install npm dependencies:
 ```bash
-ng serve
+npm install
 ```
 
-Once the server is running, open your browser and navigate to `http://localhost:4200/`. The application will automatically reload whenever you modify any of the source files.
-
-## Code scaffolding
-
-Angular CLI includes powerful code scaffolding tools. To generate a new component, run:
-
+2. Build the frontend:
 ```bash
-ng generate component component-name
+npm run build
 ```
 
-For a complete list of available schematics (such as `components`, `directives`, or `pipes`), run:
-
+3. Restore backend dependencies:
 ```bash
-ng generate --help
+dotnet restore
 ```
 
-## Building
-
-To build the project run:
-
+4. Run the application:
 ```bash
-ng build
+dotnet run
 ```
 
-This will compile your project and store the build artifacts in the `dist/` directory. By default, the production build optimizes your application for performance and speed.
+5. Access the app at: `http://localhost:5020/applications/samsungphones/`
 
-## Running unit tests
+## Development
 
-To execute unit tests with the [Vitest](https://vitest.dev/) test runner, use the following command:
+- **Serve frontend**: `npm run serve`
+- **Build frontend**: `npm run build`
+- **Watch mode**: `npm run watch`
+- **Lint**: `npm run lint`
 
-```bash
-ng test
+## Project Structure
+
+```
+SamsungPhones/
+├── ClientApp/           # Vue.js frontend
+│   ├── components/      # Vue components
+│   ├── Services/        # Application services
+│   ├── assets/          # Styles and assets
+│   ├── plugins/         # Vue plugins
+│   └── shared/          # Shared utilities
+├── Config/              # Backend configuration
+├── Pages/               # Razor pages
+├── Properties/          # Launch settings
+└── public/              # Static files
 ```
 
-## Running end-to-end tests
+## Products
 
-For end-to-end (e2e) testing, run:
+The store includes:
+- **Galaxy S Series**: Flagship phones (S24 Ultra, S24+, S24)
+- **Galaxy Z Series**: Foldable phones (Z Fold5, Z Flip5)
+- **Galaxy A Series**: Budget-friendly phones (A54, A34, A14)
 
-```bash
-ng e2e
-```
+## Design System
 
-Angular CLI does not come with an end-to-end testing framework by default. You can choose one that suits your needs.
+This application follows the Najiz design system with:
+- ✅ RTL (Right-to-Left) layout
+- ✅ Arabic typography (Almarai, Cairo fonts)
+- ✅ Najiz color palette (Green #1B8354 primary)
+- ✅ Najiz component patterns for product cards
+- ✅ Responsive grid layout
 
-## Additional Resources
+## License
 
-For more information on using the Angular CLI, including detailed command references, visit the [Angular CLI Overview and Command Reference](https://angular.dev/tools/cli) page.
+Najiz Framework - Saudi Arabia
