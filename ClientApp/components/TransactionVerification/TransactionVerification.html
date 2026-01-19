@@ -1,0 +1,269 @@
+<v-container fluid class="page-container">
+  <!-- Page Header -->
+  <v-layout row wrap class="mb-4">
+    <v-flex xs12>
+      <v-btn icon @click="$router.push('/')" class="mb-2">
+        <v-icon>mdi-arrow-right</v-icon>
+      </v-btn>
+      <h1 class="display-1 mb-2" style="color: #1B8354">التحقق من المعاملة المالية</h1>
+      <p class="subheading grey--text">أدخل تفاصيل المعاملة للتحقق من مصدرها</p>
+    </v-flex>
+  </v-layout>
+
+  <v-layout row wrap>
+    <!-- Verification Form -->
+    <v-flex xs12 md8 lg6 class="pa-2">
+      <v-card elevation="2">
+        <v-card-title class="primary white--text">
+          <v-icon left color="white">mdi-file-document-check</v-icon>
+          <span class="headline">بيانات المعاملة</span>
+        </v-card-title>
+
+        <v-card-text class="pa-4">
+          <v-form ref="verificationForm" v-model="valid">
+            <!-- Transaction ID -->
+            <v-text-field
+              v-model="transactionId"
+              label="رقم المعاملة"
+              :rules="[rules.transactionId]"
+              outlined
+              prepend-inner-icon="mdi-identifier"
+              class="mb-3"
+              required
+              hint="أدخل رقم المعاملة المالية"
+              persistent-hint
+            ></v-text-field>
+
+            <!-- Amount -->
+            <v-text-field
+              v-model.number="amount"
+              label="المبلغ"
+              :rules="[rules.amount]"
+              outlined
+              prepend-inner-icon="mdi-cash"
+              type="number"
+              class="mb-3"
+              required
+              hint="المبلغ بالعملة المحلية"
+              persistent-hint
+            ></v-text-field>
+
+            <!-- Source Country -->
+            <v-select
+              v-model="sourceCountry"
+              :items="supportedCountries"
+              item-text="text"
+              item-value="value"
+              label="البلد المصدر"
+              :rules="[rules.required]"
+              outlined
+              prepend-inner-icon="mdi-earth"
+              class="mb-3"
+              required
+              hint="اختر البلد المصدر للحوالة"
+              persistent-hint
+            ></v-select>
+
+            <!-- Sender Name -->
+            <v-text-field
+              v-model="senderName"
+              label="اسم المرسل"
+              :rules="[rules.name]"
+              outlined
+              prepend-inner-icon="mdi-account-arrow-left"
+              class="mb-3"
+              required
+              hint="الاسم الكامل للمرسل"
+              persistent-hint
+            ></v-text-field>
+
+            <!-- Recipient Name -->
+            <v-text-field
+              v-model="recipientName"
+              label="اسم المستلم"
+              :rules="[rules.name]"
+              outlined
+              prepend-inner-icon="mdi-account-arrow-right"
+              class="mb-3"
+              required
+              hint="الاسم الكامل للمستلم"
+              persistent-hint
+            ></v-text-field>
+          </v-form>
+        </v-card-text>
+
+        <v-card-actions class="pa-4">
+          <v-btn
+            color="primary"
+            large
+            :loading="loading"
+            :disabled="!valid || loading"
+            @click="verifyTransaction"
+            class="ml-2"
+          >
+            <v-icon left>mdi-check-decagram</v-icon>
+            التحقق من المعاملة
+          </v-btn>
+          <v-btn
+            outlined
+            large
+            @click="resetForm"
+            :disabled="loading"
+          >
+            <v-icon left>mdi-refresh</v-icon>
+            إعادة تعيين
+          </v-btn>
+          <v-spacer></v-spacer>
+          <v-btn
+            text
+            color="primary"
+            @click="viewLogs"
+          >
+            <v-icon left>mdi-history</v-icon>
+            عرض السجلات
+          </v-btn>
+        </v-card-actions>
+      </v-card>
+
+      <!-- Verification Result -->
+      <v-expand-transition>
+        <v-card v-if="showResult && verificationResult" class="mt-4" elevation="2">
+          <v-card-title :class="getStatusColor(verificationResult.status) + '--text'">
+            <v-icon 
+              :color="getStatusColor(verificationResult.status)" 
+              left
+              large
+            >
+              {{ getStatusIcon(verificationResult.status) }}
+            </v-icon>
+            <span class="headline">نتيجة التحقق</span>
+          </v-card-title>
+
+          <v-card-text class="pa-4">
+            <v-list>
+              <v-list-item>
+                <v-list-item-content>
+                  <v-list-item-title class="font-weight-bold">الحالة</v-list-item-title>
+                  <v-list-item-subtitle>
+                    <span :class="'status--rounded status--' + (verificationResult.isValid ? 'green' : 'red')">
+                      {{ verificationResult.message }}
+                    </span>
+                  </v-list-item-subtitle>
+                </v-list-item-content>
+              </v-list-item>
+
+              <v-divider></v-divider>
+
+              <v-list-item>
+                <v-list-item-content>
+                  <v-list-item-title class="font-weight-bold">رقم المعاملة</v-list-item-title>
+                  <v-list-item-subtitle>{{ transactionId }}</v-list-item-subtitle>
+                </v-list-item-content>
+              </v-list-item>
+
+              <v-divider></v-divider>
+
+              <v-list-item>
+                <v-list-item-content>
+                  <v-list-item-title class="font-weight-bold">المبلغ</v-list-item-title>
+                  <v-list-item-subtitle>{{ amount }}</v-list-item-subtitle>
+                </v-list-item-content>
+              </v-list-item>
+
+              <v-divider></v-divider>
+
+              <v-list-item>
+                <v-list-item-content>
+                  <v-list-item-title class="font-weight-bold">البلد المصدر</v-list-item-title>
+                  <v-list-item-subtitle>{{ verificationResult.sourceCountry }}</v-list-item-subtitle>
+                </v-list-item-content>
+              </v-list-item>
+
+              <v-divider></v-divider>
+
+              <v-list-item>
+                <v-list-item-content>
+                  <v-list-item-title class="font-weight-bold">تاريخ التحقق</v-list-item-title>
+                  <v-list-item-subtitle>{{ new Date(verificationResult.verifiedAt).toLocaleString('ar-SA') }}</v-list-item-subtitle>
+                </v-list-item-content>
+              </v-list-item>
+            </v-list>
+          </v-card-text>
+
+          <v-card-actions class="pa-4">
+            <v-btn color="primary" @click="resetForm">
+              <v-icon left>mdi-plus</v-icon>
+              معاملة جديدة
+            </v-btn>
+            <v-btn outlined @click="viewLogs">
+              <v-icon left>mdi-history</v-icon>
+              عرض السجلات
+            </v-btn>
+          </v-card-actions>
+        </v-card>
+      </v-expand-transition>
+    </v-flex>
+
+    <!-- Info Card -->
+    <v-flex xs12 md4 lg6 class="pa-2">
+      <v-card elevation="2" class="mb-4">
+        <v-card-title class="headline">
+          <v-icon left color="info">mdi-information</v-icon>
+          معلومات مهمة
+        </v-card-title>
+        <v-card-text>
+          <v-list>
+            <v-list-item>
+              <v-list-item-avatar>
+                <v-icon color="primary">mdi-check</v-icon>
+              </v-list-item-avatar>
+              <v-list-item-content>
+                <v-list-item-title>تحقق فوري</v-list-item-title>
+                <v-list-item-subtitle>النتائج خلال ثوانٍ</v-list-item-subtitle>
+              </v-list-item-content>
+            </v-list-item>
+
+            <v-list-item>
+              <v-list-item-avatar>
+                <v-icon color="success">mdi-shield-check</v-icon>
+              </v-list-item-avatar>
+              <v-list-item-content>
+                <v-list-item-title>آمن ومشفر</v-list-item-title>
+                <v-list-item-subtitle>جميع البيانات محمية</v-list-item-subtitle>
+              </v-list-item-content>
+            </v-list-item>
+
+            <v-list-item>
+              <v-list-item-avatar>
+                <v-icon color="warning">mdi-history</v-icon>
+              </v-list-item-avatar>
+              <v-list-item-content>
+                <v-list-item-title>سجل كامل</v-list-item-title>
+                <v-list-item-subtitle>حفظ جميع عمليات البحث</v-list-item-subtitle>
+              </v-list-item-content>
+            </v-list-item>
+          </v-list>
+        </v-card-text>
+      </v-card>
+
+      <v-card elevation="2">
+        <v-card-title class="headline">
+          <v-icon left color="primary">mdi-earth</v-icon>
+          الدول المدعومة
+        </v-card-title>
+        <v-card-text>
+          <v-chip
+            v-for="country in supportedCountries"
+            :key="country.value"
+            class="ma-1"
+            color="primary"
+            text-color="white"
+            large
+          >
+            {{ country.text }}
+          </v-chip>
+        </v-card-text>
+      </v-card>
+    </v-flex>
+  </v-layout>
+</v-container>
