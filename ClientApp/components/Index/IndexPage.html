@@ -1,0 +1,133 @@
+<v-container fluid class="page-container">
+  <!-- Hero Section -->
+  <v-layout row wrap class="mb-6">
+    <v-flex xs12 class="text-center pa-6">
+      <v-icon size="80" color="primary" class="mb-4">mdi-paw</v-icon>
+      <h1 class="display-2 mb-3" style="color: #006C35;">منصة تبني القطط والكلاب</h1>
+      <p class="headline grey--text mb-4">ساعد حيوان أليف في العثور على منزل دافئ</p>
+      <v-btn 
+        color="primary" 
+        large 
+        @click="navigateToPets"
+        class="ma-2"
+      >
+        <v-icon left>mdi-magnify</v-icon>
+        تصفح الحيوانات المتاحة
+      </v-btn>
+    </v-flex>
+  </v-layout>
+
+  <!-- Stats Section -->
+  <v-layout row wrap class="mb-4">
+    <v-flex xs12 sm4 class="pa-2">
+      <v-card class="card-hover text-center pa-4" elevation="3">
+        <v-icon size="48" color="primary" class="mb-3">mdi-cat</v-icon>
+        <div class="display-1 primary--text mb-2">25+</div>
+        <div class="title mb-1">قطط للتبني</div>
+        <div class="caption grey--text">جاهزة للانتقال لمنزل جديد</div>
+      </v-card>
+    </v-flex>
+
+    <v-flex xs12 sm4 class="pa-2">
+      <v-card class="card-hover text-center pa-4" elevation="3">
+        <v-icon size="48" color="primary" class="mb-3">mdi-dog</v-icon>
+        <div class="display-1 primary--text mb-2">30+</div>
+        <div class="title mb-1">كلاب للتبني</div>
+        <div class="caption grey--text">تبحث عن عائلة محبة</div>
+      </v-card>
+    </v-flex>
+
+    <v-flex xs12 sm4 class="pa-2">
+      <v-card class="card-hover text-center pa-4" elevation="3">
+        <v-icon size="48" color="success" class="mb-3">mdi-heart</v-icon>
+        <div class="display-1 success--text mb-2">150+</div>
+        <div class="title mb-1">تم تبنيهم</div>
+        <div class="caption grey--text">حيوانات وجدت منازل جديدة</div>
+      </v-card>
+    </v-flex>
+  </v-layout>
+
+  <!-- Features Section -->
+  <v-layout row wrap class="mb-4">
+    <v-flex xs12 class="mb-4">
+      <h2 class="display-1 text-center mb-2">لماذا التبني من منصتنا؟</h2>
+      <p class="subheading text-center grey--text">نوفر لك تجربة سهلة وآمنة لتبني حيوان أليف</p>
+    </v-flex>
+
+    <v-flex xs12 md6 class="pa-2">
+      <v-card class="card-hover" elevation="2">
+        <v-card-title class="primary white--text">
+          <v-icon left color="white">mdi-shield-check</v-icon>
+          <span class="headline">فحص طبي شامل</span>
+        </v-card-title>
+        <v-card-text class="pa-4">
+          <p class="body-1">
+            جميع الحيوانات تم فحصها من قبل أطباء بيطريين مختصين وتلقت التطعيمات اللازمة.
+          </p>
+        </v-card-text>
+      </v-card>
+    </v-flex>
+
+    <v-flex xs12 md6 class="pa-2">
+      <v-card class="card-hover" elevation="2">
+        <v-card-title class="primary white--text">
+          <v-icon left color="white">mdi-hand-heart</v-icon>
+          <span class="headline">رعاية مؤقتة ممتازة</span>
+        </v-card-title>
+        <v-card-text class="pa-4">
+          <p class="body-1">
+            يتم رعاية الحيوانات في بيئات آمنة ومحبة حتى يتم تبنيها.
+          </p>
+        </v-card-text>
+      </v-card>
+    </v-flex>
+
+    <v-flex xs12 md6 class="pa-2">
+      <v-card class="card-hover" elevation="2">
+        <v-card-title class="primary white--text">
+          <v-icon left color="white">mdi-account-check</v-icon>
+          <span class="headline">إجراءات تبني سهلة</span>
+        </v-card-title>
+        <v-card-text class="pa-4">
+          <p class="body-1">
+            نساعدك في جميع خطوات التبني بطريقة سهلة وواضحة.
+          </p>
+        </v-card-text>
+      </v-card>
+    </v-flex>
+
+    <v-flex xs12 md6 class="pa-2">
+      <v-card class="card-hover" elevation="2">
+        <v-card-title class="primary white--text">
+          <v-icon left color="white">mdi-headset</v-icon>
+          <span class="headline">دعم مستمر</span>
+        </v-card-title>
+        <v-card-text class="pa-4">
+          <p class="body-1">
+            نقدم الاستشارات والدعم حتى بعد التبني لضمان نجاح التجربة.
+          </p>
+        </v-card-text>
+      </v-card>
+    </v-flex>
+  </v-layout>
+
+  <!-- Call to Action -->
+  <v-layout row wrap class="mb-4">
+    <v-flex xs12>
+      <v-card color="primary" dark class="pa-6 text-center">
+        <v-icon size="64" class="mb-3">mdi-paw</v-icon>
+        <h2 class="display-1 mb-3">ابدأ رحلة التبني اليوم</h2>
+        <p class="headline mb-4">تصفح الحيوانات المتاحة واعثر على صديقك الجديد</p>
+        <v-btn 
+          large 
+          dark 
+          outlined 
+          @click="navigateToPets"
+        >
+          <v-icon left>mdi-arrow-left</v-icon>
+          تصفح الحيوانات
+        </v-btn>
+      </v-card>
+    </v-flex>
+  </v-layout>
+</v-container>

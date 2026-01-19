@@ -1,0 +1,286 @@
+/* Global Styles - Pet Adoption App */
+* {
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Tajawal', 'Roboto', 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
+  direction: rtl;
+  text-align: right;
+}
+
+/* KSA Flag Colors - Primary Theme */
+:root {
+  --ksa-green: #006C35;
+  --ksa-white: #FFFFFF;
+  --ksa-text: #1B5E20;
+}
+
+/* Container Spacing */
+.page-container {
+  padding: 24px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+/* Card Hover Effects */
+.card-hover {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  cursor: pointer;
+}
+
+.card-hover:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 24px rgba(0, 108, 53, 0.2) !important;
+}
+
+/* Pet Card Styles */
+.pet-card {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.pet-card-image {
+  height: 200px;
+  object-fit: cover;
+}
+
+/* Status Indicators - Sigma-S Dashboard Pattern */
+.status--text {
+  display: inline-block;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.status--rounded {
+  padding: 6px 16px;
+  border-radius: 20px;
+  display: inline-block;
+}
+
+.status--bullet {
+  position: relative;
+  padding-right: 24px;
+}
+
+.status--bullet::before {
+  content: '';
+  position: absolute;
+  right: 8px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+}
+
+/* Status colors - Following Dashboard pattern */
+.status--green {
+  color: #006C35;
+  background-color: #E8F5E9;
+}
+
+.status--green.status--bullet::before {
+  background-color: #006C35;
+}
+
+.status--red {
+  color: #D32F2F;
+  background-color: #FFEBEE;
+}
+
+.status--red.status--bullet::before {
+  background-color: #D32F2F;
+}
+
+.status--blue {
+  color: #1976D2;
+  background-color: #E3F2FD;
+}
+
+.status--blue.status--bullet::before {
+  background-color: #1976D2;
+}
+
+.status--orange {
+  color: #F57C00;
+  background-color: #FFF3E0;
+}
+
+.status--orange.status--bullet::before {
+  background-color: #F57C00;
+}
+
+/* Buttons - KSA Theme */
+.button {
+  padding: 10px 20px;
+  border: none;
+  border-radius: 4px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-decoration: none;
+  display: inline-block;
+}
+
+.button--greenFill {
+  background-color: #006C35;
+  color: white;
+}
+
+.button--greenFill:hover {
+  background-color: #004D25;
+}
+
+.button--border {
+  background-color: transparent;
+  border: 1px solid #006C35;
+  color: #006C35;
+}
+
+.button--border:hover {
+  background-color: #E8F5E9;
+}
+
+.button--smallWithRadius {
+  padding: 8px 16px;
+  border-radius: 20px;
+  font-size: 13px;
+}
+
+.button--noWidth {
+  width: auto;
+}
+
+/* Animations */
+.fade-enter-active, .fade-leave-active {
+  transition: opacity 0.3s ease;
+}
+
+.fade-enter, .fade-leave-to {
+  opacity: 0;
+}
+
+.slide-fade-enter-active {
+  transition: all 0.3s ease;
+}
+
+.slide-fade-leave-active {
+  transition: all 0.3s cubic-bezier(1, 0.5, 0.8, 1);
+}
+
+.slide-fade-enter, .slide-fade-leave-to {
+  transform: translateX(10px);
+  opacity: 0;
+}
+
+/* Loading Overlay */
+.loading-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(255, 255, 255, 0.9);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+}
+
+/* Empty State */
+.empty-state {
+  text-align: center;
+  padding: 48px 24px;
+}
+
+.empty-state-icon {
+  font-size: 64px;
+  color: #BDBDBD;
+  margin-bottom: 16px;
+}
+
+/* Responsive Utilities */
+@media (max-width: 600px) {
+  .hide-on-mobile {
+    display: none !important;
+  }
+
+  .page-container {
+    padding: 16px;
+  }
+
+  .pet-card-image {
+    height: 180px;
+  }
+}
+
+@media (min-width: 960px) {
+  .hide-on-desktop {
+    display: none !important;
+  }
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #F5F5F5;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #BDBDBD;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #9E9E9E;
+}
+
+/* Utility Classes */
+.text-truncate {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.shadow-sm {
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.shadow-md {
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.12);
+}
+
+.shadow-lg {
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
+}
+
+/* Pet Type Badge */
+.pet-type-badge {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  padding: 4px 12px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  background: rgba(255, 255, 255, 0.95);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.pet-type-badge.cat {
+  color: #7B1FA2;
+  border: 1px solid #7B1FA2;
+}
+
+.pet-type-badge.dog {
+  color: #1976D2;
+  border: 1px solid #1976D2;
+}
