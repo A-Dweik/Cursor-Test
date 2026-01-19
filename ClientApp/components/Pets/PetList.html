@@ -1,0 +1,317 @@
+<v-container fluid class="page-container">
+  <!-- Page Header -->
+  <v-layout row wrap class="mb-4">
+    <v-flex xs12>
+      <v-btn icon @click="$router.push('/')" class="mb-2">
+        <v-icon color="primary">mdi-arrow-right</v-icon>
+      </v-btn>
+      <h1 class="display-1 mb-2">تصفح الحيوانات المتاحة للتبني</h1>
+      <p class="subheading grey--text">اختر صديقك الجديد من بين الحيوانات المتاحة</p>
+    </v-flex>
+  </v-layout>
+
+  <!-- Filters -->
+  <v-layout row wrap class="mb-4">
+    <v-flex xs12 md8>
+      <v-text-field
+        v-model="searchQuery"
+        @input="applyFilters"
+        prepend-inner-icon="mdi-magnify"
+        label="البحث (الاسم، السلالة، الموقع)"
+        outlined
+        clearable
+        hide-details
+      ></v-text-field>
+    </v-flex>
+
+    <v-flex xs12 md4 class="pr-md-2">
+      <v-btn-toggle
+        v-model="selectedType"
+        @change="filterByType(selectedType)"
+        mandatory
+        class="mt-2 mt-md-0"
+      >
+        <v-btn value="all" text>
+          <v-icon left>mdi-paw</v-icon>
+          الكل
+        </v-btn>
+        <v-btn value="cat" text>
+          <v-icon left>mdi-cat</v-icon>
+          قطط
+        </v-btn>
+        <v-btn value="dog" text>
+          <v-icon left>mdi-dog</v-icon>
+          كلاب
+        </v-btn>
+      </v-btn-toggle>
+    </v-flex>
+  </v-layout>
+
+  <!-- Loading State -->
+  <div v-if="loading" class="text-center pa-12">
+    <v-progress-circular indeterminate color="primary" size="64"></v-progress-circular>
+    <p class="mt-4 body-1">جاري تحميل الحيوانات...</p>
+  </div>
+
+  <!-- Empty State -->
+  <div v-else-if="filteredPets.length === 0" class="text-center pa-12">
+    <v-icon size="64" color="grey lighten-1">mdi-paw-off</v-icon>
+    <p class="title mt-4 grey--text">لا توجد حيوانات متاحة</p>
+    <p class="body-1 grey--text">جرب تغيير الفلتر أو البحث</p>
+  </div>
+
+  <!-- Pet Grid -->
+  <v-layout row wrap v-else>
+    <v-flex 
+      v-for="pet in filteredPets" 
+      :key="pet.id" 
+      xs12 
+      sm6 
+      md4 
+      lg3 
+      class="pa-2"
+    >
+      <v-card class="pet-card card-hover" elevation="3">
+        <!-- Pet Image -->
+        <div style="position: relative;">
+          <v-img
+            :src="pet.image"
+            class="pet-card-image"
+            aspect-ratio="1"
+          >
+            <template v-slot:placeholder>
+              <v-layout fill-height align-center justify-center>
+                <v-progress-circular indeterminate color="primary"></v-progress-circular>
+              </v-layout>
+            </template>
+          </v-img>
+          <div :class="'pet-type-badge ' + pet.type">
+            {{ getTypeText(pet.type) }}
+          </div>
+        </div>
+
+        <!-- Pet Info -->
+        <v-card-title class="pb-2">
+          <v-layout row wrap align-center>
+            <v-flex xs9>
+              <h3 class="title mb-0">{{ pet.name }}</h3>
+            </v-flex>
+            <v-flex xs3 class="text-left">
+              <v-icon :color="pet.type === 'cat' ? 'purple' : 'blue'" size="28">
+                {{ getTypeIcon(pet.type) }}
+              </v-icon>
+            </v-flex>
+          </v-layout>
+        </v-card-title>
+
+        <v-card-text class="pb-2">
+          <v-layout row wrap>
+            <v-flex xs6 class="mb-2">
+              <div class="caption grey--text">السلالة</div>
+              <div class="body-2">{{ pet.breed }}</div>
+            </v-flex>
+            <v-flex xs6 class="mb-2">
+              <div class="caption grey--text">العمر</div>
+              <div class="body-2">{{ pet.age }} سنة</div>
+            </v-flex>
+            <v-flex xs6 class="mb-2">
+              <div class="caption grey--text">الجنس</div>
+              <div class="body-2">{{ getGenderText(pet.gender) }}</div>
+            </v-flex>
+            <v-flex xs6 class="mb-2">
+              <div class="caption grey--text">الموقع</div>
+              <div class="body-2">{{ pet.location }}</div>
+            </v-flex>
+          </v-layout>
+
+          <!-- Health badges -->
+          <v-layout row wrap class="mt-2">
+            <v-flex xs12>
+              <v-chip v-if="pet.vaccinated" small color="success" text-color="white" class="ml-1 mb-1">
+                <v-icon left small>mdi-check</v-icon>
+                مطعّم
+              </v-chip>
+              <v-chip v-if="pet.neutered" small color="info" text-color="white" class="mb-1">
+                <v-icon left small>mdi-check</v-icon>
+                معقّم
+              </v-chip>
+            </v-flex>
+          </v-layout>
+        </v-card-text>
+
+        <!-- Actions -->
+        <v-card-actions>
+          <v-btn text color="primary" @click="viewPetDetails(pet)">
+            <v-icon left>mdi-information</v-icon>
+            التفاصيل
+          </v-btn>
+          <v-spacer></v-spacer>
+          <v-btn color="primary" @click="openAdoptionDialog(pet)">
+            <v-icon left>mdi-heart</v-icon>
+            تبني
+          </v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-flex>
+  </v-layout>
+
+  <!-- Pet Detail Dialog -->
+  <v-dialog v-model="showDetailDialog" max-width="600px" :rtl="true">
+    <v-card v-if="selectedPet">
+      <v-img
+        :src="selectedPet.image"
+        height="300"
+      ></v-img>
+
+      <v-card-title class="headline">
+        {{ selectedPet.name }}
+        <v-spacer></v-spacer>
+        <v-icon large :color="selectedPet.type === 'cat' ? 'purple' : 'blue'">
+          {{ getTypeIcon(selectedPet.type) }}
+        </v-icon>
+      </v-card-title>
+
+      <v-card-text>
+        <v-layout row wrap class="mt-2">
+          <v-flex xs6 class="mb-3">
+            <div class="caption grey--text">النوع</div>
+            <div class="body-1">{{ getTypeText(selectedPet.type) }}</div>
+          </v-flex>
+          <v-flex xs6 class="mb-3">
+            <div class="caption grey--text">السلالة</div>
+            <div class="body-1">{{ selectedPet.breed }}</div>
+          </v-flex>
+          <v-flex xs6 class="mb-3">
+            <div class="caption grey--text">العمر</div>
+            <div class="body-1">{{ selectedPet.age }} سنة</div>
+          </v-flex>
+          <v-flex xs6 class="mb-3">
+            <div class="caption grey--text">الجنس</div>
+            <div class="body-1">{{ getGenderText(selectedPet.gender) }}</div>
+          </v-flex>
+          <v-flex xs6 class="mb-3">
+            <div class="caption grey--text">اللون</div>
+            <div class="body-1">{{ selectedPet.color }}</div>
+          </v-flex>
+          <v-flex xs6 class="mb-3">
+            <div class="caption grey--text">الموقع</div>
+            <div class="body-1">{{ selectedPet.location }}</div>
+          </v-flex>
+          <v-flex xs12 class="mb-3">
+            <div class="caption grey--text">الحالة الصحية</div>
+            <div class="body-1">{{ selectedPet.healthStatus }}</div>
+          </v-flex>
+          <v-flex xs12 class="mb-3">
+            <div class="caption grey--text">الوصف</div>
+            <div class="body-1">{{ selectedPet.description }}</div>
+          </v-flex>
+          <v-flex xs12>
+            <v-chip v-if="selectedPet.vaccinated" color="success" text-color="white" class="ml-2">
+              <v-icon left>mdi-check</v-icon>
+              مطعّم
+            </v-chip>
+            <v-chip v-if="selectedPet.neutered" color="info" text-color="white">
+              <v-icon left>mdi-check</v-icon>
+              معقّم
+            </v-chip>
+          </v-flex>
+        </v-layout>
+      </v-card-text>
+
+      <v-card-actions>
+        <v-btn text @click="closeDetailDialog">إغلاق</v-btn>
+        <v-spacer></v-spacer>
+        <v-btn color="primary" @click="openAdoptionDialog(selectedPet)">
+          <v-icon left>mdi-heart</v-icon>
+          تبني الآن
+        </v-btn>
+      </v-card-actions>
+    </v-card>
+  </v-dialog>
+
+  <!-- Adoption Form Dialog -->
+  <v-dialog v-model="showAdoptionDialog" max-width="700px" :rtl="true" persistent>
+    <v-card v-if="selectedPet">
+      <v-card-title class="headline primary white--text">
+        <v-icon left color="white">mdi-heart</v-icon>
+        طلب تبني {{ selectedPet.name }}
+      </v-card-title>
+
+      <v-card-text class="pt-4">
+        <v-form ref="adoptionFormRef" v-model="validForm">
+          <v-text-field
+            v-model="adoptionForm.adopterName"
+            label="الاسم الكامل *"
+            :rules="[rules.required]"
+            outlined
+            required
+          ></v-text-field>
+
+          <v-text-field
+            v-model="adoptionForm.adopterPhone"
+            label="رقم الجوال *"
+            :rules="[rules.required, rules.phone]"
+            outlined
+            required
+            type="tel"
+          ></v-text-field>
+
+          <v-text-field
+            v-model="adoptionForm.adopterEmail"
+            label="البريد الإلكتروني *"
+            :rules="[rules.required, rules.email]"
+            outlined
+            required
+            type="email"
+          ></v-text-field>
+
+          <v-textarea
+            v-model="adoptionForm.adopterAddress"
+            label="العنوان *"
+            :rules="[rules.required]"
+            outlined
+            required
+            rows="2"
+          ></v-textarea>
+
+          <v-checkbox
+            v-model="adoptionForm.hasExperience"
+            label="لدي خبرة سابقة في تربية الحيوانات الأليفة"
+            color="primary"
+          ></v-checkbox>
+
+          <v-checkbox
+            v-model="adoptionForm.hasOtherPets"
+            label="لدي حيوانات أليفة أخرى في المنزل"
+            color="primary"
+          ></v-checkbox>
+
+          <v-textarea
+            v-model="adoptionForm.reasonForAdoption"
+            label="لماذا تريد تبني هذا الحيوان؟ *"
+            :rules="[rules.required]"
+            outlined
+            required
+            rows="3"
+          ></v-textarea>
+        </v-form>
+      </v-card-text>
+
+      <v-card-actions>
+        <v-btn text @click="closeAdoptionDialog" :disabled="submittingAdoption">
+          إلغاء
+        </v-btn>
+        <v-spacer></v-spacer>
+        <v-btn 
+          color="primary" 
+          @click="submitAdoption"
+          :loading="submittingAdoption"
+          :disabled="!validForm"
+        >
+          <v-icon left>mdi-send</v-icon>
+          إرسال الطلب
+        </v-btn>
+      </v-card-actions>
+    </v-card>
+  </v-dialog>
+</v-container>
