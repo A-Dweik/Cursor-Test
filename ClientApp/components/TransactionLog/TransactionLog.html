@@ -1,0 +1,133 @@
+<v-container fluid class="page-container">
+  <!-- Page Header -->
+  <v-layout row wrap class="mb-4">
+    <v-flex xs12>
+      <v-btn icon @click="goHome" class="mb-2">
+        <v-icon>mdi-arrow-right</v-icon>
+      </v-btn>
+      <h1 class="display-1 mb-2" style="color: #1B8354">سجل المعاملات</h1>
+      <p class="subheading grey--text">جميع عمليات البحث والتحقق من المعاملات المالية</p>
+    </v-flex>
+  </v-layout>
+
+  <!-- Stats Cards -->
+  <v-layout row wrap class="mb-4">
+    <v-flex xs12 sm4 class="pa-2">
+      <v-card elevation="2">
+        <v-card-text class="text-center">
+          <div class="display-1 primary--text">{{ logs.length }}</div>
+          <div class="caption grey--text">إجمالي المعاملات</div>
+        </v-card-text>
+      </v-card>
+    </v-flex>
+    <v-flex xs12 sm4 class="pa-2">
+      <v-card elevation="2">
+        <v-card-text class="text-center">
+          <div class="display-1 success--text">{{ logs.filter(l => l.isValid).length }}</div>
+          <div class="caption grey--text">معاملات موثقة</div>
+        </v-card-text>
+      </v-card>
+    </v-flex>
+    <v-flex xs12 sm4 class="pa-2">
+      <v-card elevation="2">
+        <v-card-text class="text-center">
+          <div class="display-1 error--text">{{ logs.filter(l => !l.isValid).length }}</div>
+          <div class="caption grey--text">معاملات فاشلة</div>
+        </v-card-text>
+      </v-card>
+    </v-flex>
+  </v-layout>
+
+  <!-- Data Table -->
+  <v-layout row wrap>
+    <v-flex xs12>
+      <v-card elevation="2">
+        <v-card-title>
+          <v-icon left color="primary">mdi-database</v-icon>
+          <span class="headline">سجل عمليات البحث</span>
+          <v-spacer></v-spacer>
+          <v-text-field
+            v-model="search"
+            append-icon="mdi-magnify"
+            label="بحث"
+            single-line
+            hide-details
+            outlined
+            dense
+            class="ml-4"
+            style="max-width: 300px;"
+          ></v-text-field>
+        </v-card-title>
+
+        <v-data-table
+          :headers="headers"
+          :items="logs"
+          :search="search"
+          :loading="loading"
+          class="elevation-0"
+          :items-per-page="10"
+          :footer-props="{
+            'items-per-page-text': 'عدد الصفوف:',
+            'items-per-page-all-text': 'الكل'
+          }"
+          no-data-text="لا توجد سجلات"
+          loading-text="جاري التحميل..."
+        >
+          <!-- Status Column -->
+          <template v-slot:item.verificationStatus="{ item }">
+            <span :class="'status--rounded status--' + getStatusColor(item.verificationStatus)">
+              {{ getStatusText(item.verificationStatus) }}
+            </span>
+          </template>
+
+          <!-- Date Column -->
+          <template v-slot:item.searchedAt="{ item }">
+            {{ formatDate(item.searchedAt) }}
+          </template>
+
+          <!-- Amount Column -->
+          <template v-slot:item.amount="{ item }">
+            {{ item.amount.toLocaleString('ar-SA') }}
+          </template>
+        </v-data-table>
+
+        <v-card-actions class="pa-4">
+          <v-btn color="primary" @click="newVerification">
+            <v-icon left>mdi-plus</v-icon>
+            معاملة جديدة
+          </v-btn>
+          <v-btn outlined @click="loadLogs">
+            <v-icon left>mdi-refresh</v-icon>
+            تحديث
+          </v-btn>
+          <v-btn outlined color="info" @click="exportLogs" :disabled="logs.length === 0">
+            <v-icon left>mdi-download</v-icon>
+            تصدير CSV
+          </v-btn>
+          <v-spacer></v-spacer>
+          <v-btn outlined color="error" @click="clearAllLogs" :disabled="logs.length === 0">
+            <v-icon left>mdi-delete</v-icon>
+            مسح الكل
+          </v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-flex>
+  </v-layout>
+
+  <!-- Empty State -->
+  <v-layout v-if="!loading && logs.length === 0" row wrap class="mt-6">
+    <v-flex xs12>
+      <v-card elevation="2">
+        <v-card-text class="text-center pa-12">
+          <v-icon size="64" color="grey lighten-1">mdi-inbox</v-icon>
+          <p class="title mt-4 grey--text">لا توجد سجلات</p>
+          <p class="body-1 grey--text">لم يتم إجراء أي عمليات تحقق بعد</p>
+          <v-btn color="primary" class="mt-4" @click="newVerification">
+            <v-icon left>mdi-plus</v-icon>
+            ابدأ التحقق الأول
+          </v-btn>
+        </v-card-text>
+      </v-card>
+    </v-flex>
+  </v-layout>
+</v-container>
