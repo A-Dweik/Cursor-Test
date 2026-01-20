@@ -1,0 +1,9 @@
+{
+  "ApplicationInsights": {
+    "InstrumentationKey": "",
+    "ApplicationName": "ContractVerification"
+  },
+  "Recaptcha": {
+    "SiteKey": "6LcD1bkUAAAAABM1N9Iq2eDrmPzmXPWfCVFaJh4_"
+  }
+}
