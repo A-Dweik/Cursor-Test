@@ -1,0 +1,186 @@
+<!-- Title & Search Section -->
+<section class="titleSearch">
+  <div class="titleSearch__container">
+    <h1 class="titleSearch__title">تثبيت عقود بيع وإيجار العقارات</h1>
+    <div class="input--search">
+      <input 
+        type="text" 
+        class="input__field" 
+        placeholder="ابحث عن عقد برقم العقد أو الموقع..." 
+        v-model="searchQuery"
+      />
+      <i class="input__icon mdi mdi-magnify"></i>
+    </div>
+  </div>
+</section>
+
+<!-- Filters Section -->
+<section class="filters">
+  <div class="filters__container">
+    <div class="filters__filterWrapper">
+      <input 
+        type="radio" 
+        name="contractFilter" 
+        class="filters__filterCheck" 
+        id="filter-all"
+        @change="selectFilter('all')"
+        :checked="selectedFilter === 'all'"
+      >
+      <label for="filter-all" class="filters__filterLabel"></label>
+      <div class="filters__item">
+        <span class="filters__icon mdi mdi-file-document-multiple"></span>
+        <span class="filters__name">جميع العقود ({{ contracts.length }})</span>
+      </div>
+    </div>
+
+    <div class="filters__filterWrapper">
+      <input 
+        type="radio" 
+        name="contractFilter" 
+        class="filters__filterCheck" 
+        id="filter-sale"
+        @change="selectFilter('sale')"
+        :checked="selectedFilter === 'sale'"
+      >
+      <label for="filter-sale" class="filters__filterLabel"></label>
+      <div class="filters__item">
+        <span class="filters__icon mdi mdi-home-currency-usd"></span>
+        <span class="filters__name">عقود البيع ({{ saleContractsCount }})</span>
+      </div>
+    </div>
+
+    <div class="filters__filterWrapper">
+      <input 
+        type="radio" 
+        name="contractFilter" 
+        class="filters__filterCheck" 
+        id="filter-rental"
+        @change="selectFilter('rental')"
+        :checked="selectedFilter === 'rental'"
+      >
+      <label for="filter-rental" class="filters__filterLabel"></label>
+      <div class="filters__item">
+        <span class="filters__icon mdi mdi-home-city"></span>
+        <span class="filters__name">عقود الإيجار ({{ rentalContractsCount }})</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Loading State -->
+<div v-if="loading" class="text-center pa-12">
+  <v-progress-circular indeterminate color="primary" size="64"></v-progress-circular>
+  <p class="mt-4 body-1">جاري تحميل العقود...</p>
+</div>
+
+<!-- Contracts Grid -->
+<section class="dashboardServices" v-else>
+  <div class="dashboardServicesCards">
+    <!-- Empty State -->
+    <div v-if="filteredContracts.length === 0" class="empty-state" style="grid-column: 1 / -1;">
+      <i class="mdi mdi-file-document-outline empty-state-icon"></i>
+      <p class="title mt-4">لا توجد عقود</p>
+      <p class="body-1 grey--text">لم يتم العثور على عقود مطابقة للبحث</p>
+    </div>
+
+    <!-- Contract Cards -->
+    <div 
+      class="dashboardServicesCards__card" 
+      v-for="contract in filteredContracts" 
+      :key="contract.id"
+    >
+      <div class="dashboardServicesCards__cardWrapper">
+        <!-- Contract Type Badge -->
+        <h6 
+          class="dashboardServicesCards__serviceType icon" 
+          :class="getCategoryIcon(contract.type)"
+        >
+          {{ getContractTypeText(contract.type) }}
+        </h6>
+
+        <!-- Contract Details -->
+        <div class="dashboardServicesCards__serviceDescription">
+          <div style="margin-bottom: 12px;">
+            <strong style="color: #1B8354; font-size: 16px;">{{ contract.contractNumber }}</strong>
+          </div>
+          
+          <div style="margin-bottom: 8px;">
+            <i class="mdi mdi-home-variant ml-1" style="color: #1B8354;"></i>
+            <strong>نوع العقار:</strong> {{ contract.propertyType }}
+          </div>
+
+          <div style="margin-bottom: 8px;">
+            <i class="mdi mdi-map-marker ml-1" style="color: #1B8354;"></i>
+            <strong>الموقع:</strong> {{ contract.location }}
+          </div>
+
+          <div style="margin-bottom: 8px;">
+            <i class="mdi mdi-currency-usd ml-1" style="color: #1B8354;"></i>
+            <strong>السعر:</strong> {{ contract.price }}
+          </div>
+
+          <div style="margin-bottom: 8px;" v-if="contract.type === 'sale'">
+            <i class="mdi mdi-account ml-1" style="color: #1B8354;"></i>
+            <strong>البائع:</strong> {{ contract.seller }}
+          </div>
+
+          <div style="margin-bottom: 8px;" v-if="contract.type === 'sale'">
+            <i class="mdi mdi-account-check ml-1" style="color: #1B8354;"></i>
+            <strong>المشتري:</strong> {{ contract.buyer }}
+          </div>
+
+          <div style="margin-bottom: 8px;" v-if="contract.type === 'rental'">
+            <i class="mdi mdi-account ml-1" style="color: #1B8354;"></i>
+            <strong>المالك:</strong> {{ contract.owner }}
+          </div>
+
+          <div style="margin-bottom: 8px;" v-if="contract.type === 'rental'">
+            <i class="mdi mdi-account-check ml-1" style="color: #1B8354;"></i>
+            <strong>المستأجر:</strong> {{ contract.tenant }}
+          </div>
+
+          <div style="margin-bottom: 8px;">
+            <i class="mdi mdi-calendar ml-1" style="color: #1B8354;"></i>
+            <strong>التاريخ:</strong> {{ contract.date }}
+          </div>
+
+          <div style="margin-top: 12px;">
+            <span :class="getStatusClasses(contract.status)">
+              {{ getStatusText(contract.status) }}
+            </span>
+          </div>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="dashboardServicesCards__buttons">
+          <a 
+            @click.prevent="viewContract(contract)" 
+            class="dashboardServicesCards__buttonMore"
+          >
+            <i class="mdi mdi-eye ml-1"></i>
+            عرض التفاصيل
+          </a>
+          
+          <a 
+            v-if="contract.status === 'pending'"
+            @click.prevent="verifyContract(contract)" 
+            class="dashboardServicesCards__buttonFill"
+          >
+            <i class="mdi mdi-check-circle ml-1"></i>
+            تثبيت العقد
+          </a>
+
+          <a 
+            v-if="contract.status === 'pending'"
+            @click.prevent="rejectContract(contract)" 
+            class="dashboardServicesCards__buttonMore"
+            style="color: #dc2626;"
+          >
+            <i class="mdi mdi-close-circle ml-1"></i>
+            رفض
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
