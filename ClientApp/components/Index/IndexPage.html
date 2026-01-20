@@ -1,0 +1,211 @@
+<div>
+  <!-- Title & Search Section (Najiz Pattern) -->
+  <section class="titleSearch">
+    <div class="titleSearch__container">
+      <h1 class="titleSearch__title">توثيق عقود بيع المنازل</h1>
+      <div class="input--search">
+        <input
+          type="text"
+          class="input__field"
+          placeholder="ابحث عن عقد برقم العقد، العنوان، أو الأطراف..."
+          v-model="searchQuery"
+          @input="searchContracts"
+        />
+        <i class="input__icon mdi mdi-magnify"></i>
+      </div>
+    </div>
+  </section>
+
+  <!-- Filters Section (Najiz Pattern) -->
+  <section class="filters">
+    <div class="filters__container">
+      <!-- All Filter -->
+      <div class="filters__filterWrapper">
+        <input
+          type="radio"
+          name="filter"
+          class="filters__filterCheck"
+          id="filter-all"
+          :checked="selectedStatus === 'all'"
+          @change="filterByStatus('all')"
+        />
+        <label for="filter-all" class="filters__filterLabel"></label>
+        <div class="filters__item">
+          <span class="filters__icon mdi mdi-file-document-multiple"></span>
+          <span class="filters__name">جميع العقود ({{ contracts.length }})</span>
+        </div>
+      </div>
+
+      <!-- Pending Filter -->
+      <div class="filters__filterWrapper">
+        <input
+          type="radio"
+          name="filter"
+          class="filters__filterCheck"
+          id="filter-pending"
+          :checked="selectedStatus === 'pending'"
+          @change="filterByStatus('pending')"
+        />
+        <label for="filter-pending" class="filters__filterLabel"></label>
+        <div class="filters__item">
+          <span class="filters__icon mdi mdi-clock-outline"></span>
+          <span class="filters__name">قيد المراجعة ({{ pendingCount }})</span>
+        </div>
+      </div>
+
+      <!-- Verified Filter -->
+      <div class="filters__filterWrapper">
+        <input
+          type="radio"
+          name="filter"
+          class="filters__filterCheck"
+          id="filter-verified"
+          :checked="selectedStatus === 'verified'"
+          @change="filterByStatus('verified')"
+        />
+        <label for="filter-verified" class="filters__filterLabel"></label>
+        <div class="filters__item">
+          <span class="filters__icon mdi mdi-check-circle"></span>
+          <span class="filters__name">موثق ({{ verifiedCount }})</span>
+        </div>
+      </div>
+
+      <!-- Rejected Filter -->
+      <div class="filters__filterWrapper">
+        <input
+          type="radio"
+          name="filter"
+          class="filters__filterCheck"
+          id="filter-rejected"
+          :checked="selectedStatus === 'rejected'"
+          @change="filterByStatus('rejected')"
+        />
+        <label for="filter-rejected" class="filters__filterLabel"></label>
+        <div class="filters__item">
+          <span class="filters__icon mdi mdi-close-circle"></span>
+          <span class="filters__name">مرفوض ({{ rejectedCount }})</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Contracts Grid (Najiz Pattern) -->
+  <section class="dashboardServices">
+    <!-- Loading State -->
+    <div v-if="loading" class="text-center pa-12">
+      <v-progress-circular indeterminate color="primary" size="64"></v-progress-circular>
+      <p class="mt-4 body-1">جاري التحميل...</p>
+    </div>
+
+    <!-- Empty State -->
+    <div v-else-if="filteredContracts.length === 0" class="empty-state">
+      <i class="mdi mdi-file-document-outline empty-state-icon"></i>
+      <p class="title mt-4">لا توجد عقود</p>
+      <p class="body-1 grey--text">لم يتم العثور على عقود تطابق معايير البحث</p>
+    </div>
+
+    <!-- Contracts Cards -->
+    <div v-else class="dashboardServicesCards">
+      <div
+        class="dashboardServicesCards__card"
+        v-for="contract in filteredContracts"
+        :key="contract.id"
+      >
+        <div class="dashboardServicesCards__cardWrapper">
+          <!-- Contract Header with ID and Status -->
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+            <h6 class="dashboardServicesCards__serviceType" style="margin: 0;">
+              <i class="mdi mdi-file-document ml-2" style="color: #1B8354;"></i>
+              {{ contract.id }}
+            </h6>
+            <span :class="getStatusClasses(contract.status)">
+              {{ getStatusText(contract.status) }}
+            </span>
+          </div>
+
+          <!-- Property Type Badge -->
+          <div style="margin-bottom: 12px;">
+            <span style="
+              background-color: #f0fdf4;
+              color: #1B8354;
+              padding: 4px 12px;
+              border-radius: 12px;
+              font-size: 13px;
+              font-weight: 500;
+            ">
+              <i class="mdi mdi-home-outline" style="font-size: 14px;"></i>
+              {{ contract.propertyType }}
+            </span>
+          </div>
+
+          <!-- Contract Details -->
+          <div class="dashboardServicesCards__serviceDescription">
+            <div style="margin-bottom: 8px;">
+              <strong style="color: #1f2937;">العنوان:</strong>
+              <span style="color: #4b5563;">{{ contract.propertyAddress }}</span>
+            </div>
+
+            <div style="margin-bottom: 8px;">
+              <strong style="color: #1f2937;">البائع:</strong>
+              <span style="color: #4b5563;">{{ contract.sellerName }}</span>
+            </div>
+
+            <div style="margin-bottom: 8px;">
+              <strong style="color: #1f2937;">المشتري:</strong>
+              <span style="color: #4b5563;">{{ contract.buyerName }}</span>
+            </div>
+
+            <div style="margin-bottom: 8px;">
+              <strong style="color: #1f2937;">قيمة العقد:</strong>
+              <span style="color: #1B8354; font-weight: 600; font-size: 16px;">
+                {{ formatPrice(contract.price) }}
+              </span>
+            </div>
+
+            <div style="margin-bottom: 8px;">
+              <strong style="color: #1f2937;">تاريخ العقد:</strong>
+              <span style="color: #4b5563;">{{ contract.contractDate }}</span>
+            </div>
+          </div>
+
+          <!-- Action Buttons -->
+          <div class="dashboardServicesCards__buttons" style="margin-top: 16px;">
+            <a @click="viewContract(contract)" class="dashboardServicesCards__buttonMore">
+              <i class="mdi mdi-eye ml-1"></i>
+              التفاصيل
+            </a>
+            
+            <a
+              v-if="contract.status === 'pending'"
+              @click="verifyContract(contract)"
+              class="dashboardServicesCards__buttonFill"
+            >
+              <i class="mdi mdi-check-circle ml-1"></i>
+              توثيق
+            </a>
+
+            <a
+              v-if="contract.status === 'pending'"
+              @click="rejectContract(contract)"
+              style="
+                background-color: transparent;
+                color: #dc2626;
+                border: 1px solid #dc2626;
+                padding: 10px 24px;
+                border-radius: 8px;
+                cursor: pointer;
+                transition: all 0.2s ease;
+                text-decoration: none;
+                display: inline-block;
+                font-weight: 500;
+              "
+            >
+              <i class="mdi mdi-close-circle ml-1"></i>
+              رفض
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+</div>
