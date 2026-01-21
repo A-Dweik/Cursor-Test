@@ -1,186 +1,568 @@
-<!-- Title & Search Section -->
-<section class="titleSearch">
-  <div class="titleSearch__container">
-    <h1 class="titleSearch__title">تثبيت عقود بيع وإيجار العقارات</h1>
-    <div class="input--search">
-      <input 
-        type="text" 
-        class="input__field" 
-        placeholder="ابحث عن عقد برقم العقد أو الموقع..." 
+<div class="contract-verification-page">
+  <!-- Loading Overlay -->
+  <div v-if="loading" class="loading-overlay">
+    <div class="loading-spinner">
+      <i class="mdi mdi-loading mdi-spin" style="font-size: 48px; color: #1B8354;"></i>
+      <p style="margin-top: 16px; color: #333;">جاري تحميل العقود...</p>
+    </div>
+  </div>
+
+  <!-- Page Header -->
+  <section class="page-header">
+    <div class="page-header__content">
+      <div class="page-header__title-section">
+        <h1 class="page-header__title">
+          <i class="mdi mdi-file-document-check"></i>
+          تثبيت عقود بيع وإيجار العقارات
+        </h1>
+        <p class="page-header__subtitle">إدارة ومراجعة عقود البيع والإيجار العقارية</p>
+      </div>
+      <button class="btn-add-contract" @click="openAddModal">
+        <i class="mdi mdi-plus-circle"></i>
+        إضافة عقد جديد
+      </button>
+    </div>
+  </section>
+
+  <!-- Statistics Section -->
+  <section class="statistics-section">
+    <div class="statistics-grid">
+      <div class="stat-card stat-card--total">
+        <div class="stat-card__icon">
+          <i class="mdi mdi-file-document-multiple"></i>
+        </div>
+        <div class="stat-card__content">
+          <span class="stat-card__value">{{ totalContracts }}</span>
+          <span class="stat-card__label">إجمالي العقود</span>
+        </div>
+      </div>
+
+      <div class="stat-card stat-card--pending">
+        <div class="stat-card__icon">
+          <i class="mdi mdi-clock-outline"></i>
+        </div>
+        <div class="stat-card__content">
+          <span class="stat-card__value">{{ pendingContracts }}</span>
+          <span class="stat-card__label">قيد المراجعة</span>
+        </div>
+      </div>
+
+      <div class="stat-card stat-card--verified">
+        <div class="stat-card__icon">
+          <i class="mdi mdi-check-circle"></i>
+        </div>
+        <div class="stat-card__content">
+          <span class="stat-card__value">{{ verifiedContracts }}</span>
+          <span class="stat-card__label">موثق</span>
+        </div>
+      </div>
+
+      <div class="stat-card stat-card--rejected">
+        <div class="stat-card__icon">
+          <i class="mdi mdi-close-circle"></i>
+        </div>
+        <div class="stat-card__content">
+          <span class="stat-card__value">{{ rejectedContracts }}</span>
+          <span class="stat-card__label">مرفوض</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Search & Filter Section -->
+  <section class="search-filter-section">
+    <div class="search-box">
+      <i class="mdi mdi-magnify search-box__icon"></i>
+      <input
+        type="text"
+        class="search-box__input"
+        placeholder="ابحث برقم العقد، الموقع، أو نوع العقار..."
         v-model="searchQuery"
       />
-      <i class="input__icon mdi mdi-magnify"></i>
     </div>
-  </div>
-</section>
 
-<!-- Filters Section -->
-<section class="filters">
-  <div class="filters__container">
-    <div class="filters__filterWrapper">
-      <input 
-        type="radio" 
-        name="contractFilter" 
-        class="filters__filterCheck" 
-        id="filter-all"
-        @change="selectFilter('all')"
-        :checked="selectedFilter === 'all'"
+    <div class="filter-tabs">
+      <button
+        class="filter-tab"
+        :class="{ 'filter-tab--active': selectedFilter === 'all' }"
+        @click="selectFilter('all')"
       >
-      <label for="filter-all" class="filters__filterLabel"></label>
-      <div class="filters__item">
-        <span class="filters__icon mdi mdi-file-document-multiple"></span>
-        <span class="filters__name">جميع العقود ({{ contracts.length }})</span>
-      </div>
-    </div>
-
-    <div class="filters__filterWrapper">
-      <input 
-        type="radio" 
-        name="contractFilter" 
-        class="filters__filterCheck" 
-        id="filter-sale"
-        @change="selectFilter('sale')"
-        :checked="selectedFilter === 'sale'"
+        <i class="mdi mdi-file-document-multiple"></i>
+        الكل ({{ totalContracts }})
+      </button>
+      <button
+        class="filter-tab"
+        :class="{ 'filter-tab--active': selectedFilter === 'sale' }"
+        @click="selectFilter('sale')"
       >
-      <label for="filter-sale" class="filters__filterLabel"></label>
-      <div class="filters__item">
-        <span class="filters__icon mdi mdi-home-currency-usd"></span>
-        <span class="filters__name">عقود البيع ({{ saleContractsCount }})</span>
-      </div>
-    </div>
-
-    <div class="filters__filterWrapper">
-      <input 
-        type="radio" 
-        name="contractFilter" 
-        class="filters__filterCheck" 
-        id="filter-rental"
-        @change="selectFilter('rental')"
-        :checked="selectedFilter === 'rental'"
+        <i class="mdi mdi-home-currency-usd"></i>
+        عقود البيع ({{ saleContractsCount }})
+      </button>
+      <button
+        class="filter-tab"
+        :class="{ 'filter-tab--active': selectedFilter === 'rental' }"
+        @click="selectFilter('rental')"
       >
-      <label for="filter-rental" class="filters__filterLabel"></label>
-      <div class="filters__item">
-        <span class="filters__icon mdi mdi-home-city"></span>
-        <span class="filters__name">عقود الإيجار ({{ rentalContractsCount }})</span>
-      </div>
+        <i class="mdi mdi-home-city"></i>
+        عقود الإيجار ({{ rentalContractsCount }})
+      </button>
     </div>
-  </div>
-</section>
+  </section>
 
-<!-- Loading State -->
-<div v-if="loading" class="text-center pa-12">
-  <v-progress-circular indeterminate color="primary" size="64"></v-progress-circular>
-  <p class="mt-4 body-1">جاري تحميل العقود...</p>
-</div>
-
-<!-- Contracts Grid -->
-<section class="dashboardServices" v-else>
-  <div class="dashboardServicesCards">
+  <!-- Contracts Grid -->
+  <section class="contracts-section">
     <!-- Empty State -->
-    <div v-if="filteredContracts.length === 0" class="empty-state" style="grid-column: 1 / -1;">
-      <i class="mdi mdi-file-document-outline empty-state-icon"></i>
-      <p class="title mt-4">لا توجد عقود</p>
-      <p class="body-1 grey--text">لم يتم العثور على عقود مطابقة للبحث</p>
+    <div v-if="filteredContracts.length === 0 && !loading" class="empty-state">
+      <i class="mdi mdi-file-document-outline empty-state__icon"></i>
+      <h3 class="empty-state__title">لا توجد عقود</h3>
+      <p class="empty-state__text">لم يتم العثور على عقود مطابقة للبحث</p>
+      <button class="btn-add-contract btn-add-contract--secondary" @click="openAddModal">
+        <i class="mdi mdi-plus"></i>
+        إضافة عقد جديد
+      </button>
     </div>
 
-    <!-- Contract Cards -->
-    <div 
-      class="dashboardServicesCards__card" 
-      v-for="contract in filteredContracts" 
-      :key="contract.id"
-    >
-      <div class="dashboardServicesCards__cardWrapper">
-        <!-- Contract Type Badge -->
-        <h6 
-          class="dashboardServicesCards__serviceType icon" 
-          :class="getCategoryIcon(contract.type)"
-        >
-          {{ getContractTypeText(contract.type) }}
-        </h6>
-
-        <!-- Contract Details -->
-        <div class="dashboardServicesCards__serviceDescription">
-          <div style="margin-bottom: 12px;">
-            <strong style="color: #1B8354; font-size: 16px;">{{ contract.contractNumber }}</strong>
+    <!-- Contracts Grid -->
+    <div class="contracts-grid" v-else>
+      <div
+        class="contract-card"
+        v-for="contract in filteredContracts"
+        :key="contract.id"
+        @click="openDetailModal(contract)"
+      >
+        <!-- Card Header -->
+        <div class="contract-card__header">
+          <div class="contract-card__type" :class="contract.type === 'sale' ? 'contract-card__type--sale' : 'contract-card__type--rental'">
+            <i :class="getContractTypeIcon(contract.type)"></i>
+            {{ getContractTypeText(contract.type) }}
           </div>
-          
-          <div style="margin-bottom: 8px;">
-            <i class="mdi mdi-home-variant ml-1" style="color: #1B8354;"></i>
-            <strong>نوع العقار:</strong> {{ contract.propertyType }}
-          </div>
+          <span :class="getStatusClasses(contract.status)">
+            {{ getStatusText(contract.status) }}
+          </span>
+        </div>
 
-          <div style="margin-bottom: 8px;">
-            <i class="mdi mdi-map-marker ml-1" style="color: #1B8354;"></i>
-            <strong>الموقع:</strong> {{ contract.location }}
-          </div>
+        <!-- Card Body -->
+        <div class="contract-card__body">
+          <div class="contract-card__number">{{ contract.contractNumber }}</div>
 
-          <div style="margin-bottom: 8px;">
-            <i class="mdi mdi-currency-usd ml-1" style="color: #1B8354;"></i>
-            <strong>السعر:</strong> {{ contract.price }}
-          </div>
-
-          <div style="margin-bottom: 8px;" v-if="contract.type === 'sale'">
-            <i class="mdi mdi-account ml-1" style="color: #1B8354;"></i>
-            <strong>البائع:</strong> {{ contract.seller }}
+          <div class="contract-card__info">
+            <div class="contract-card__info-item">
+              <i class="mdi mdi-home-variant"></i>
+              <span>{{ contract.propertyType }}</span>
+            </div>
+            <div class="contract-card__info-item">
+              <i class="mdi mdi-map-marker"></i>
+              <span>{{ contract.location }}</span>
+            </div>
+            <div class="contract-card__info-item contract-card__info-item--price">
+              <i class="mdi mdi-cash"></i>
+              <span>{{ contract.price }}</span>
+            </div>
           </div>
 
-          <div style="margin-bottom: 8px;" v-if="contract.type === 'sale'">
-            <i class="mdi mdi-account-check ml-1" style="color: #1B8354;"></i>
-            <strong>المشتري:</strong> {{ contract.buyer }}
+          <div class="contract-card__parties">
+            <div class="contract-card__party" v-if="contract.type === 'sale'">
+              <span class="contract-card__party-label">البائع:</span>
+              <span class="contract-card__party-name">{{ contract.seller }}</span>
+            </div>
+            <div class="contract-card__party" v-if="contract.type === 'sale'">
+              <span class="contract-card__party-label">المشتري:</span>
+              <span class="contract-card__party-name">{{ contract.buyer }}</span>
+            </div>
+            <div class="contract-card__party" v-if="contract.type === 'rental'">
+              <span class="contract-card__party-label">المالك:</span>
+              <span class="contract-card__party-name">{{ contract.owner }}</span>
+            </div>
+            <div class="contract-card__party" v-if="contract.type === 'rental'">
+              <span class="contract-card__party-label">المستأجر:</span>
+              <span class="contract-card__party-name">{{ contract.tenant }}</span>
+            </div>
           </div>
 
-          <div style="margin-bottom: 8px;" v-if="contract.type === 'rental'">
-            <i class="mdi mdi-account ml-1" style="color: #1B8354;"></i>
-            <strong>المالك:</strong> {{ contract.owner }}
-          </div>
-
-          <div style="margin-bottom: 8px;" v-if="contract.type === 'rental'">
-            <i class="mdi mdi-account-check ml-1" style="color: #1B8354;"></i>
-            <strong>المستأجر:</strong> {{ contract.tenant }}
-          </div>
-
-          <div style="margin-bottom: 8px;">
-            <i class="mdi mdi-calendar ml-1" style="color: #1B8354;"></i>
-            <strong>التاريخ:</strong> {{ contract.date }}
-          </div>
-
-          <div style="margin-top: 12px;">
-            <span :class="getStatusClasses(contract.status)">
-              {{ getStatusText(contract.status) }}
-            </span>
+          <div class="contract-card__date">
+            <i class="mdi mdi-calendar"></i>
+            {{ formatDate(contract.date) }}
           </div>
         </div>
 
-        <!-- Action Buttons -->
-        <div class="dashboardServicesCards__buttons">
-          <a 
-            @click.prevent="viewContract(contract)" 
-            class="dashboardServicesCards__buttonMore"
-          >
-            <i class="mdi mdi-eye ml-1"></i>
-            عرض التفاصيل
-          </a>
-          
-          <a 
+        <!-- Card Actions -->
+        <div class="contract-card__actions" @click.stop>
+          <button class="btn-action btn-action--view" @click="openDetailModal(contract)">
+            <i class="mdi mdi-eye"></i>
+            عرض
+          </button>
+          <button
             v-if="contract.status === 'pending'"
-            @click.prevent="verifyContract(contract)" 
-            class="dashboardServicesCards__buttonFill"
+            class="btn-action btn-action--verify"
+            @click="openConfirmModal(contract, 'verify')"
           >
-            <i class="mdi mdi-check-circle ml-1"></i>
-            تثبيت العقد
-          </a>
-
-          <a 
+            <i class="mdi mdi-check"></i>
+            تثبيت
+          </button>
+          <button
             v-if="contract.status === 'pending'"
-            @click.prevent="rejectContract(contract)" 
-            class="dashboardServicesCards__buttonMore"
-            style="color: #dc2626;"
+            class="btn-action btn-action--reject"
+            @click="openConfirmModal(contract, 'reject')"
           >
-            <i class="mdi mdi-close-circle ml-1"></i>
+            <i class="mdi mdi-close"></i>
             رفض
-          </a>
+          </button>
         </div>
       </div>
     </div>
+  </section>
+
+  <!-- Contract Detail Modal -->
+  <div class="modal-overlay" v-if="showDetailModal" @click="closeDetailModal">
+    <div class="modal modal--large" @click.stop>
+      <div class="modal__header">
+        <h2 class="modal__title">
+          <i class="mdi mdi-file-document"></i>
+          تفاصيل العقد
+        </h2>
+        <button class="modal__close" @click="closeDetailModal">
+          <i class="mdi mdi-close"></i>
+        </button>
+      </div>
+
+      <div class="modal__body" v-if="selectedContract">
+        <div class="contract-detail">
+          <!-- Contract Header Info -->
+          <div class="contract-detail__header">
+            <div class="contract-detail__number">{{ selectedContract.contractNumber }}</div>
+            <div class="contract-detail__badges">
+              <span :class="selectedContract.type === 'sale' ? 'badge badge--sale' : 'badge badge--rental'">
+                <i :class="getContractTypeIcon(selectedContract.type)"></i>
+                {{ getContractTypeText(selectedContract.type) }}
+              </span>
+              <span :class="getStatusClasses(selectedContract.status)">
+                {{ getStatusText(selectedContract.status) }}
+              </span>
+            </div>
+          </div>
+
+          <!-- Property Information -->
+          <div class="contract-detail__section">
+            <h3 class="contract-detail__section-title">
+              <i class="mdi mdi-home"></i>
+              معلومات العقار
+            </h3>
+            <div class="contract-detail__grid">
+              <div class="contract-detail__item">
+                <span class="contract-detail__label">نوع العقار</span>
+                <span class="contract-detail__value">{{ selectedContract.propertyType }}</span>
+              </div>
+              <div class="contract-detail__item">
+                <span class="contract-detail__label">الموقع</span>
+                <span class="contract-detail__value">{{ selectedContract.location }}</span>
+              </div>
+              <div class="contract-detail__item">
+                <span class="contract-detail__label">المساحة</span>
+                <span class="contract-detail__value">{{ selectedContract.area || 'غير محدد' }}</span>
+              </div>
+              <div class="contract-detail__item">
+                <span class="contract-detail__label">السعر</span>
+                <span class="contract-detail__value contract-detail__value--price">{{ selectedContract.price }}</span>
+              </div>
+            </div>
+            <div class="contract-detail__description" v-if="selectedContract.description">
+              <span class="contract-detail__label">الوصف</span>
+              <p class="contract-detail__value">{{ selectedContract.description }}</p>
+            </div>
+          </div>
+
+          <!-- Parties Information -->
+          <div class="contract-detail__section">
+            <h3 class="contract-detail__section-title">
+              <i class="mdi mdi-account-group"></i>
+              أطراف العقد
+            </h3>
+            <div class="contract-detail__parties">
+              <div class="contract-detail__party" v-if="selectedContract.type === 'sale'">
+                <div class="contract-detail__party-icon">
+                  <i class="mdi mdi-account"></i>
+                </div>
+                <div class="contract-detail__party-info">
+                  <span class="contract-detail__party-role">البائع</span>
+                  <span class="contract-detail__party-name">{{ selectedContract.seller }}</span>
+                </div>
+              </div>
+              <div class="contract-detail__party" v-if="selectedContract.type === 'sale'">
+                <div class="contract-detail__party-icon contract-detail__party-icon--secondary">
+                  <i class="mdi mdi-account-check"></i>
+                </div>
+                <div class="contract-detail__party-info">
+                  <span class="contract-detail__party-role">المشتري</span>
+                  <span class="contract-detail__party-name">{{ selectedContract.buyer }}</span>
+                </div>
+              </div>
+              <div class="contract-detail__party" v-if="selectedContract.type === 'rental'">
+                <div class="contract-detail__party-icon">
+                  <i class="mdi mdi-account"></i>
+                </div>
+                <div class="contract-detail__party-info">
+                  <span class="contract-detail__party-role">المالك</span>
+                  <span class="contract-detail__party-name">{{ selectedContract.owner }}</span>
+                </div>
+              </div>
+              <div class="contract-detail__party" v-if="selectedContract.type === 'rental'">
+                <div class="contract-detail__party-icon contract-detail__party-icon--secondary">
+                  <i class="mdi mdi-account-check"></i>
+                </div>
+                <div class="contract-detail__party-info">
+                  <span class="contract-detail__party-role">المستأجر</span>
+                  <span class="contract-detail__party-name">{{ selectedContract.tenant }}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Date Information -->
+          <div class="contract-detail__section">
+            <h3 class="contract-detail__section-title">
+              <i class="mdi mdi-calendar"></i>
+              معلومات التاريخ
+            </h3>
+            <div class="contract-detail__date">
+              <span class="contract-detail__label">تاريخ العقد</span>
+              <span class="contract-detail__value">{{ formatDate(selectedContract.date) }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="modal__footer">
+        <button class="btn btn--secondary" @click="closeDetailModal">
+          إغلاق
+        </button>
+        <button class="btn btn--primary" @click="printContract">
+          <i class="mdi mdi-printer"></i>
+          طباعة
+        </button>
+        <button
+          v-if="selectedContract && selectedContract.status === 'pending'"
+          class="btn btn--success"
+          @click="openConfirmModal(selectedContract, 'verify'); closeDetailModal();"
+        >
+          <i class="mdi mdi-check-circle"></i>
+          تثبيت العقد
+        </button>
+      </div>
+    </div>
   </div>
-</section>
+
+  <!-- Add Contract Modal -->
+  <div class="modal-overlay" v-if="showAddModal" @click="closeAddModal">
+    <div class="modal modal--large" @click.stop>
+      <div class="modal__header">
+        <h2 class="modal__title">
+          <i class="mdi mdi-plus-circle"></i>
+          إضافة عقد جديد
+        </h2>
+        <button class="modal__close" @click="closeAddModal">
+          <i class="mdi mdi-close"></i>
+        </button>
+      </div>
+
+      <div class="modal__body">
+        <form class="contract-form" @submit.prevent="submitNewContract">
+          <!-- Contract Type -->
+          <div class="form-section">
+            <h3 class="form-section__title">نوع العقد</h3>
+            <div class="form-radio-group">
+              <label class="form-radio">
+                <input type="radio" v-model="newContract.type" value="sale" />
+                <span class="form-radio__mark"></span>
+                <span class="form-radio__label">
+                  <i class="mdi mdi-home-currency-usd"></i>
+                  عقد بيع
+                </span>
+              </label>
+              <label class="form-radio">
+                <input type="radio" v-model="newContract.type" value="rental" />
+                <span class="form-radio__mark"></span>
+                <span class="form-radio__label">
+                  <i class="mdi mdi-home-city"></i>
+                  عقد إيجار
+                </span>
+              </label>
+            </div>
+          </div>
+
+          <!-- Property Information -->
+          <div class="form-section">
+            <h3 class="form-section__title">معلومات العقار</h3>
+            <div class="form-grid">
+              <div class="form-group">
+                <label class="form-label">نوع العقار <span class="required">*</span></label>
+                <select v-model="newContract.propertyType" class="form-select" :class="{ 'form-select--error': formErrors.propertyType }">
+                  <option value="">اختر نوع العقار</option>
+                  <option v-for="type in propertyTypes" :key="type" :value="type">{{ type }}</option>
+                </select>
+                <span class="form-error" v-if="formErrors.propertyType">{{ formErrors.propertyType }}</span>
+              </div>
+
+              <div class="form-group">
+                <label class="form-label">المدينة <span class="required">*</span></label>
+                <select v-model="newContract.location" class="form-select" :class="{ 'form-select--error': formErrors.location }">
+                  <option value="">اختر المدينة</option>
+                  <option v-for="loc in locations" :key="loc" :value="loc">{{ loc }}</option>
+                </select>
+                <span class="form-error" v-if="formErrors.location">{{ formErrors.location }}</span>
+              </div>
+
+              <div class="form-group">
+                <label class="form-label">السعر <span class="required">*</span></label>
+                <input
+                  type="text"
+                  v-model="newContract.price"
+                  class="form-input"
+                  :class="{ 'form-input--error': formErrors.price }"
+                  :placeholder="newContract.type === 'sale' ? 'مثال: 1,500,000' : 'مثال: 5,000'"
+                />
+                <span class="form-error" v-if="formErrors.price">{{ formErrors.price }}</span>
+              </div>
+
+              <div class="form-group">
+                <label class="form-label">المساحة (متر مربع)</label>
+                <input
+                  type="text"
+                  v-model="newContract.area"
+                  class="form-input"
+                  placeholder="مثال: 250"
+                />
+              </div>
+
+              <div class="form-group form-group--full">
+                <label class="form-label">وصف العقار</label>
+                <textarea
+                  v-model="newContract.description"
+                  class="form-textarea"
+                  rows="3"
+                  placeholder="أضف وصفاً تفصيلياً للعقار..."
+                ></textarea>
+              </div>
+            </div>
+          </div>
+
+          <!-- Parties Information -->
+          <div class="form-section">
+            <h3 class="form-section__title">
+              {{ newContract.type === 'sale' ? 'معلومات البائع والمشتري' : 'معلومات المالك والمستأجر' }}
+            </h3>
+            <div class="form-grid">
+              <div class="form-group">
+                <label class="form-label">
+                  {{ newContract.type === 'sale' ? 'اسم البائع' : 'اسم المالك' }} <span class="required">*</span>
+                </label>
+                <input
+                  type="text"
+                  v-model="newContract.partyOneName"
+                  class="form-input"
+                  :class="{ 'form-input--error': formErrors.partyOneName }"
+                  placeholder="الاسم الكامل"
+                />
+                <span class="form-error" v-if="formErrors.partyOneName">{{ formErrors.partyOneName }}</span>
+              </div>
+
+              <div class="form-group">
+                <label class="form-label">رقم الهوية <span class="required">*</span></label>
+                <input
+                  type="text"
+                  v-model="newContract.partyOneId"
+                  class="form-input"
+                  :class="{ 'form-input--error': formErrors.partyOneId }"
+                  placeholder="رقم الهوية الوطنية"
+                  maxlength="10"
+                />
+                <span class="form-error" v-if="formErrors.partyOneId">{{ formErrors.partyOneId }}</span>
+              </div>
+
+              <div class="form-group">
+                <label class="form-label">
+                  {{ newContract.type === 'sale' ? 'اسم المشتري' : 'اسم المستأجر' }} <span class="required">*</span>
+                </label>
+                <input
+                  type="text"
+                  v-model="newContract.partyTwoName"
+                  class="form-input"
+                  :class="{ 'form-input--error': formErrors.partyTwoName }"
+                  placeholder="الاسم الكامل"
+                />
+                <span class="form-error" v-if="formErrors.partyTwoName">{{ formErrors.partyTwoName }}</span>
+              </div>
+
+              <div class="form-group">
+                <label class="form-label">رقم الهوية <span class="required">*</span></label>
+                <input
+                  type="text"
+                  v-model="newContract.partyTwoId"
+                  class="form-input"
+                  :class="{ 'form-input--error': formErrors.partyTwoId }"
+                  placeholder="رقم الهوية الوطنية"
+                  maxlength="10"
+                />
+                <span class="form-error" v-if="formErrors.partyTwoId">{{ formErrors.partyTwoId }}</span>
+              </div>
+            </div>
+          </div>
+        </form>
+      </div>
+
+      <div class="modal__footer">
+        <button class="btn btn--secondary" @click="closeAddModal" :disabled="submitting">
+          إلغاء
+        </button>
+        <button class="btn btn--primary" @click="submitNewContract" :disabled="submitting">
+          <i class="mdi mdi-loading mdi-spin" v-if="submitting"></i>
+          <i class="mdi mdi-check" v-else></i>
+          {{ submitting ? 'جاري الإضافة...' : 'إضافة العقد' }}
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Confirmation Modal -->
+  <div class="modal-overlay" v-if="showConfirmModal" @click="closeConfirmModal">
+    <div class="modal modal--small" @click.stop>
+      <div class="modal__header" :class="confirmAction === 'verify' ? 'modal__header--success' : 'modal__header--danger'">
+        <h2 class="modal__title">
+          <i :class="confirmAction === 'verify' ? 'mdi mdi-check-circle' : 'mdi mdi-alert-circle'"></i>
+          {{ confirmAction === 'verify' ? 'تأكيد تثبيت العقد' : 'تأكيد رفض العقد' }}
+        </h2>
+        <button class="modal__close" @click="closeConfirmModal">
+          <i class="mdi mdi-close"></i>
+        </button>
+      </div>
+
+      <div class="modal__body">
+        <div class="confirm-content">
+          <p class="confirm-message">
+            {{ confirmAction === 'verify'
+              ? 'هل أنت متأكد من رغبتك في تثبيت هذا العقد؟ سيتم اعتماده رسمياً.'
+              : 'هل أنت متأكد من رغبتك في رفض هذا العقد؟ لن يمكن التراجع عن هذا الإجراء.'
+            }}
+          </p>
+          <div class="confirm-contract-info" v-if="selectedContract">
+            <div class="confirm-contract-number">{{ selectedContract.contractNumber }}</div>
+            <div class="confirm-contract-type">{{ getContractTypeText(selectedContract.type) }} - {{ selectedContract.propertyType }}</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="modal__footer">
+        <button class="btn btn--secondary" @click="closeConfirmModal">
+          إلغاء
+        </button>
+        <button
+          class="btn"
+          :class="confirmAction === 'verify' ? 'btn--success' : 'btn--danger'"
+          @click="confirmActionExecute"
+        >
+          <i :class="confirmAction === 'verify' ? 'mdi mdi-check' : 'mdi mdi-close'"></i>
+          {{ confirmAction === 'verify' ? 'تثبيت' : 'رفض' }}
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
