@@ -49,9 +49,10 @@ namespace ContractVerification.Models.DTOs
     public class ContractStatisticsDto
     {
         public int TotalContracts { get; set; }
-        public int PendingContracts { get; set; }
-        public int UnderReviewContracts { get; set; }
-        public int VerifiedContracts { get; set; }
+        public int SubmittedContracts { get; set; }
+        public int InitialApprovedContracts { get; set; }
+        public int ManagerApprovedContracts { get; set; }
+        public int FinalApprovedContracts { get; set; }
         public int RejectedContracts { get; set; }
     }
 }

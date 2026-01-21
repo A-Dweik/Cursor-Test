@@ -192,7 +192,7 @@ namespace ContractVerification.Controllers
                 {
                     ContractNumber = createDto.ContractNumber,
                     Type = (ContractType)createDto.Type,
-                    Status = ContractStatus.Pending,
+                    Status = ContractStatus.Submitted,  // New contracts start as Submitted
                     SellerName = createDto.SellerName.Trim(),
                     BuyerName = createDto.BuyerName.Trim(),
                     PropertyAddress = createDto.PropertyAddress.Trim(),
@@ -336,17 +336,19 @@ namespace ContractVerification.Controllers
                 }
 
                 var totalContracts = await query.CountAsync();
-                var pendingContracts = await query.CountAsync(c => c.Status == ContractStatus.Pending);
-                var underReviewContracts = await query.CountAsync(c => c.Status == ContractStatus.UnderReview);
-                var verifiedContracts = await query.CountAsync(c => c.Status == ContractStatus.Verified);
+                var submittedContracts = await query.CountAsync(c => c.Status == ContractStatus.Submitted);
+                var initialApprovedContracts = await query.CountAsync(c => c.Status == ContractStatus.InitialApproved);
+                var managerApprovedContracts = await query.CountAsync(c => c.Status == ContractStatus.ManagerApproved);
+                var finalApprovedContracts = await query.CountAsync(c => c.Status == ContractStatus.FinalApproved);
                 var rejectedContracts = await query.CountAsync(c => c.Status == ContractStatus.Rejected);
 
                 var statistics = new ContractStatisticsDto
                 {
                     TotalContracts = totalContracts,
-                    PendingContracts = pendingContracts,
-                    UnderReviewContracts = underReviewContracts,
-                    VerifiedContracts = verifiedContracts,
+                    SubmittedContracts = submittedContracts,
+                    InitialApprovedContracts = initialApprovedContracts,
+                    ManagerApprovedContracts = managerApprovedContracts,
+                    FinalApprovedContracts = finalApprovedContracts,
                     RejectedContracts = rejectedContracts
                 };
 

@@ -54,9 +54,10 @@ namespace ContractVerification.Models
 
     public enum ContractStatus
     {
-        Pending = 1,
-        UnderReview = 2,
-        Verified = 3,
-        Rejected = 4
+        Submitted = 1,           // Just submitted, awaiting initial review
+        InitialApproved = 2,     // Initial approval granted, awaiting manager
+        ManagerApproved = 3,     // Manager approval granted, awaiting final approval
+        FinalApproved = 4,       // Final approval granted, fully verified
+        Rejected = 5             // Rejected at any stage
     }
 }
