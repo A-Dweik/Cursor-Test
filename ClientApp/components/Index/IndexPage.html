@@ -39,11 +39,21 @@
 
       <div class="stat-card stat-card--pending">
         <div class="stat-card__icon">
-          <i class="mdi mdi-clock-outline"></i>
+          <i class="mdi mdi-file-document-outline"></i>
         </div>
         <div class="stat-card__content">
-          <span class="stat-card__value">{{ pendingContracts + underReviewContracts }}</span>
-          <span class="stat-card__label">قيد المراجعة</span>
+          <span class="stat-card__value">{{ submittedContracts }}</span>
+          <span class="stat-card__label">مقدم للمراجعة</span>
+        </div>
+      </div>
+
+      <div class="stat-card stat-card--pending">
+        <div class="stat-card__icon">
+          <i class="mdi mdi-progress-check"></i>
+        </div>
+        <div class="stat-card__content">
+          <span class="stat-card__value">{{ initialApprovedContracts + managerApprovedContracts }}</span>
+          <span class="stat-card__label">قيد الموافقة</span>
         </div>
       </div>
 
@@ -52,8 +62,8 @@
           <i class="mdi mdi-check-circle"></i>
         </div>
         <div class="stat-card__content">
-          <span class="stat-card__value">{{ verifiedContracts }}</span>
-          <span class="stat-card__label">موثق</span>
+          <span class="stat-card__value">{{ finalApprovedContracts }}</span>
+          <span class="stat-card__label">موافقة نهائية</span>
         </div>
       </div>
 
