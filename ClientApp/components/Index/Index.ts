@@ -175,16 +175,20 @@ export default class Index extends Vue {
         return this.statistics.totalContracts;
     }
 
-    public get pendingContracts(): number {
-        return this.statistics.pendingContracts;
+    public get submittedContracts(): number {
+        return this.statistics.submittedContracts;
     }
 
-    public get underReviewContracts(): number {
-        return this.statistics.underReviewContracts;
+    public get initialApprovedContracts(): number {
+        return this.statistics.initialApprovedContracts;
     }
 
-    public get verifiedContracts(): number {
-        return this.statistics.verifiedContracts;
+    public get managerApprovedContracts(): number {
+        return this.statistics.managerApprovedContracts;
+    }
+
+    public get finalApprovedContracts(): number {
+        return this.statistics.finalApprovedContracts;
     }
 
     public get rejectedContracts(): number {
@@ -255,7 +259,7 @@ export default class Index extends Vue {
 
         try {
             const newStatus = this.confirmAction === 'verify'
-                ? ContractStatus.Verified
+                ? this.getNextStatus(this.selectedContract!.status) || ContractStatus.FinalApproved
                 : ContractStatus.Rejected;
 
             const updateModel: ContractStatusUpdateModel = {
