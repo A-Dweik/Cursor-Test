@@ -8,10 +8,14 @@ import router from './router';
 import './registerServiceWorker';
 import { VueDiContainer } from 'vue-di-container';
 import AxiosService from './Services/AxiosService';
+import AxiosService2 from './Services/AxiosService2';
 import LoaderService from './Services/LoaderService';
 import WorkflowService from './Services/WorkflowService';
 import initializeApplication from './plugins/application-initialization';
 import TelemetryService from './Services/TelemetryService';
+import ContractService from './Services/ContractService';
+import UserService from './shared/userService/UserService';
+import RoleService from './shared/userService/RoleService';
 import '@/assets/styles/main.css';
 
 Vue.config.productionTip = false;
@@ -40,6 +44,10 @@ initializeApplication().then((initialize) => {
             LoaderService,
             TelemetryService,
             WorkflowService,
+            ContractService,
+            UserService,
+            RoleService,
+            AxiosService2
         ],
         render: (h) => h(App),
     }).$mount('#app');

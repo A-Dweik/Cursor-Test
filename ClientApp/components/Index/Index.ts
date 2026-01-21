@@ -1,284 +1,462 @@
-import { Component, Vue} from 'vue-property-decorator';
-import WithRender from './IndexPage.html';
+import { Component, Vue } from 'vue-property-decorator';
 import { Inject } from 'vue-di-container';
+import WithRender from './IndexPage.html';
+import ContractService from '@/Services/ContractService';
+import UserService from '@/shared/userService/UserService';
+import RoleService from '@/shared/userService/RoleService';
 import WorkflowService from '@/Services/WorkflowService';
-import { WorkflowStatus, ContractModel, WorkflowHistory } from '@/Models/WorkflowStatus';
+import { Toaster } from '@/Services/toast';
+import {
+    Contract,
+    ContractCreateModel,
+    ContractStatusUpdateModel,
+    ContractHistory,
+    ContractStatistics,
+    ContractFilterModel,
+    ContractType,
+    ContractStatus
+} from '@/Services/Models/ContractModels';
+
+interface NewContractForm {
+    contractNumber: string;
+    type: ContractType;
+    sellerName: string;
+    buyerName: string;
+    propertyAddress: string;
+    contractAmount: string;
+}
 
 @WithRender
 @Component({
-     components: {
-     },
+    components: {},
 })
 export default class Index extends Vue {
-    @Inject(WorkflowService) public workflowService!: WorkflowService;
-    
-    public contracts: ContractModel[] = [];
+    // Services
+    @Inject(ContractService) private contractService!: ContractService;
+    @Inject(UserService) private userService!: UserService;
+    @Inject(RoleService) private roleService!: RoleService;
+    @Inject(WorkflowService) private workflowService!: WorkflowService;
+
+    // Data
+    public contracts: Contract[] = [];
     public loading: boolean = false;
     public searchQuery: string = '';
-    public selectedFilter: string = 'all';
-    public selectedWorkflowFilter: string = 'all';
-    
-    public mounted() {
-        this.loadContracts();
+    public selectedTypeFilter: ContractType | null = null;
+    public selectedStatusFilter: ContractStatus | null = null;
+
+    // User info
+    public currentUser: string = '';
+    public isAdmin: boolean = false;
+
+    // Modal states
+    public showDetailModal: boolean = false;
+    public showAddModal: boolean = false;
+    public showHistoryModal: boolean = false;
+    public showConfirmModal: boolean = false;
+    public selectedContract: Contract | null = null;
+    public contractHistory: ContractHistory[] = [];
+    public confirmAction: 'verify' | 'reject' | null = null;
+    public confirmComment: string = '';
+
+    // Form data
+    public newContract: NewContractForm = this.getEmptyForm();
+    public formErrors: { [key: string]: string } = {};
+    public submitting: boolean = false;
+
+    // Statistics
+    public statistics: ContractStatistics = {
+        totalContracts: 0,
+        submittedContracts: 0,
+        initialApprovedContracts: 0,
+        managerApprovedContracts: 0,
+        finalApprovedContracts: 0,
+        rejectedContracts: 0
+    };
+
+    // Enums for template
+    public ContractType = ContractType;
+    public ContractStatus = ContractStatus;
+
+    public async created() {
+        await this.initializeUser();
     }
 
-    public loadContracts() {
+    public async mounted() {
+        document.title = 'SigmaS | تثبيت عقود بيع وإيجار العقارات';
+        await this.loadData();
+    }
+
+    private async initializeUser() {
+        try {
+            const user = await this.userService.getUser();
+            this.currentUser = user && user.username ? user.username : 'test';
+            this.isAdmin = await this.roleService.isAdmin();
+
+            console.log('User initialized:', { username: this.currentUser, isAdmin: this.isAdmin });
+        } catch (error) {
+            console.error('Error loading user info:', error);
+            // Fallback to default test user if UserInfo fails
+            this.currentUser = 'test';
+            this.isAdmin = false;
+        }
+    }
+
+    private async loadData() {
+        await Promise.all([
+            this.loadContracts(),
+            this.loadStatistics()
+        ]);
+    }
+
+    public async loadContracts() {
         this.loading = true;
-        // Simulated contract data with workflow stages
-        setTimeout(() => {
-            this.contracts = [
-                {
-                    id: 1,
-                    type: 'sale',
-                    propertyType: 'فيلا',
-                    location: 'الرياض - حي النرجس',
-                    price: '2,500,000 ريال',
-                    seller: 'محمد أحمد العلي',
-                    buyer: 'خالد سعد المطيري',
-                    workflowStatus: WorkflowStatus.Submitted,
-                    date: '2026-01-15',
-                    contractNumber: 'CV-2026-001',
-                    workflowHistory: []
-                },
-                {
-                    id: 2,
-                    type: 'rental',
-                    propertyType: 'شقة',
-                    location: 'جدة - حي الروضة',
-                    price: '3,500 ريال/شهرياً',
-                    owner: 'سعد عبدالله الغامدي',
-                    tenant: 'أحمد علي الزهراني',
-                    workflowStatus: WorkflowStatus.InitialApproved,
-                    date: '2026-01-12',
-                    contractNumber: 'CR-2026-045',
-                    workflowHistory: [
-                        { stage: WorkflowStatus.Submitted, action: 'approved', by: 'مراجع أول', date: '2026-01-12' }
-                    ]
-                },
-                {
-                    id: 3,
-                    type: 'sale',
-                    propertyType: 'أرض سكنية',
-                    location: 'الدمام - حي الفيصلية',
-                    price: '1,200,000 ريال',
-                    seller: 'فهد محمد القحطاني',
-                    buyer: 'عبدالرحمن سليمان الدوسري',
-                    workflowStatus: WorkflowStatus.FinalApproved,
-                    date: '2026-01-10',
-                    contractNumber: 'CV-2026-002',
-                    workflowHistory: [
-                        { stage: WorkflowStatus.Submitted, action: 'approved', by: 'مراجع أول', date: '2026-01-10' },
-                        { stage: WorkflowStatus.InitialApproved, action: 'approved', by: 'مدير الإدارة', date: '2026-01-10' },
-                        { stage: WorkflowStatus.ManagerApproved, action: 'approved', by: 'الموافقة النهائية', date: '2026-01-10' }
-                    ]
-                },
-                {
-                    id: 4,
-                    type: 'rental',
-                    propertyType: 'مكتب تجاري',
-                    location: 'الرياض - حي العليا',
-                    price: '8,000 ريال/شهرياً',
-                    owner: 'شركة العقارات المتقدمة',
-                    tenant: 'مؤسسة التقنية الحديثة',
-                    workflowStatus: WorkflowStatus.Rejected,
-                    date: '2026-01-08',
-                    contractNumber: 'CR-2026-046',
-                    workflowHistory: [
-                        { stage: WorkflowStatus.Submitted, action: 'rejected', by: 'مراجع أول', date: '2026-01-08', notes: 'بيانات ناقصة' }
-                    ]
-                },
-                {
-                    id: 5,
-                    type: 'sale',
-                    propertyType: 'عمارة سكنية',
-                    location: 'مكة المكرمة - حي العزيزية',
-                    price: '5,800,000 ريال',
-                    seller: 'ناصر عبدالعزيز الشهري',
-                    buyer: 'مجموعة الاستثمار العقاري',
-                    workflowStatus: WorkflowStatus.ManagerApproved,
-                    date: '2026-01-18',
-                    contractNumber: 'CV-2026-003',
-                    workflowHistory: [
-                        { stage: WorkflowStatus.Submitted, action: 'approved', by: 'مراجع أول', date: '2026-01-18' },
-                        { stage: WorkflowStatus.InitialApproved, action: 'approved', by: 'مدير الإدارة', date: '2026-01-18' }
-                    ]
-                },
-                {
-                    id: 6,
-                    type: 'rental',
-                    propertyType: 'محل تجاري',
-                    location: 'الخبر - حي الكورنيش',
-                    price: '4,200 ريال/شهرياً',
-                    owner: 'عبدالله حسن العتيبي',
-                    tenant: 'مؤسسة التجارة الحديثة',
-                    workflowStatus: WorkflowStatus.Submitted,
-                    date: '2026-01-05',
-                    contractNumber: 'CR-2026-047',
-                    workflowHistory: []
-                }
-            ];
+        try {
+            const filter: ContractFilterModel = {
+                search: this.searchQuery || undefined,
+                type: this.selectedTypeFilter || undefined,
+                status: this.selectedStatusFilter || undefined,
+                // Non-admins only see their own contracts
+                createdBy: this.isAdmin ? undefined : (this.currentUser || undefined)
+            };
+
+            this.contracts = await this.contractService.getContracts(filter);
+        } catch (error) {
+            console.error('Error loading contracts:', error);
+            Toaster.error('حدث خطأ أثناء تحميل العقود');
+        } finally {
             this.loading = false;
-        }, 500);
-    }
-
-    public get filteredContracts() {
-        let filtered = this.contracts;
-
-        // Filter by contract type (sale/rental)
-        if (this.selectedFilter !== 'all') {
-            filtered = filtered.filter(c => c.type === this.selectedFilter);
         }
+    }
 
-        // Filter by workflow status
-        if (this.selectedWorkflowFilter !== 'all') {
-            filtered = filtered.filter(c => c.workflowStatus === this.selectedWorkflowFilter);
+    public async loadStatistics() {
+        try {
+            const createdBy = this.isAdmin ? undefined : (this.currentUser || undefined);
+            this.statistics = await this.contractService.getStatistics(createdBy);
+        } catch (error) {
+            console.error('Error loading statistics:', error);
+            Toaster.error('حدث خطأ أثناء تحميل الإحصائيات');
         }
+    }
 
-        // Search filter
-        if (this.searchQuery) {
-            const query = this.searchQuery.toLowerCase();
-            filtered = filtered.filter(c => 
-                c.contractNumber.toLowerCase().includes(query) ||
-                c.location.toLowerCase().includes(query) ||
-                c.propertyType.toLowerCase().includes(query)
-            );
+    public getEmptyForm(): NewContractForm {
+        return {
+            contractNumber: this.generateContractNumber(),
+            type: ContractType.Sale,
+            sellerName: '',
+            buyerName: '',
+            propertyAddress: '',
+            contractAmount: ''
+        };
+    }
+
+    private generateContractNumber(): string {
+        const year = new Date().getFullYear();
+        const random = Math.floor(Math.random() * 999) + 1;
+        return `CV-${year}-${String(random).padStart(3, '0')}`;
+    }
+
+    // Search and filter
+    public async onSearchChange() {
+        await this.loadContracts();
+    }
+
+    public async selectTypeFilter(type: ContractType | null) {
+        this.selectedTypeFilter = type;
+        await this.loadContracts();
+    }
+
+    public async selectStatusFilter(status: ContractStatus | null) {
+        this.selectedStatusFilter = status;
+        await this.loadContracts();
+    }
+
+    // Statistics computed properties
+    public get totalContracts(): number {
+        return this.statistics.totalContracts;
+    }
+
+    public get pendingContracts(): number {
+        return this.statistics.pendingContracts;
+    }
+
+    public get underReviewContracts(): number {
+        return this.statistics.underReviewContracts;
+    }
+
+    public get verifiedContracts(): number {
+        return this.statistics.verifiedContracts;
+    }
+
+    public get rejectedContracts(): number {
+        return this.statistics.rejectedContracts;
+    }
+
+    public get filteredContracts(): Contract[] {
+        return this.contracts;
+    }
+
+    // Modal handlers
+    public openDetailModal(contract: Contract) {
+        this.selectedContract = contract;
+        this.showDetailModal = true;
+    }
+
+    public closeDetailModal() {
+        this.showDetailModal = false;
+        this.selectedContract = null;
+    }
+
+    public openAddModal() {
+        this.newContract = this.getEmptyForm();
+        this.formErrors = {};
+        this.showAddModal = true;
+    }
+
+    public closeAddModal() {
+        this.showAddModal = false;
+        this.newContract = this.getEmptyForm();
+        this.formErrors = {};
+    }
+
+    public async openHistoryModal(contract: Contract) {
+        this.selectedContract = contract;
+        this.showHistoryModal = true;
+        try {
+            this.contractHistory = await this.contractService.getContractHistory(contract.id);
+        } catch (error) {
+            console.error('Error loading history:', error);
+            Toaster.error('حدث خطأ أثناء تحميل سجل العقد');
         }
-
-        return filtered;
     }
 
-    public selectFilter(filter: string) {
-        this.selectedFilter = filter;
+    public closeHistoryModal() {
+        this.showHistoryModal = false;
+        this.selectedContract = null;
+        this.contractHistory = [];
     }
 
-    public viewContract(contract: ContractModel) {
-        alert(`عرض تفاصيل العقد: ${contract.contractNumber}\n\nحالة سير العمل: ${this.getWorkflowStatusText(contract.workflowStatus)}`);
+    public openConfirmModal(contract: Contract, action: 'verify' | 'reject') {
+        this.selectedContract = contract;
+        this.confirmAction = action;
+        this.confirmComment = '';
+        this.showConfirmModal = true;
     }
 
-    public approveContract(contract: ContractModel) {
-        const nextStage = this.workflowService.getNextStage(contract.workflowStatus);
-        if (nextStage) {
-            const currentStageText = this.getWorkflowStatusText(contract.workflowStatus);
-            const nextStageText = this.getWorkflowStatusText(nextStage);
-            
-            // Add to history
-            const historyEntry: WorkflowHistory = {
-                stage: contract.workflowStatus,
-                action: 'approved',
-                by: this.getCurrentUserRole(contract.workflowStatus),
-                date: new Date().toISOString().split('T')[0]
+    public closeConfirmModal() {
+        this.showConfirmModal = false;
+        this.selectedContract = null;
+        this.confirmAction = null;
+        this.confirmComment = '';
+    }
+
+    // Actions
+    public async confirmActionExecute() {
+        if (!this.selectedContract || !this.confirmAction) return;
+
+        try {
+            const newStatus = this.confirmAction === 'verify'
+                ? ContractStatus.Verified
+                : ContractStatus.Rejected;
+
+            const updateModel: ContractStatusUpdateModel = {
+                contractId: this.selectedContract.id,
+                newStatus: newStatus,
+                changedBy: this.currentUser,
+                comment: this.confirmComment
             };
-            contract.workflowHistory.push(historyEntry);
-            
-            // Update status
-            contract.workflowStatus = nextStage;
-            alert(`تمت الموافقة على العقد: ${contract.contractNumber}\n\nانتقل من: ${currentStageText}\nإلى: ${nextStageText}`);
+
+            await this.contractService.updateContractStatus(updateModel);
+
+            const successMessage = this.confirmAction === 'verify'
+                ? 'تم تثبيت العقد بنجاح'
+                : 'تم رفض العقد بنجاح';
+            Toaster.success(successMessage);
+
+            this.closeConfirmModal();
+            await this.loadData();
+        } catch (error) {
+            console.error('Error updating contract status:', error);
+            Toaster.error('حدث خطأ أثناء تحديث حالة العقد');
         }
     }
 
-    public rejectContract(contract: ContractModel) {
-        if (this.workflowService.canReject(contract.workflowStatus)) {
-            const currentStageText = this.getWorkflowStatusText(contract.workflowStatus);
-            
-            // Add to history
-            const historyEntry: WorkflowHistory = {
-                stage: contract.workflowStatus,
-                action: 'rejected',
-                by: this.getCurrentUserRole(contract.workflowStatus),
-                date: new Date().toISOString().split('T')[0],
-                notes: 'تم الرفض من قبل المسؤول'
+    public validateForm(): boolean {
+        this.formErrors = {};
+        let isValid = true;
+
+        if (!this.newContract.contractNumber) {
+            this.formErrors.contractNumber = 'يرجى إدخال رقم العقد';
+            isValid = false;
+        }
+
+        if (!this.newContract.sellerName.trim()) {
+            this.formErrors.sellerName = 'يرجى إدخال اسم البائع/المالك';
+            isValid = false;
+        }
+
+        if (!this.newContract.buyerName.trim()) {
+            this.formErrors.buyerName = 'يرجى إدخال اسم المشتري/المستأجر';
+            isValid = false;
+        }
+
+        if (!this.newContract.propertyAddress.trim()) {
+            this.formErrors.propertyAddress = 'يرجى إدخال عنوان العقار';
+            isValid = false;
+        }
+
+        if (!this.newContract.contractAmount || parseFloat(this.newContract.contractAmount) <= 0) {
+            this.formErrors.contractAmount = 'يرجى إدخال مبلغ صحيح';
+            isValid = false;
+        }
+
+        return isValid;
+    }
+
+    public async submitNewContract() {
+        if (!this.validateForm()) return;
+
+        this.submitting = true;
+        try {
+            const createModel: ContractCreateModel = {
+                contractNumber: this.newContract.contractNumber,
+                type: this.newContract.type,
+                sellerName: this.newContract.sellerName,
+                buyerName: this.newContract.buyerName,
+                propertyAddress: this.newContract.propertyAddress,
+                contractAmount: parseFloat(this.newContract.contractAmount)
             };
-            contract.workflowHistory.push(historyEntry);
-            
-            contract.workflowStatus = WorkflowStatus.Rejected;
-            alert(`تم رفض العقد: ${contract.contractNumber}\n\nمن المرحلة: ${currentStageText}`);
+
+            await this.contractService.createContract(createModel, this.currentUser);
+
+            Toaster.success('تم إضافة العقد بنجاح');
+            this.closeAddModal();
+            await this.loadData();
+        } catch (error) {
+            console.error('Error creating contract:', error);
+            Toaster.error('حدث خطأ أثناء إضافة العقد');
+        } finally {
+            this.submitting = false;
         }
     }
 
-    public getCurrentUserRole(status: WorkflowStatus): string {
+    public printContract() {
+        window.print();
+    }
+
+    // Helper methods
+    public getStatusText(status: ContractStatus): string {
         switch (status) {
-            case WorkflowStatus.Submitted:
+            case ContractStatus.Submitted: return 'مقدم للمراجعة';
+            case ContractStatus.InitialApproved: return 'الموافقة الأولية';
+            case ContractStatus.ManagerApproved: return 'موافقة المدير';
+            case ContractStatus.FinalApproved: return 'الموافقة النهائية';
+            case ContractStatus.Rejected: return 'مرفوض';
+            default: return '';
+        }
+    }
+
+    public getStatusClasses(status: ContractStatus): string {
+        const baseClasses = 'contract-status';
+        switch (status) {
+            case ContractStatus.FinalApproved: return `${baseClasses} contract-status--verified`;
+            case ContractStatus.Submitted: return `${baseClasses} contract-status--submitted`;
+            case ContractStatus.InitialApproved: return `${baseClasses} contract-status--pending`;
+            case ContractStatus.ManagerApproved: return `${baseClasses} contract-status--pending`;
+            case ContractStatus.Rejected: return `${baseClasses} contract-status--rejected`;
+            default: return baseClasses;
+        }
+    }
+
+    public getContractTypeText(type: ContractType): string {
+        return type === ContractType.Sale ? 'عقد بيع' : 'عقد إيجار';
+    }
+
+    public getContractTypeIcon(type: ContractType): string {
+        return type === ContractType.Sale ? 'mdi-home-currency-usd' : 'mdi-home-city';
+    }
+
+    public formatDate(dateStr: string): string {
+        const date = new Date(dateStr);
+        return date.toLocaleDateString('ar-SA', {
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric'
+        });
+    }
+
+    public formatCurrency(amount: number): string {
+        return new Intl.NumberFormat('ar-SA', {
+            style: 'decimal',
+            minimumFractionDigits: 0,
+            maximumFractionDigits: 2
+        }).format(amount) + ' ريال';
+    }
+
+    // Check if user can perform admin actions
+    public canApprove(contract: Contract): boolean {
+        return this.isAdmin &&
+               (contract.status === ContractStatus.Submitted ||
+                contract.status === ContractStatus.InitialApproved ||
+                contract.status === ContractStatus.ManagerApproved);
+    }
+
+    // Get the next workflow status
+    public getNextStatus(currentStatus: ContractStatus): ContractStatus | null {
+        switch (currentStatus) {
+            case ContractStatus.Submitted:
+                return ContractStatus.InitialApproved;
+            case ContractStatus.InitialApproved:
+                return ContractStatus.ManagerApproved;
+            case ContractStatus.ManagerApproved:
+                return ContractStatus.FinalApproved;
+            default:
+                return null;
+        }
+    }
+
+    // Get approval button text based on current stage
+    public getApprovalButtonText(status: ContractStatus): string {
+        switch (status) {
+            case ContractStatus.Submitted:
+                return 'موافقة أولية';
+            case ContractStatus.InitialApproved:
+                return 'موافقة المدير';
+            case ContractStatus.ManagerApproved:
+                return 'الموافقة النهائية';
+            default:
+                return 'موافقة';
+        }
+    }
+
+    // Get workflow progress percentage
+    public getProgressPercentage(status: ContractStatus): number {
+        switch (status) {
+            case ContractStatus.Submitted:
+                return 25;
+            case ContractStatus.InitialApproved:
+                return 50;
+            case ContractStatus.ManagerApproved:
+                return 75;
+            case ContractStatus.FinalApproved:
+                return 100;
+            case ContractStatus.Rejected:
+                return 0;
+            default:
+                return 0;
+        }
+    }
+
+    // Get current user role based on workflow stage
+    public getCurrentUserRole(status: ContractStatus): string {
+        switch (status) {
+            case ContractStatus.Submitted:
                 return 'مراجع أول';
-            case WorkflowStatus.InitialApproved:
+            case ContractStatus.InitialApproved:
                 return 'مدير الإدارة';
-            case WorkflowStatus.ManagerApproved:
+            case ContractStatus.ManagerApproved:
                 return 'الموافقة النهائية';
             default:
                 return 'مسؤول';
         }
-    }
-
-    public getWorkflowStatusText(status: WorkflowStatus): string {
-        const stage = this.workflowService.getStageByStatus(status);
-        return stage ? stage.labelAr : status;
-    }
-
-    public getWorkflowStatusClasses(status: WorkflowStatus): string {
-        const baseClasses = 'status--text status--rounded';
-        switch (status) {
-            case WorkflowStatus.FinalApproved:
-                return `${baseClasses} status--green`;
-            case WorkflowStatus.Submitted:
-                return `${baseClasses} status--blue`;
-            case WorkflowStatus.InitialApproved:
-            case WorkflowStatus.ManagerApproved:
-                return `${baseClasses} status--orange`;
-            case WorkflowStatus.Rejected:
-                return `${baseClasses} status--red`;
-            default:
-                return baseClasses;
-        }
-    }
-
-    public canApprove(contract: ContractModel): boolean {
-        return this.workflowService.canApprove(contract.workflowStatus);
-    }
-
-    public canReject(contract: ContractModel): boolean {
-        return this.workflowService.canReject(contract.workflowStatus);
-    }
-
-    public getApprovalButtonText(contract: ContractModel): string {
-        return this.workflowService.getApprovalButtonText(contract.workflowStatus);
-    }
-
-    public getProgressPercentage(contract: ContractModel): number {
-        return this.workflowService.getProgressPercentage(contract.workflowStatus);
-    }
-
-    public getContractTypeText(type: string): string {
-        return type === 'sale' ? 'عقد بيع' : 'عقد إيجار';
-    }
-
-    public getCategoryIcon(type: string): string {
-        return type === 'sale' ? 'icon-document' : 'icon-building';
-    }
-
-    public get saleContractsCount(): number {
-        return this.contracts.filter(c => c.type === 'sale').length;
-    }
-
-    public get rentalContractsCount(): number {
-        return this.contracts.filter(c => c.type === 'rental').length;
-    }
-
-    public get submittedCount(): number {
-        return this.contracts.filter(c => c.workflowStatus === WorkflowStatus.Submitted).length;
-    }
-
-    public get initialApprovedCount(): number {
-        return this.contracts.filter(c => c.workflowStatus === WorkflowStatus.InitialApproved).length;
-    }
-
-    public get managerApprovedCount(): number {
-        return this.contracts.filter(c => c.workflowStatus === WorkflowStatus.ManagerApproved).length;
-    }
-
-    public get finalApprovedCount(): number {
-        return this.contracts.filter(c => c.workflowStatus === WorkflowStatus.FinalApproved).length;
-    }
-
-    public selectWorkflowFilter(filter: string) {
-        this.selectedWorkflowFilter = filter;
     }
 }

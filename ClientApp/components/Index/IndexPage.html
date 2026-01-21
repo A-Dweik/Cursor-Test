@@ -1,309 +1,506 @@
-<!-- Title & Search Section -->
-<section class="titleSearch">
-  <div class="titleSearch__container">
-    <h1 class="titleSearch__title">تثبيت عقود بيع وإيجار العقارات</h1>
-    <div class="input--search">
-      <input 
-        type="text" 
-        class="input__field" 
-        placeholder="ابحث عن عقد برقم العقد أو الموقع..." 
+<div class="contract-verification-page">
+  <!-- Loading Overlay -->
+  <div v-if="loading" class="loading-overlay">
+    <div class="loading-spinner">
+      <i class="mdi mdi-loading mdi-spin" style="font-size: 48px; color: #1B8354;"></i>
+      <p style="margin-top: 16px; color: #333;">جاري تحميل العقود...</p>
+    </div>
+  </div>
+
+  <!-- Page Header -->
+  <section class="page-header">
+    <div class="page-header__content">
+      <div class="page-header__title-section">
+        <h1 class="page-header__title">
+          <i class="mdi mdi-file-document-check"></i>
+          تثبيت عقود بيع وإيجار العقارات
+        </h1>
+       
+      </div>
+      <button class="btn-add-contract" @click="openAddModal">
+        <i class="mdi mdi-plus-circle"></i>
+        إضافة عقد جديد
+      </button>
+    </div>
+  </section>
+
+  <!-- Statistics Section -->
+  <section class="statistics-section">
+    <div class="statistics-grid">
+      <div class="stat-card stat-card--total">
+        <div class="stat-card__icon">
+          <i class="mdi mdi-file-document-multiple"></i>
+        </div>
+        <div class="stat-card__content">
+          <span class="stat-card__value">{{ totalContracts }}</span>
+          <span class="stat-card__label">إجمالي العقود</span>
+        </div>
+      </div>
+
+      <div class="stat-card stat-card--pending">
+        <div class="stat-card__icon">
+          <i class="mdi mdi-clock-outline"></i>
+        </div>
+        <div class="stat-card__content">
+          <span class="stat-card__value">{{ pendingContracts + underReviewContracts }}</span>
+          <span class="stat-card__label">قيد المراجعة</span>
+        </div>
+      </div>
+
+      <div class="stat-card stat-card--verified">
+        <div class="stat-card__icon">
+          <i class="mdi mdi-check-circle"></i>
+        </div>
+        <div class="stat-card__content">
+          <span class="stat-card__value">{{ verifiedContracts }}</span>
+          <span class="stat-card__label">موثق</span>
+        </div>
+      </div>
+
+      <div class="stat-card stat-card--rejected">
+        <div class="stat-card__icon">
+          <i class="mdi mdi-close-circle"></i>
+        </div>
+        <div class="stat-card__content">
+          <span class="stat-card__value">{{ rejectedContracts }}</span>
+          <span class="stat-card__label">مرفوض</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Search & Filter Section -->
+  <section class="search-filter-section">
+    <div class="search-box">
+      <i class="mdi mdi-magnify search-box__icon"></i>
+      <input
+        type="text"
+        class="search-box__input"
+        placeholder="ابحث برقم العقد أو الأطراف أو العنوان..."
         v-model="searchQuery"
+        @input="onSearchChange"
       />
-      <i class="input__icon mdi mdi-magnify"></i>
     </div>
-  </div>
-</section>
 
-<!-- Filters Section - Contract Type -->
-<section class="filters">
-  <div class="filters__container">
-    <div class="filters__filterWrapper">
-      <input 
-        type="radio" 
-        name="contractFilter" 
-        class="filters__filterCheck" 
-        id="filter-all"
-        @change="selectFilter('all')"
-        :checked="selectedFilter === 'all'"
+    <div class="filter-tabs">
+      <button
+        class="filter-tab"
+        :class="{ 'filter-tab--active': selectedTypeFilter === null }"
+        @click="selectTypeFilter(null)"
       >
-      <label for="filter-all" class="filters__filterLabel"></label>
-      <div class="filters__item">
-        <span class="filters__icon mdi mdi-file-document-multiple"></span>
-        <span class="filters__name">جميع العقود ({{ contracts.length }})</span>
-      </div>
-    </div>
-
-    <div class="filters__filterWrapper">
-      <input 
-        type="radio" 
-        name="contractFilter" 
-        class="filters__filterCheck" 
-        id="filter-sale"
-        @change="selectFilter('sale')"
-        :checked="selectedFilter === 'sale'"
+        <i class="mdi mdi-file-document-multiple"></i>
+        الكل
+      </button>
+      <button
+        class="filter-tab"
+        :class="{ 'filter-tab--active': selectedTypeFilter === ContractType.Sale }"
+        @click="selectTypeFilter(ContractType.Sale)"
       >
-      <label for="filter-sale" class="filters__filterLabel"></label>
-      <div class="filters__item">
-        <span class="filters__icon mdi mdi-home-currency-usd"></span>
-        <span class="filters__name">عقود البيع ({{ saleContractsCount }})</span>
-      </div>
-    </div>
-
-    <div class="filters__filterWrapper">
-      <input 
-        type="radio" 
-        name="contractFilter" 
-        class="filters__filterCheck" 
-        id="filter-rental"
-        @change="selectFilter('rental')"
-        :checked="selectedFilter === 'rental'"
+        <i class="mdi mdi-home-currency-usd"></i>
+        عقود البيع
+      </button>
+      <button
+        class="filter-tab"
+        :class="{ 'filter-tab--active': selectedTypeFilter === ContractType.Rental }"
+        @click="selectTypeFilter(ContractType.Rental)"
       >
-      <label for="filter-rental" class="filters__filterLabel"></label>
-      <div class="filters__item">
-        <span class="filters__icon mdi mdi-home-city"></span>
-        <span class="filters__name">عقود الإيجار ({{ rentalContractsCount }})</span>
-      </div>
+        <i class="mdi mdi-home-city"></i>
+        عقود الإيجار
+      </button>
     </div>
-  </div>
-</section>
+  </section>
 
-<!-- Workflow Status Filters -->
-<section class="filters" style="background: #f5f5f5; padding: 20px 0;">
-  <div class="filters__container">
-    <div style="width: 100%; text-align: center; margin-bottom: 12px;">
-      <strong style="color: #1B8354; font-size: 16px;">تصفية حسب مراحل الموافقة</strong>
-    </div>
-    
-    <div class="filters__filterWrapper">
-      <input 
-        type="radio" 
-        name="workflowFilter" 
-        class="filters__filterCheck" 
-        id="workflow-all"
-        @change="selectWorkflowFilter('all')"
-        :checked="selectedWorkflowFilter === 'all'"
-      >
-      <label for="workflow-all" class="filters__filterLabel"></label>
-      <div class="filters__item">
-        <span class="filters__icon mdi mdi-filter-variant"></span>
-        <span class="filters__name">جميع المراحل</span>
-      </div>
-    </div>
-
-    <div class="filters__filterWrapper">
-      <input 
-        type="radio" 
-        name="workflowFilter" 
-        class="filters__filterCheck" 
-        id="workflow-submitted"
-        @change="selectWorkflowFilter('submitted')"
-        :checked="selectedWorkflowFilter === 'submitted'"
-      >
-      <label for="workflow-submitted" class="filters__filterLabel"></label>
-      <div class="filters__item">
-        <span class="filters__icon mdi mdi-file-document-outline"></span>
-        <span class="filters__name">مقدم للمراجعة ({{ submittedCount }})</span>
-      </div>
-    </div>
-
-    <div class="filters__filterWrapper">
-      <input 
-        type="radio" 
-        name="workflowFilter" 
-        class="filters__filterCheck" 
-        id="workflow-initial"
-        @change="selectWorkflowFilter('initial_approved')"
-        :checked="selectedWorkflowFilter === 'initial_approved'"
-      >
-      <label for="workflow-initial" class="filters__filterLabel"></label>
-      <div class="filters__item">
-        <span class="filters__icon mdi mdi-check-circle-outline"></span>
-        <span class="filters__name">الموافقة الأولية ({{ initialApprovedCount }})</span>
-      </div>
-    </div>
-
-    <div class="filters__filterWrapper">
-      <input 
-        type="radio" 
-        name="workflowFilter" 
-        class="filters__filterCheck" 
-        id="workflow-manager"
-        @change="selectWorkflowFilter('manager_approved')"
-        :checked="selectedWorkflowFilter === 'manager_approved'"
-      >
-      <label for="workflow-manager" class="filters__filterLabel"></label>
-      <div class="filters__item">
-        <span class="filters__icon mdi mdi-account-check-outline"></span>
-        <span class="filters__name">موافقة المدير ({{ managerApprovedCount }})</span>
-      </div>
-    </div>
-
-    <div class="filters__filterWrapper">
-      <input 
-        type="radio" 
-        name="workflowFilter" 
-        class="filters__filterCheck" 
-        id="workflow-final"
-        @change="selectWorkflowFilter('final_approved')"
-        :checked="selectedWorkflowFilter === 'final_approved'"
-      >
-      <label for="workflow-final" class="filters__filterLabel"></label>
-      <div class="filters__item">
-        <span class="filters__icon mdi mdi-check-all"></span>
-        <span class="filters__name">الموافقة النهائية ({{ finalApprovedCount }})</span>
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- Loading State -->
-<div v-if="loading" class="text-center pa-12">
-  <v-progress-circular indeterminate color="primary" size="64"></v-progress-circular>
-  <p class="mt-4 body-1">جاري تحميل العقود...</p>
-</div>
-
-<!-- Contracts Grid -->
-<section class="dashboardServices" v-else>
-  <div class="dashboardServicesCards">
+  <!-- Contracts Grid -->
+  <section class="contracts-section">
     <!-- Empty State -->
-    <div v-if="filteredContracts.length === 0" class="empty-state" style="grid-column: 1 / -1;">
-      <i class="mdi mdi-file-document-outline empty-state-icon"></i>
-      <p class="title mt-4">لا توجد عقود</p>
-      <p class="body-1 grey--text">لم يتم العثور على عقود مطابقة للبحث</p>
+    <div v-if="filteredContracts.length === 0 && !loading" class="empty-state">
+      <i class="mdi mdi-file-document-outline empty-state__icon"></i>
+      <h3 class="empty-state__title">لا توجد عقود</h3>
+      <p class="empty-state__text">لم يتم العثور على عقود مطابقة للبحث</p>
+      <button class="btn-add-contract btn-add-contract--secondary" @click="openAddModal">
+        <i class="mdi mdi-plus"></i>
+        إضافة عقد جديد
+      </button>
     </div>
 
-    <!-- Contract Cards -->
-    <div 
-      class="dashboardServicesCards__card" 
-      v-for="contract in filteredContracts" 
-      :key="contract.id"
-    >
-      <div class="dashboardServicesCards__cardWrapper">
-        <!-- Contract Type Badge -->
-        <h6 
-          class="dashboardServicesCards__serviceType icon" 
-          :class="getCategoryIcon(contract.type)"
-        >
-          {{ getContractTypeText(contract.type) }}
-        </h6>
-
-        <!-- Contract Details -->
-        <div class="dashboardServicesCards__serviceDescription">
-          <div style="margin-bottom: 12px;">
-            <strong style="color: #1B8354; font-size: 16px;">{{ contract.contractNumber }}</strong>
+    <!-- Contracts Grid -->
+    <div class="contracts-grid" v-else>
+      <div
+        class="contract-card"
+        v-for="contract in filteredContracts"
+        :key="contract.id"
+        @click="openDetailModal(contract)"
+      >
+        <!-- Card Header -->
+        <div class="contract-card__header">
+          <div class="contract-card__type" :class="contract.type === ContractType.Sale ? 'contract-card__type--sale' : 'contract-card__type--rental'">
+            <i :class="getContractTypeIcon(contract.type)"></i>
+            {{ getContractTypeText(contract.type) }}
           </div>
-          
-          <div style="margin-bottom: 8px;">
-            <i class="mdi mdi-home-variant ml-1" style="color: #1B8354;"></i>
-            <strong>نوع العقار:</strong> {{ contract.propertyType }}
-          </div>
+          <span :class="getStatusClasses(contract.status)">
+            {{ getStatusText(contract.status) }}
+          </span>
+        </div>
 
-          <div style="margin-bottom: 8px;">
-            <i class="mdi mdi-map-marker ml-1" style="color: #1B8354;"></i>
-            <strong>الموقع:</strong> {{ contract.location }}
-          </div>
+        <!-- Card Body -->
+        <div class="contract-card__body">
+          <div class="contract-card__number">{{ contract.contractNumber }}</div>
 
-          <div style="margin-bottom: 8px;">
-            <i class="mdi mdi-currency-usd ml-1" style="color: #1B8354;"></i>
-            <strong>السعر:</strong> {{ contract.price }}
-          </div>
-
-          <div style="margin-bottom: 8px;" v-if="contract.type === 'sale'">
-            <i class="mdi mdi-account ml-1" style="color: #1B8354;"></i>
-            <strong>البائع:</strong> {{ contract.seller }}
-          </div>
-
-          <div style="margin-bottom: 8px;" v-if="contract.type === 'sale'">
-            <i class="mdi mdi-account-check ml-1" style="color: #1B8354;"></i>
-            <strong>المشتري:</strong> {{ contract.buyer }}
-          </div>
-
-          <div style="margin-bottom: 8px;" v-if="contract.type === 'rental'">
-            <i class="mdi mdi-account ml-1" style="color: #1B8354;"></i>
-            <strong>المالك:</strong> {{ contract.owner }}
-          </div>
-
-          <div style="margin-bottom: 8px;" v-if="contract.type === 'rental'">
-            <i class="mdi mdi-account-check ml-1" style="color: #1B8354;"></i>
-            <strong>المستأجر:</strong> {{ contract.tenant }}
-          </div>
-
-          <div style="margin-bottom: 8px;">
-            <i class="mdi mdi-calendar ml-1" style="color: #1B8354;"></i>
-            <strong>التاريخ:</strong> {{ contract.date }}
-          </div>
-
-          <!-- Workflow Status Badge -->
-          <div style="margin-top: 16px; margin-bottom: 16px;">
-            <span :class="getWorkflowStatusClasses(contract.workflowStatus)">
-              {{ getWorkflowStatusText(contract.workflowStatus) }}
-            </span>
-          </div>
-
-          <!-- Workflow Progress Bar -->
-          <div style="margin-bottom: 16px;">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
-              <span style="font-size: 12px; color: #616161; font-weight: 500;">مراحل الموافقة</span>
-              <span style="font-size: 12px; color: #1B8354; font-weight: 600;">{{ getProgressPercentage(contract) }}%</span>
+          <div class="contract-card__info">
+            <div class="contract-card__info-item">
+              <i class="mdi mdi-map-marker"></i>
+              <span>{{ contract.propertyAddress }}</span>
             </div>
-            <div style="width: 100%; height: 8px; background: #e0e0e0; border-radius: 4px; overflow: hidden;">
-              <div 
-                :style="{
-                  width: getProgressPercentage(contract) + '%',
-                  height: '100%',
-                  background: 'linear-gradient(90deg, #1B8354 0%, #36c5ba 100%)',
-                  transition: 'width 0.3s ease'
-                }"
-              ></div>
+            <div class="contract-card__info-item contract-card__info-item--price">
+              <i class="mdi mdi-cash"></i>
+              <span>{{ formatCurrency(contract.contractAmount) }}</span>
             </div>
           </div>
 
-          <!-- Workflow Steps Indicator -->
-          <div style="display: flex; justify-content: space-between; margin-bottom: 12px; gap: 4px;">
-            <div 
-              v-for="step in 4" 
-              :key="step"
-              :style="{
-                flex: 1,
-                height: '4px',
-                background: getProgressPercentage(contract) >= (step * 25) ? '#1B8354' : '#e0e0e0',
-                borderRadius: '2px',
-                transition: 'background 0.3s ease'
-              }"
-            ></div>
+          <div class="contract-card__parties">
+            <div class="contract-card__party">
+              <span class="contract-card__party-label">{{ contract.type === ContractType.Sale ? 'البائع:' : 'المالك:' }}</span>
+              <span class="contract-card__party-name">{{ contract.sellerName }}</span>
+            </div>
+            <div class="contract-card__party">
+              <span class="contract-card__party-label">{{ contract.type === ContractType.Sale ? 'المشتري:' : 'المستأجر:' }}</span>
+              <span class="contract-card__party-name">{{ contract.buyerName }}</span>
+            </div>
+          </div>
+
+          <div class="contract-card__date">
+            <i class="mdi mdi-calendar"></i>
+            {{ formatDate(contract.createdAt) }}
           </div>
         </div>
 
-        <!-- Action Buttons -->
-        <div class="dashboardServicesCards__buttons">
-          <a 
-            @click.prevent="viewContract(contract)" 
-            class="dashboardServicesCards__buttonMore"
-          >
-            <i class="mdi mdi-eye ml-1"></i>
-            عرض التفاصيل
-          </a>
-          
-          <a 
+        <!-- Card Actions -->
+        <div class="contract-card__actions" @click.stop>
+          <button class="btn-action btn-action--view" @click="openDetailModal(contract)">
+            <i class="mdi mdi-eye"></i>
+            عرض
+          </button>
+          <button
             v-if="canApprove(contract)"
-            @click.prevent="approveContract(contract)" 
-            class="dashboardServicesCards__buttonFill"
+            class="btn-action btn-action--verify"
+            @click="openConfirmModal(contract, 'verify')"
           >
-            <i class="mdi mdi-check-circle ml-1"></i>
-            {{ getApprovalButtonText(contract) }}
-          </a>
-
-          <a 
-            v-if="canReject(contract)"
-            @click.prevent="rejectContract(contract)" 
-            class="dashboardServicesCards__buttonMore"
-            style="color: #dc2626;"
+            <i class="mdi mdi-check"></i>
+            تثبيت
+          </button>
+          <button
+            v-if="canApprove(contract)"
+            class="btn-action btn-action--reject"
+            @click="openConfirmModal(contract, 'reject')"
           >
-            <i class="mdi mdi-close-circle ml-1"></i>
+            <i class="mdi mdi-close"></i>
             رفض
-          </a>
+          </button>
         </div>
       </div>
     </div>
+  </section>
+
+  <!-- Contract Detail Modal -->
+  <div class="modal-overlay" v-if="showDetailModal" @click="closeDetailModal">
+    <div class="modal modal--large" @click.stop>
+      <div class="modal__header">
+        <h2 class="modal__title">
+          <i class="mdi mdi-file-document"></i>
+          تفاصيل العقد
+        </h2>
+        <button class="modal__close" @click="closeDetailModal">
+          <i class="mdi mdi-close"></i>
+        </button>
+      </div>
+
+      <div class="modal__body" v-if="selectedContract">
+        <div class="contract-detail">
+          <!-- Contract Header Info -->
+          <div class="contract-detail__header">
+            <div class="contract-detail__number">{{ selectedContract.contractNumber }}</div>
+            <div class="contract-detail__badges">
+              <span :class="selectedContract.type === ContractType.Sale ? 'badge badge--sale' : 'badge badge--rental'">
+                <i :class="getContractTypeIcon(selectedContract.type)"></i>
+                {{ getContractTypeText(selectedContract.type) }}
+              </span>
+              <span :class="getStatusClasses(selectedContract.status)">
+                {{ getStatusText(selectedContract.status) }}
+              </span>
+            </div>
+          </div>
+
+          <!-- Property Information -->
+          <div class="contract-detail__section">
+            <h3 class="contract-detail__section-title">
+              <i class="mdi mdi-home"></i>
+              معلومات العقد
+            </h3>
+            <div class="contract-detail__grid">
+              <div class="contract-detail__item">
+                <span class="contract-detail__label">عنوان العقار</span>
+                <span class="contract-detail__value">{{ selectedContract.propertyAddress }}</span>
+              </div>
+              <div class="contract-detail__item">
+                <span class="contract-detail__label">المبلغ</span>
+                <span class="contract-detail__value contract-detail__value--price">{{ formatCurrency(selectedContract.contractAmount) }}</span>
+              </div>
+              <div class="contract-detail__item">
+                <span class="contract-detail__label">تاريخ الإنشاء</span>
+                <span class="contract-detail__value">{{ formatDate(selectedContract.createdAt) }}</span>
+              </div>
+              <div class="contract-detail__item" v-if="selectedContract.updatedAt">
+                <span class="contract-detail__label">تاريخ التحديث</span>
+                <span class="contract-detail__value">{{ formatDate(selectedContract.updatedAt) }}</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Parties Information -->
+          <div class="contract-detail__section">
+            <h3 class="contract-detail__section-title">
+              <i class="mdi mdi-account-group"></i>
+              أطراف العقد
+            </h3>
+            <div class="contract-detail__parties">
+              <div class="contract-detail__party">
+                <div class="contract-detail__party-icon">
+                  <i class="mdi mdi-account"></i>
+                </div>
+                <div class="contract-detail__party-info">
+                  <span class="contract-detail__party-role">{{ selectedContract.type === ContractType.Sale ? 'البائع' : 'المالك' }}</span>
+                  <span class="contract-detail__party-name">{{ selectedContract.sellerName }}</span>
+                </div>
+              </div>
+              <div class="contract-detail__party">
+                <div class="contract-detail__party-icon contract-detail__party-icon--secondary">
+                  <i class="mdi mdi-account-check"></i>
+                </div>
+                <div class="contract-detail__party-info">
+                  <span class="contract-detail__party-role">{{ selectedContract.type === ContractType.Sale ? 'المشتري' : 'المستأجر' }}</span>
+                  <span class="contract-detail__party-name">{{ selectedContract.buyerName }}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Creator Info -->
+          <div class="contract-detail__section">
+            <h3 class="contract-detail__section-title">
+              <i class="mdi mdi-account-circle"></i>
+              معلومات إضافية
+            </h3>
+            <div class="contract-detail__date">
+              <span class="contract-detail__label">تم الإنشاء بواسطة</span>
+              <span class="contract-detail__value">{{ selectedContract.createdBy }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="modal__footer">
+        <button class="btn btn--secondary" @click="closeDetailModal">
+          إغلاق
+        </button>
+        <button class="btn btn--primary" @click="printContract">
+          <i class="mdi mdi-printer"></i>
+          طباعة
+        </button>
+        <button
+          v-if="selectedContract && canApprove(selectedContract)"
+          class="btn btn--success"
+          @click="openConfirmModal(selectedContract, 'verify'); closeDetailModal();"
+        >
+          <i class="mdi mdi-check-circle"></i>
+          تثبيت العقد
+        </button>
+      </div>
+    </div>
   </div>
-</section>
+
+  <!-- Add Contract Modal -->
+  <div class="modal-overlay" v-if="showAddModal" @click="closeAddModal">
+    <div class="modal modal--large" @click.stop>
+      <div class="modal__header">
+        <h2 class="modal__title">
+          <i class="mdi mdi-plus-circle"></i>
+          إضافة عقد جديد
+        </h2>
+        <button class="modal__close" @click="closeAddModal">
+          <i class="mdi mdi-close"></i>
+        </button>
+      </div>
+
+      <div class="modal__body">
+        <form class="contract-form" @submit.prevent="submitNewContract">
+          <!-- Contract Type -->
+          <div class="form-section">
+            <h3 class="form-section__title">نوع العقد</h3>
+            <div class="form-radio-group">
+              <label class="form-radio">
+                <input type="radio" v-model="newContract.type" :value="ContractType.Sale" />
+                <span class="form-radio__mark"></span>
+                <span class="form-radio__label">
+                  <i class="mdi mdi-home-currency-usd"></i>
+                  عقد بيع
+                </span>
+              </label>
+              <label class="form-radio">
+                <input type="radio" v-model="newContract.type" :value="ContractType.Rental" />
+                <span class="form-radio__mark"></span>
+                <span class="form-radio__label">
+                  <i class="mdi mdi-home-city"></i>
+                  عقد إيجار
+                </span>
+              </label>
+            </div>
+          </div>
+
+          <!-- Contract Information -->
+          <div class="form-section">
+            <h3 class="form-section__title">معلومات العقد</h3>
+            <div class="form-grid">
+              <div class="form-group">
+                <label class="form-label">رقم العقد <span class="required">*</span></label>
+                <input
+                  type="text"
+                  v-model="newContract.contractNumber"
+                  class="form-input"
+                  :class="{ 'form-input--error': formErrors.contractNumber }"
+                  placeholder="CV-2026-001"
+                />
+                <span class="form-error" v-if="formErrors.contractNumber">{{ formErrors.contractNumber }}</span>
+              </div>
+
+              <div class="form-group">
+                <label class="form-label">المبلغ <span class="required">*</span></label>
+                <input
+                  type="number"
+                  v-model="newContract.contractAmount"
+                  class="form-input"
+                  :class="{ 'form-input--error': formErrors.contractAmount }"
+                  placeholder="1500000"
+                />
+                <span class="form-error" v-if="formErrors.contractAmount">{{ formErrors.contractAmount }}</span>
+              </div>
+
+              <div class="form-group form-group--full">
+                <label class="form-label">عنوان العقار <span class="required">*</span></label>
+                <input
+                  type="text"
+                  v-model="newContract.propertyAddress"
+                  class="form-input"
+                  :class="{ 'form-input--error': formErrors.propertyAddress }"
+                  placeholder="الرياض - حي النرجس - فيلا 450م²"
+                />
+                <span class="form-error" v-if="formErrors.propertyAddress">{{ formErrors.propertyAddress }}</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Parties Information -->
+          <div class="form-section">
+            <h3 class="form-section__title">
+              {{ newContract.type === ContractType.Sale ? 'معلومات البائع والمشتري' : 'معلومات المالك والمستأجر' }}
+            </h3>
+            <div class="form-grid">
+              <div class="form-group">
+                <label class="form-label">
+                  {{ newContract.type === ContractType.Sale ? 'اسم البائع' : 'اسم المالك' }} <span class="required">*</span>
+                </label>
+                <input
+                  type="text"
+                  v-model="newContract.sellerName"
+                  class="form-input"
+                  :class="{ 'form-input--error': formErrors.sellerName }"
+                  placeholder="الاسم الكامل"
+                />
+                <span class="form-error" v-if="formErrors.sellerName">{{ formErrors.sellerName }}</span>
+              </div>
+
+              <div class="form-group">
+                <label class="form-label">
+                  {{ newContract.type === ContractType.Sale ? 'اسم المشتري' : 'اسم المستأجر' }} <span class="required">*</span>
+                </label>
+                <input
+                  type="text"
+                  v-model="newContract.buyerName"
+                  class="form-input"
+                  :class="{ 'form-input--error': formErrors.buyerName }"
+                  placeholder="الاسم الكامل"
+                />
+                <span class="form-error" v-if="formErrors.buyerName">{{ formErrors.buyerName }}</span>
+              </div>
+            </div>
+          </div>
+        </form>
+      </div>
+
+      <div class="modal__footer">
+        <button class="btn btn--secondary" @click="closeAddModal" :disabled="submitting">
+          إلغاء
+        </button>
+        <button class="btn btn--primary" @click="submitNewContract" :disabled="submitting">
+          <i class="mdi mdi-loading mdi-spin" v-if="submitting"></i>
+          <i class="mdi mdi-check" v-else></i>
+          {{ submitting ? 'جاري الإضافة...' : 'إضافة العقد' }}
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Confirmation Modal -->
+  <div class="modal-overlay" v-if="showConfirmModal" @click="closeConfirmModal">
+    <div class="modal modal--small" @click.stop>
+      <div class="modal__header" :class="confirmAction === 'verify' ? 'modal__header--success' : 'modal__header--danger'">
+        <h2 class="modal__title">
+          <i :class="confirmAction === 'verify' ? 'mdi mdi-check-circle' : 'mdi mdi-alert-circle'"></i>
+          {{ confirmAction === 'verify' ? 'تأكيد تثبيت العقد' : 'تأكيد رفض العقد' }}
+        </h2>
+        <button class="modal__close" @click="closeConfirmModal">
+          <i class="mdi mdi-close"></i>
+        </button>
+      </div>
+
+      <div class="modal__body">
+        <div class="confirm-content">
+          <p class="confirm-message">
+            {{ confirmAction === 'verify'
+              ? 'هل أنت متأكد من رغبتك في تثبيت هذا العقد؟ سيتم اعتماده رسمياً.'
+              : 'هل أنت متأكد من رغبتك في رفض هذا العقد؟'
+            }}
+          </p>
+          <div class="confirm-contract-info" v-if="selectedContract">
+            <div class="confirm-contract-number">{{ selectedContract.contractNumber }}</div>
+            <div class="confirm-contract-type">{{ getContractTypeText(selectedContract.type) }}</div>
+          </div>
+
+          <!-- Comment Field -->
+          <div class="form-group form-group--full" style="margin-top: 20px;">
+            <label class="form-label">ملاحظات {{ confirmAction === 'verify' ? '(اختياري)' : '(مطلوب)' }}</label>
+            <textarea
+              v-model="confirmComment"
+              class="form-textarea"
+              rows="3"
+              placeholder="أضف ملاحظاتك هنا..."
+            ></textarea>
+          </div>
+        </div>
+      </div>
+
+      <div class="modal__footer">
+        <button class="btn btn--secondary" @click="closeConfirmModal">
+          إلغاء
+        </button>
+        <button
+          class="btn"
+          :class="confirmAction === 'verify' ? 'btn--success' : 'btn--danger'"
+          @click="confirmActionExecute"
+        >
+          <i :class="confirmAction === 'verify' ? 'mdi mdi-check' : 'mdi mdi-close'"></i>
+          {{ confirmAction === 'verify' ? 'تثبيت' : 'رفض' }}
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
