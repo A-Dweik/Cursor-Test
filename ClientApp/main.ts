@@ -11,6 +11,9 @@ import AxiosService from './Services/AxiosService';
 import LoaderService from './Services/LoaderService';
 import initializeApplication from './plugins/application-initialization';
 import TelemetryService from './Services/TelemetryService';
+import ContractService from './Services/ContractService';
+import UserService from './shared/userService/UserService';
+import RoleService from './shared/userService/RoleService';
 import '@/assets/styles/main.css';
 
 Vue.config.productionTip = false;
@@ -38,6 +41,9 @@ initializeApplication().then((initialize) => {
             AxiosService,
             LoaderService,
             TelemetryService,
+            ContractService,
+            UserService,
+            RoleService,
         ],
         render: (h) => h(App),
     }).$mount('#app');
