@@ -172,27 +172,27 @@ export default class Index extends Vue {
 
     // Statistics computed properties
     public get totalContracts(): number {
-        return this.statistics.totalContracts;
+        return this.statistics && this.statistics.totalContracts ? this.statistics.totalContracts : 0;
     }
 
     public get submittedContracts(): number {
-        return this.statistics.submittedContracts;
+        return this.statistics && this.statistics.submittedContracts ? this.statistics.submittedContracts : 0;
     }
 
     public get initialApprovedContracts(): number {
-        return this.statistics.initialApprovedContracts;
+        return this.statistics && this.statistics.initialApprovedContracts ? this.statistics.initialApprovedContracts : 0;
     }
 
     public get managerApprovedContracts(): number {
-        return this.statistics.managerApprovedContracts;
+        return this.statistics && this.statistics.managerApprovedContracts ? this.statistics.managerApprovedContracts : 0;
     }
 
     public get finalApprovedContracts(): number {
-        return this.statistics.finalApprovedContracts;
+        return this.statistics && this.statistics.finalApprovedContracts ? this.statistics.finalApprovedContracts : 0;
     }
 
     public get rejectedContracts(): number {
-        return this.statistics.rejectedContracts;
+        return this.statistics && this.statistics.rejectedContracts ? this.statistics.rejectedContracts : 0;
     }
 
     public get filteredContracts(): Contract[] {
