@@ -3,12 +3,12 @@ import axios, { AxiosInstance } from 'axios';
 import { Service } from 'vue-di-container';
 
 @Service()
-export default class AxiosService {
+export default class AxiosService2 {
 
     public axiosInstance: AxiosInstance;
     constructor() {
         const config = {
-            baseURL: process.env.BASE_URL,
+            baseURL: 'http://localhost:40000/applications/dashboard',
         };
         this.axiosInstance = axios.create(config);
         this.axiosInstance.interceptors.request.use(

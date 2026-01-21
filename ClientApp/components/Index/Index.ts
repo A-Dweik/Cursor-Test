@@ -1,35 +1,28 @@
 import { Component, Vue } from 'vue-property-decorator';
+import { Inject } from 'vue-di-container';
 import WithRender from './IndexPage.html';
-
-interface Contract {
-    id: number;
-    type: 'sale' | 'rental';
-    propertyType: string;
-    location: string;
-    price: string;
-    seller?: string;
-    buyer?: string;
-    owner?: string;
-    tenant?: string;
-    status: 'pending' | 'verified' | 'rejected';
-    date: string;
-    contractNumber: string;
-    area?: string;
-    description?: string;
-    documents?: string[];
-}
+import ContractService from '@/Services/ContractService';
+import UserService from '@/shared/userService/UserService';
+import RoleService from '@/shared/userService/RoleService';
+import { Toaster } from '@/Services/toast';
+import {
+    Contract,
+    ContractCreateModel,
+    ContractStatusUpdateModel,
+    ContractHistory,
+    ContractStatistics,
+    ContractFilterModel,
+    ContractType,
+    ContractStatus
+} from '@/Services/Models/ContractModels';
 
 interface NewContractForm {
-    type: 'sale' | 'rental';
-    propertyType: string;
-    location: string;
-    price: string;
-    area: string;
-    description: string;
-    partyOneName: string;
-    partyOneId: string;
-    partyTwoName: string;
-    partyTwoId: string;
+    contractNumber: string;
+    type: ContractType;
+    sellerName: string;
+    buyerName: string;
+    propertyAddress: string;
+    contractAmount: string;
 }
 
 @WithRender
@@ -37,208 +30,166 @@ interface NewContractForm {
     components: {},
 })
 export default class Index extends Vue {
+    // Services
+    @Inject(ContractService) private contractService!: ContractService;
+    @Inject(UserService) private userService!: UserService;
+    @Inject(RoleService) private roleService!: RoleService;
+
+    // Data
     public contracts: Contract[] = [];
     public loading: boolean = false;
     public searchQuery: string = '';
-    public selectedFilter: string = 'all';
+    public selectedTypeFilter: ContractType | null = null;
+    public selectedStatusFilter: ContractStatus | null = null;
+
+    // User info
+    public currentUser: string = '';
+    public isAdmin: boolean = false;
 
     // Modal states
     public showDetailModal: boolean = false;
     public showAddModal: boolean = false;
+    public showHistoryModal: boolean = false;
     public showConfirmModal: boolean = false;
     public selectedContract: Contract | null = null;
+    public contractHistory: ContractHistory[] = [];
     public confirmAction: 'verify' | 'reject' | null = null;
+    public confirmComment: string = '';
 
     // Form data
     public newContract: NewContractForm = this.getEmptyForm();
     public formErrors: { [key: string]: string } = {};
     public submitting: boolean = false;
 
-    // Property types
-    public propertyTypes = [
-        'فيلا',
-        'شقة',
-        'أرض سكنية',
-        'أرض تجارية',
-        'عمارة سكنية',
-        'مكتب تجاري',
-        'محل تجاري',
-        'مستودع',
-        'مزرعة'
-    ];
+    // Statistics
+    public statistics: ContractStatistics = {
+        totalContracts: 0,
+        pendingContracts: 0,
+        underReviewContracts: 0,
+        verifiedContracts: 0,
+        rejectedContracts: 0
+    };
 
-    // Locations
-    public locations = [
-        'الرياض',
-        'جدة',
-        'مكة المكرمة',
-        'المدينة المنورة',
-        'الدمام',
-        'الخبر',
-        'الطائف',
-        'تبوك',
-        'أبها'
-    ];
+    // Enums for template
+    public ContractType = ContractType;
+    public ContractStatus = ContractStatus;
 
-    public mounted() {
+    public async created() {
+        await this.initializeUser();
+    }
+
+    public async mounted() {
         document.title = 'SigmaS | تثبيت عقود بيع وإيجار العقارات';
-        this.loadContracts();
+        await this.loadData();
+    }
+
+    private async initializeUser() {
+        try {
+            const user = await this.userService.getUser();
+            this.currentUser = user && user.username ? user.username : 'test';
+            this.isAdmin = await this.roleService.isAdmin();
+
+            console.log('User initialized:', { username: this.currentUser, isAdmin: this.isAdmin });
+        } catch (error) {
+            console.error('Error loading user info:', error);
+            // Fallback to default test user if UserInfo fails
+            this.currentUser = 'test';
+            this.isAdmin = false;
+        }
+    }
+
+    private async loadData() {
+        await Promise.all([
+            this.loadContracts(),
+            this.loadStatistics()
+        ]);
+    }
+
+    public async loadContracts() {
+        this.loading = true;
+        try {
+            const filter: ContractFilterModel = {
+                search: this.searchQuery || undefined,
+                type: this.selectedTypeFilter || undefined,
+                status: this.selectedStatusFilter || undefined,
+                // Non-admins only see their own contracts
+                createdBy: this.isAdmin ? undefined : (this.currentUser || undefined)
+            };
+
+            this.contracts = await this.contractService.getContracts(filter);
+        } catch (error) {
+            console.error('Error loading contracts:', error);
+            Toaster.error('حدث خطأ أثناء تحميل العقود');
+        } finally {
+            this.loading = false;
+        }
+    }
+
+    public async loadStatistics() {
+        try {
+            const createdBy = this.isAdmin ? undefined : (this.currentUser || undefined);
+            this.statistics = await this.contractService.getStatistics(createdBy);
+        } catch (error) {
+            console.error('Error loading statistics:', error);
+            Toaster.error('حدث خطأ أثناء تحميل الإحصائيات');
+        }
     }
 
     public getEmptyForm(): NewContractForm {
         return {
-            type: 'sale',
-            propertyType: '',
-            location: '',
-            price: '',
-            area: '',
-            description: '',
-            partyOneName: '',
-            partyOneId: '',
-            partyTwoName: '',
-            partyTwoId: ''
+            contractNumber: this.generateContractNumber(),
+            type: ContractType.Sale,
+            sellerName: '',
+            buyerName: '',
+            propertyAddress: '',
+            contractAmount: ''
         };
     }
 
-    public loadContracts() {
-        this.loading = true;
-        setTimeout(() => {
-            this.contracts = [
-                {
-                    id: 1,
-                    type: 'sale',
-                    propertyType: 'فيلا',
-                    location: 'الرياض - حي النرجس',
-                    price: '2,500,000 ريال',
-                    seller: 'محمد أحمد العلي',
-                    buyer: 'خالد سعد المطيري',
-                    status: 'pending',
-                    date: '2026-01-15',
-                    contractNumber: 'CV-2026-001',
-                    area: '450 متر مربع',
-                    description: 'فيلا دوبلكس حديثة البناء مع حديقة ومسبح'
-                },
-                {
-                    id: 2,
-                    type: 'rental',
-                    propertyType: 'شقة',
-                    location: 'جدة - حي الروضة',
-                    price: '3,500 ريال/شهرياً',
-                    owner: 'سعد عبدالله الغامدي',
-                    tenant: 'أحمد علي الزهراني',
-                    status: 'verified',
-                    date: '2026-01-12',
-                    contractNumber: 'CR-2026-045',
-                    area: '180 متر مربع',
-                    description: 'شقة مفروشة بالكامل، 3 غرف نوم'
-                },
-                {
-                    id: 3,
-                    type: 'sale',
-                    propertyType: 'أرض سكنية',
-                    location: 'الدمام - حي الفيصلية',
-                    price: '1,200,000 ريال',
-                    seller: 'فهد محمد القحطاني',
-                    buyer: 'عبدالرحمن سليمان الدوسري',
-                    status: 'verified',
-                    date: '2026-01-10',
-                    contractNumber: 'CV-2026-002',
-                    area: '600 متر مربع',
-                    description: 'أرض سكنية في موقع مميز قريبة من الخدمات'
-                },
-                {
-                    id: 4,
-                    type: 'rental',
-                    propertyType: 'مكتب تجاري',
-                    location: 'الرياض - حي العليا',
-                    price: '8,000 ريال/شهرياً',
-                    owner: 'شركة العقارات المتقدمة',
-                    tenant: 'مؤسسة التقنية الحديثة',
-                    status: 'rejected',
-                    date: '2026-01-08',
-                    contractNumber: 'CR-2026-046',
-                    area: '120 متر مربع',
-                    description: 'مكتب في برج تجاري راقي مع مواقف سيارات'
-                },
-                {
-                    id: 5,
-                    type: 'sale',
-                    propertyType: 'عمارة سكنية',
-                    location: 'مكة المكرمة - حي العزيزية',
-                    price: '5,800,000 ريال',
-                    seller: 'ناصر عبدالعزيز الشهري',
-                    buyer: 'مجموعة الاستثمار العقاري',
-                    status: 'pending',
-                    date: '2026-01-18',
-                    contractNumber: 'CV-2026-003',
-                    area: '1200 متر مربع',
-                    description: 'عمارة سكنية 6 أدوار تحتوي على 12 شقة'
-                },
-                {
-                    id: 6,
-                    type: 'rental',
-                    propertyType: 'محل تجاري',
-                    location: 'الخبر - حي الكورنيش',
-                    price: '4,200 ريال/شهرياً',
-                    owner: 'عبدالله حسن العتيبي',
-                    tenant: 'مؤسسة التجارة الحديثة',
-                    status: 'verified',
-                    date: '2026-01-05',
-                    contractNumber: 'CR-2026-047',
-                    area: '85 متر مربع',
-                    description: 'محل تجاري على شارع رئيسي'
-                }
-            ];
-            this.loading = false;
-        }, 500);
+    private generateContractNumber(): string {
+        const year = new Date().getFullYear();
+        const random = Math.floor(Math.random() * 999) + 1;
+        return `CV-${year}-${String(random).padStart(3, '0')}`;
     }
 
-    // Statistics
+    // Search and filter
+    public async onSearchChange() {
+        await this.loadContracts();
+    }
+
+    public async selectTypeFilter(type: ContractType | null) {
+        this.selectedTypeFilter = type;
+        await this.loadContracts();
+    }
+
+    public async selectStatusFilter(status: ContractStatus | null) {
+        this.selectedStatusFilter = status;
+        await this.loadContracts();
+    }
+
+    // Statistics computed properties
     public get totalContracts(): number {
-        return this.contracts.length;
+        return this.statistics.totalContracts;
     }
 
     public get pendingContracts(): number {
-        return this.contracts.filter(c => c.status === 'pending').length;
+        return this.statistics.pendingContracts;
+    }
+
+    public get underReviewContracts(): number {
+        return this.statistics.underReviewContracts;
     }
 
     public get verifiedContracts(): number {
-        return this.contracts.filter(c => c.status === 'verified').length;
+        return this.statistics.verifiedContracts;
     }
 
     public get rejectedContracts(): number {
-        return this.contracts.filter(c => c.status === 'rejected').length;
-    }
-
-    public get saleContractsCount(): number {
-        return this.contracts.filter(c => c.type === 'sale').length;
-    }
-
-    public get rentalContractsCount(): number {
-        return this.contracts.filter(c => c.type === 'rental').length;
+        return this.statistics.rejectedContracts;
     }
 
     public get filteredContracts(): Contract[] {
-        let filtered = this.contracts;
-
-        if (this.selectedFilter !== 'all') {
-            filtered = filtered.filter(c => c.type === this.selectedFilter);
-        }
-
-        if (this.searchQuery) {
-            const query = this.searchQuery.toLowerCase();
-            filtered = filtered.filter(c =>
-                c.contractNumber.toLowerCase().includes(query) ||
-                c.location.toLowerCase().includes(query) ||
-                c.propertyType.toLowerCase().includes(query)
-            );
-        }
-
-        return filtered;
-    }
-
-    public selectFilter(filter: string) {
-        this.selectedFilter = filter;
+        return this.contracts;
     }
 
     // Modal handlers
@@ -264,9 +215,27 @@ export default class Index extends Vue {
         this.formErrors = {};
     }
 
+    public async openHistoryModal(contract: Contract) {
+        this.selectedContract = contract;
+        this.showHistoryModal = true;
+        try {
+            this.contractHistory = await this.contractService.getContractHistory(contract.id);
+        } catch (error) {
+            console.error('Error loading history:', error);
+            Toaster.error('حدث خطأ أثناء تحميل سجل العقد');
+        }
+    }
+
+    public closeHistoryModal() {
+        this.showHistoryModal = false;
+        this.selectedContract = null;
+        this.contractHistory = [];
+    }
+
     public openConfirmModal(contract: Contract, action: 'verify' | 'reject') {
         this.selectedContract = contract;
         this.confirmAction = action;
+        this.confirmComment = '';
         this.showConfirmModal = true;
     }
 
@@ -274,101 +243,97 @@ export default class Index extends Vue {
         this.showConfirmModal = false;
         this.selectedContract = null;
         this.confirmAction = null;
+        this.confirmComment = '';
     }
 
     // Actions
-    public confirmActionExecute() {
+    public async confirmActionExecute() {
         if (!this.selectedContract || !this.confirmAction) return;
 
-        if (this.confirmAction === 'verify') {
-            this.selectedContract.status = 'verified';
-        } else {
-            this.selectedContract.status = 'rejected';
-        }
+        try {
+            const newStatus = this.confirmAction === 'verify'
+                ? ContractStatus.Verified
+                : ContractStatus.Rejected;
 
-        this.closeConfirmModal();
+            const updateModel: ContractStatusUpdateModel = {
+                contractId: this.selectedContract.id,
+                newStatus: newStatus,
+                changedBy: this.currentUser,
+                comment: this.confirmComment
+            };
+
+            await this.contractService.updateContractStatus(updateModel);
+
+            const successMessage = this.confirmAction === 'verify'
+                ? 'تم تثبيت العقد بنجاح'
+                : 'تم رفض العقد بنجاح';
+            Toaster.success(successMessage);
+
+            this.closeConfirmModal();
+            await this.loadData();
+        } catch (error) {
+            console.error('Error updating contract status:', error);
+            Toaster.error('حدث خطأ أثناء تحديث حالة العقد');
+        }
     }
 
     public validateForm(): boolean {
         this.formErrors = {};
         let isValid = true;
 
-        if (!this.newContract.propertyType) {
-            this.formErrors.propertyType = 'يرجى اختيار نوع العقار';
+        if (!this.newContract.contractNumber) {
+            this.formErrors.contractNumber = 'يرجى إدخال رقم العقد';
             isValid = false;
         }
 
-        if (!this.newContract.location) {
-            this.formErrors.location = 'يرجى إدخال الموقع';
+        if (!this.newContract.sellerName.trim()) {
+            this.formErrors.sellerName = 'يرجى إدخال اسم البائع/المالك';
             isValid = false;
         }
 
-        if (!this.newContract.price) {
-            this.formErrors.price = 'يرجى إدخال السعر';
+        if (!this.newContract.buyerName.trim()) {
+            this.formErrors.buyerName = 'يرجى إدخال اسم المشتري/المستأجر';
             isValid = false;
         }
 
-        if (!this.newContract.partyOneName) {
-            this.formErrors.partyOneName = 'يرجى إدخال اسم الطرف الأول';
+        if (!this.newContract.propertyAddress.trim()) {
+            this.formErrors.propertyAddress = 'يرجى إدخال عنوان العقار';
             isValid = false;
         }
 
-        if (!this.newContract.partyOneId || !/^[1-2]\d{9}$/.test(this.newContract.partyOneId)) {
-            this.formErrors.partyOneId = 'يرجى إدخال رقم هوية صحيح';
-            isValid = false;
-        }
-
-        if (!this.newContract.partyTwoName) {
-            this.formErrors.partyTwoName = 'يرجى إدخال اسم الطرف الثاني';
-            isValid = false;
-        }
-
-        if (!this.newContract.partyTwoId || !/^[1-2]\d{9}$/.test(this.newContract.partyTwoId)) {
-            this.formErrors.partyTwoId = 'يرجى إدخال رقم هوية صحيح';
+        if (!this.newContract.contractAmount || parseFloat(this.newContract.contractAmount) <= 0) {
+            this.formErrors.contractAmount = 'يرجى إدخال مبلغ صحيح';
             isValid = false;
         }
 
         return isValid;
     }
 
-    public submitNewContract() {
+    public async submitNewContract() {
         if (!this.validateForm()) return;
 
         this.submitting = true;
-
-        setTimeout(() => {
-            const newId = Math.max(...this.contracts.map(c => c.id)) + 1;
-            const contractNumber = this.newContract.type === 'sale'
-                ? `CV-2026-${String(newId).padStart(3, '0')}`
-                : `CR-2026-${String(newId + 50).padStart(3, '0')}`;
-
-            const contract: Contract = {
-                id: newId,
+        try {
+            const createModel: ContractCreateModel = {
+                contractNumber: this.newContract.contractNumber,
                 type: this.newContract.type,
-                propertyType: this.newContract.propertyType,
-                location: this.newContract.location,
-                price: this.newContract.type === 'sale'
-                    ? `${this.newContract.price} ريال`
-                    : `${this.newContract.price} ريال/شهرياً`,
-                status: 'pending',
-                date: new Date().toISOString().split('T')[0],
-                contractNumber: contractNumber,
-                area: this.newContract.area ? `${this.newContract.area} متر مربع` : undefined,
-                description: this.newContract.description
+                sellerName: this.newContract.sellerName,
+                buyerName: this.newContract.buyerName,
+                propertyAddress: this.newContract.propertyAddress,
+                contractAmount: parseFloat(this.newContract.contractAmount)
             };
 
-            if (this.newContract.type === 'sale') {
-                contract.seller = this.newContract.partyOneName;
-                contract.buyer = this.newContract.partyTwoName;
-            } else {
-                contract.owner = this.newContract.partyOneName;
-                contract.tenant = this.newContract.partyTwoName;
-            }
+            await this.contractService.createContract(createModel, this.currentUser);
 
-            this.contracts.unshift(contract);
-            this.submitting = false;
+            Toaster.success('تم إضافة العقد بنجاح');
             this.closeAddModal();
-        }, 1000);
+            await this.loadData();
+        } catch (error) {
+            console.error('Error creating contract:', error);
+            Toaster.error('حدث خطأ أثناء إضافة العقد');
+        } finally {
+            this.submitting = false;
+        }
     }
 
     public printContract() {
@@ -376,31 +341,33 @@ export default class Index extends Vue {
     }
 
     // Helper methods
-    public getStatusText(status: string): string {
+    public getStatusText(status: ContractStatus): string {
         switch (status) {
-            case 'verified': return 'موثق';
-            case 'pending': return 'قيد المراجعة';
-            case 'rejected': return 'مرفوض';
-            default: return status;
+            case ContractStatus.Verified: return 'موثق';
+            case ContractStatus.Pending: return 'قيد الانتظار';
+            case ContractStatus.UnderReview: return 'قيد المراجعة';
+            case ContractStatus.Rejected: return 'مرفوض';
+            default: return '';
         }
     }
 
-    public getStatusClasses(status: string): string {
+    public getStatusClasses(status: ContractStatus): string {
         const baseClasses = 'contract-status';
         switch (status) {
-            case 'verified': return `${baseClasses} contract-status--verified`;
-            case 'pending': return `${baseClasses} contract-status--pending`;
-            case 'rejected': return `${baseClasses} contract-status--rejected`;
+            case ContractStatus.Verified: return `${baseClasses} contract-status--verified`;
+            case ContractStatus.Pending: return `${baseClasses} contract-status--pending`;
+            case ContractStatus.UnderReview: return `${baseClasses} contract-status--pending`;
+            case ContractStatus.Rejected: return `${baseClasses} contract-status--rejected`;
             default: return baseClasses;
         }
     }
 
-    public getContractTypeText(type: string): string {
-        return type === 'sale' ? 'عقد بيع' : 'عقد إيجار';
+    public getContractTypeText(type: ContractType): string {
+        return type === ContractType.Sale ? 'عقد بيع' : 'عقد إيجار';
     }
 
-    public getContractTypeIcon(type: string): string {
-        return type === 'sale' ? 'mdi-home-currency-usd' : 'mdi-home-city';
+    public getContractTypeIcon(type: ContractType): string {
+        return type === ContractType.Sale ? 'mdi-home-currency-usd' : 'mdi-home-city';
     }
 
     public formatDate(dateStr: string): string {
@@ -410,5 +377,20 @@ export default class Index extends Vue {
             month: 'long',
             day: 'numeric'
         });
+    }
+
+    public formatCurrency(amount: number): string {
+        return new Intl.NumberFormat('ar-SA', {
+            style: 'decimal',
+            minimumFractionDigits: 0,
+            maximumFractionDigits: 2
+        }).format(amount) + ' ريال';
+    }
+
+    // Check if user can perform admin actions
+    public canApprove(contract: Contract): boolean {
+        return this.isAdmin &&
+               (contract.status === ContractStatus.Pending ||
+                contract.status === ContractStatus.UnderReview);
     }
 }

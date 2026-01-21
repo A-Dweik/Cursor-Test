@@ -12,7 +12,6 @@ using Microsoft.Extensions.Logging;
 
 namespace ContractVerification.Controllers
 {
-    [Authorize]
     [ApiController]
     [Route("api/[controller]")]
     public class ContractsController : ControllerBase

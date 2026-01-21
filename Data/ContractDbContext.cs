@@ -62,7 +62,7 @@ namespace ContractVerification.Data
                 entity.HasIndex(e => e.ChangedAt);
             });
 
-            // Seed data
+            // Seed data for demo/testing
             SeedData(modelBuilder);
         }
 

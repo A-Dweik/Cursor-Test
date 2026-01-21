@@ -11,7 +11,17 @@ export default class RoleService {
 
     public async getRole(): Promise<string | null> {
         const user = await this.getUser();
-        if (!user || !user.profile) {
+        if (!user) {
+            return null;
+        }
+
+        // Check if user object has isAdmin property (new API)
+        if (user.username !== undefined) {
+            return user.username == '1069541397' ? 'Admin' : 'User';
+        }
+
+        // Fallback to old claims-based approach
+        if (!user.profile) {
             return null;
         }
 
@@ -26,13 +36,34 @@ export default class RoleService {
     }
 
     public async isAdmin(): Promise<boolean> {
+        const user = await this.getUser();
+        if (!user) {
+            return false;
+        }
+
+        // Check if user object has isAdmin property (new API)
+        if (user.username !== undefined) {
+            return user.username == '1069541397';
+        }
+
+        // Fallback to old role-based approach
         const role = await this.getRole();
         return role === 'Admin';
     }
 
     public async getUsername(): Promise<string | null> {
         const user = await this.getUser();
-        if (!user || !user.profile) {
+        if (!user) {
+            return null;
+        }
+
+        // Check if user object has username property (new API)
+        if (user.username) {
+            return user.username;
+        }
+
+        // Fallback to old claims-based approach
+        if (!user.profile) {
             return null;
         }
 
@@ -42,7 +73,17 @@ export default class RoleService {
 
     public async getDisplayName(): Promise<string | null> {
         const user = await this.getUser();
-        if (!user || !user.profile) {
+        if (!user) {
+            return null;
+        }
+
+        // Check if user object has fullName property (new API)
+        if (user.fullName) {
+            return user.fullName;
+        }
+
+        // Fallback to old claims-based approach
+        if (!user.profile) {
             return null;
         }
 

@@ -15,7 +15,7 @@
           <i class="mdi mdi-file-document-check"></i>
           تثبيت عقود بيع وإيجار العقارات
         </h1>
-        <p class="page-header__subtitle">إدارة ومراجعة عقود البيع والإيجار العقارية</p>
+       
       </div>
       <button class="btn-add-contract" @click="openAddModal">
         <i class="mdi mdi-plus-circle"></i>
@@ -42,7 +42,7 @@
           <i class="mdi mdi-clock-outline"></i>
         </div>
         <div class="stat-card__content">
-          <span class="stat-card__value">{{ pendingContracts }}</span>
+          <span class="stat-card__value">{{ pendingContracts + underReviewContracts }}</span>
           <span class="stat-card__label">قيد المراجعة</span>
         </div>
       </div>
@@ -76,35 +76,36 @@
       <input
         type="text"
         class="search-box__input"
-        placeholder="ابحث برقم العقد، الموقع، أو نوع العقار..."
+        placeholder="ابحث برقم العقد أو الأطراف أو العنوان..."
         v-model="searchQuery"
+        @input="onSearchChange"
       />
     </div>
 
     <div class="filter-tabs">
       <button
         class="filter-tab"
-        :class="{ 'filter-tab--active': selectedFilter === 'all' }"
-        @click="selectFilter('all')"
+        :class="{ 'filter-tab--active': selectedTypeFilter === null }"
+        @click="selectTypeFilter(null)"
       >
         <i class="mdi mdi-file-document-multiple"></i>
-        الكل ({{ totalContracts }})
+        الكل
       </button>
       <button
         class="filter-tab"
-        :class="{ 'filter-tab--active': selectedFilter === 'sale' }"
-        @click="selectFilter('sale')"
+        :class="{ 'filter-tab--active': selectedTypeFilter === ContractType.Sale }"
+        @click="selectTypeFilter(ContractType.Sale)"
       >
         <i class="mdi mdi-home-currency-usd"></i>
-        عقود البيع ({{ saleContractsCount }})
+        عقود البيع
       </button>
       <button
         class="filter-tab"
-        :class="{ 'filter-tab--active': selectedFilter === 'rental' }"
-        @click="selectFilter('rental')"
+        :class="{ 'filter-tab--active': selectedTypeFilter === ContractType.Rental }"
+        @click="selectTypeFilter(ContractType.Rental)"
       >
         <i class="mdi mdi-home-city"></i>
-        عقود الإيجار ({{ rentalContractsCount }})
+        عقود الإيجار
       </button>
     </div>
   </section>
@@ -132,7 +133,7 @@
       >
         <!-- Card Header -->
         <div class="contract-card__header">
-          <div class="contract-card__type" :class="contract.type === 'sale' ? 'contract-card__type--sale' : 'contract-card__type--rental'">
+          <div class="contract-card__type" :class="contract.type === ContractType.Sale ? 'contract-card__type--sale' : 'contract-card__type--rental'">
             <i :class="getContractTypeIcon(contract.type)"></i>
             {{ getContractTypeText(contract.type) }}
           </div>
@@ -147,41 +148,29 @@
 
           <div class="contract-card__info">
             <div class="contract-card__info-item">
-              <i class="mdi mdi-home-variant"></i>
-              <span>{{ contract.propertyType }}</span>
-            </div>
-            <div class="contract-card__info-item">
               <i class="mdi mdi-map-marker"></i>
-              <span>{{ contract.location }}</span>
+              <span>{{ contract.propertyAddress }}</span>
             </div>
             <div class="contract-card__info-item contract-card__info-item--price">
               <i class="mdi mdi-cash"></i>
-              <span>{{ contract.price }}</span>
+              <span>{{ formatCurrency(contract.contractAmount) }}</span>
             </div>
           </div>
 
           <div class="contract-card__parties">
-            <div class="contract-card__party" v-if="contract.type === 'sale'">
-              <span class="contract-card__party-label">البائع:</span>
-              <span class="contract-card__party-name">{{ contract.seller }}</span>
+            <div class="contract-card__party">
+              <span class="contract-card__party-label">{{ contract.type === ContractType.Sale ? 'البائع:' : 'المالك:' }}</span>
+              <span class="contract-card__party-name">{{ contract.sellerName }}</span>
             </div>
-            <div class="contract-card__party" v-if="contract.type === 'sale'">
-              <span class="contract-card__party-label">المشتري:</span>
-              <span class="contract-card__party-name">{{ contract.buyer }}</span>
-            </div>
-            <div class="contract-card__party" v-if="contract.type === 'rental'">
-              <span class="contract-card__party-label">المالك:</span>
-              <span class="contract-card__party-name">{{ contract.owner }}</span>
-            </div>
-            <div class="contract-card__party" v-if="contract.type === 'rental'">
-              <span class="contract-card__party-label">المستأجر:</span>
-              <span class="contract-card__party-name">{{ contract.tenant }}</span>
+            <div class="contract-card__party">
+              <span class="contract-card__party-label">{{ contract.type === ContractType.Sale ? 'المشتري:' : 'المستأجر:' }}</span>
+              <span class="contract-card__party-name">{{ contract.buyerName }}</span>
             </div>
           </div>
 
           <div class="contract-card__date">
             <i class="mdi mdi-calendar"></i>
-            {{ formatDate(contract.date) }}
+            {{ formatDate(contract.createdAt) }}
           </div>
         </div>
 
@@ -192,7 +181,7 @@
             عرض
           </button>
           <button
-            v-if="contract.status === 'pending'"
+            v-if="canApprove(contract)"
             class="btn-action btn-action--verify"
             @click="openConfirmModal(contract, 'verify')"
           >
@@ -200,7 +189,7 @@
             تثبيت
           </button>
           <button
-            v-if="contract.status === 'pending'"
+            v-if="canApprove(contract)"
             class="btn-action btn-action--reject"
             @click="openConfirmModal(contract, 'reject')"
           >
@@ -231,7 +220,7 @@
           <div class="contract-detail__header">
             <div class="contract-detail__number">{{ selectedContract.contractNumber }}</div>
             <div class="contract-detail__badges">
-              <span :class="selectedContract.type === 'sale' ? 'badge badge--sale' : 'badge badge--rental'">
+              <span :class="selectedContract.type === ContractType.Sale ? 'badge badge--sale' : 'badge badge--rental'">
                 <i :class="getContractTypeIcon(selectedContract.type)"></i>
                 {{ getContractTypeText(selectedContract.type) }}
               </span>
@@ -245,29 +234,25 @@
           <div class="contract-detail__section">
             <h3 class="contract-detail__section-title">
               <i class="mdi mdi-home"></i>
-              معلومات العقار
+              معلومات العقد
             </h3>
             <div class="contract-detail__grid">
               <div class="contract-detail__item">
-                <span class="contract-detail__label">نوع العقار</span>
-                <span class="contract-detail__value">{{ selectedContract.propertyType }}</span>
+                <span class="contract-detail__label">عنوان العقار</span>
+                <span class="contract-detail__value">{{ selectedContract.propertyAddress }}</span>
               </div>
               <div class="contract-detail__item">
-                <span class="contract-detail__label">الموقع</span>
-                <span class="contract-detail__value">{{ selectedContract.location }}</span>
+                <span class="contract-detail__label">المبلغ</span>
+                <span class="contract-detail__value contract-detail__value--price">{{ formatCurrency(selectedContract.contractAmount) }}</span>
               </div>
               <div class="contract-detail__item">
-                <span class="contract-detail__label">المساحة</span>
-                <span class="contract-detail__value">{{ selectedContract.area || 'غير محدد' }}</span>
+                <span class="contract-detail__label">تاريخ الإنشاء</span>
+                <span class="contract-detail__value">{{ formatDate(selectedContract.createdAt) }}</span>
               </div>
-              <div class="contract-detail__item">
-                <span class="contract-detail__label">السعر</span>
-                <span class="contract-detail__value contract-detail__value--price">{{ selectedContract.price }}</span>
+              <div class="contract-detail__item" v-if="selectedContract.updatedAt">
+                <span class="contract-detail__label">تاريخ التحديث</span>
+                <span class="contract-detail__value">{{ formatDate(selectedContract.updatedAt) }}</span>
               </div>
-            </div>
-            <div class="contract-detail__description" v-if="selectedContract.description">
-              <span class="contract-detail__label">الوصف</span>
-              <p class="contract-detail__value">{{ selectedContract.description }}</p>
             </div>
           </div>
 
@@ -278,54 +263,36 @@
               أطراف العقد
             </h3>
             <div class="contract-detail__parties">
-              <div class="contract-detail__party" v-if="selectedContract.type === 'sale'">
+              <div class="contract-detail__party">
                 <div class="contract-detail__party-icon">
                   <i class="mdi mdi-account"></i>
                 </div>
                 <div class="contract-detail__party-info">
-                  <span class="contract-detail__party-role">البائع</span>
-                  <span class="contract-detail__party-name">{{ selectedContract.seller }}</span>
+                  <span class="contract-detail__party-role">{{ selectedContract.type === ContractType.Sale ? 'البائع' : 'المالك' }}</span>
+                  <span class="contract-detail__party-name">{{ selectedContract.sellerName }}</span>
                 </div>
               </div>
-              <div class="contract-detail__party" v-if="selectedContract.type === 'sale'">
+              <div class="contract-detail__party">
                 <div class="contract-detail__party-icon contract-detail__party-icon--secondary">
                   <i class="mdi mdi-account-check"></i>
                 </div>
                 <div class="contract-detail__party-info">
-                  <span class="contract-detail__party-role">المشتري</span>
-                  <span class="contract-detail__party-name">{{ selectedContract.buyer }}</span>
-                </div>
-              </div>
-              <div class="contract-detail__party" v-if="selectedContract.type === 'rental'">
-                <div class="contract-detail__party-icon">
-                  <i class="mdi mdi-account"></i>
-                </div>
-                <div class="contract-detail__party-info">
-                  <span class="contract-detail__party-role">المالك</span>
-                  <span class="contract-detail__party-name">{{ selectedContract.owner }}</span>
-                </div>
-              </div>
-              <div class="contract-detail__party" v-if="selectedContract.type === 'rental'">
-                <div class="contract-detail__party-icon contract-detail__party-icon--secondary">
-                  <i class="mdi mdi-account-check"></i>
-                </div>
-                <div class="contract-detail__party-info">
-                  <span class="contract-detail__party-role">المستأجر</span>
-                  <span class="contract-detail__party-name">{{ selectedContract.tenant }}</span>
+                  <span class="contract-detail__party-role">{{ selectedContract.type === ContractType.Sale ? 'المشتري' : 'المستأجر' }}</span>
+                  <span class="contract-detail__party-name">{{ selectedContract.buyerName }}</span>
                 </div>
               </div>
             </div>
           </div>
 
-          <!-- Date Information -->
+          <!-- Creator Info -->
           <div class="contract-detail__section">
             <h3 class="contract-detail__section-title">
-              <i class="mdi mdi-calendar"></i>
-              معلومات التاريخ
+              <i class="mdi mdi-account-circle"></i>
+              معلومات إضافية
             </h3>
             <div class="contract-detail__date">
-              <span class="contract-detail__label">تاريخ العقد</span>
-              <span class="contract-detail__value">{{ formatDate(selectedContract.date) }}</span>
+              <span class="contract-detail__label">تم الإنشاء بواسطة</span>
+              <span class="contract-detail__value">{{ selectedContract.createdBy }}</span>
             </div>
           </div>
         </div>
@@ -340,7 +307,7 @@
           طباعة
         </button>
         <button
-          v-if="selectedContract && selectedContract.status === 'pending'"
+          v-if="selectedContract && canApprove(selectedContract)"
           class="btn btn--success"
           @click="openConfirmModal(selectedContract, 'verify'); closeDetailModal();"
         >
@@ -371,7 +338,7 @@
             <h3 class="form-section__title">نوع العقد</h3>
             <div class="form-radio-group">
               <label class="form-radio">
-                <input type="radio" v-model="newContract.type" value="sale" />
+                <input type="radio" v-model="newContract.type" :value="ContractType.Sale" />
                 <span class="form-radio__mark"></span>
                 <span class="form-radio__label">
                   <i class="mdi mdi-home-currency-usd"></i>
@@ -379,7 +346,7 @@
                 </span>
               </label>
               <label class="form-radio">
-                <input type="radio" v-model="newContract.type" value="rental" />
+                <input type="radio" v-model="newContract.type" :value="ContractType.Rental" />
                 <span class="form-radio__mark"></span>
                 <span class="form-radio__label">
                   <i class="mdi mdi-home-city"></i>
@@ -389,58 +356,44 @@
             </div>
           </div>
 
-          <!-- Property Information -->
+          <!-- Contract Information -->
           <div class="form-section">
-            <h3 class="form-section__title">معلومات العقار</h3>
+            <h3 class="form-section__title">معلومات العقد</h3>
             <div class="form-grid">
               <div class="form-group">
-                <label class="form-label">نوع العقار <span class="required">*</span></label>
-                <select v-model="newContract.propertyType" class="form-select" :class="{ 'form-select--error': formErrors.propertyType }">
-                  <option value="">اختر نوع العقار</option>
-                  <option v-for="type in propertyTypes" :key="type" :value="type">{{ type }}</option>
-                </select>
-                <span class="form-error" v-if="formErrors.propertyType">{{ formErrors.propertyType }}</span>
-              </div>
-
-              <div class="form-group">
-                <label class="form-label">المدينة <span class="required">*</span></label>
-                <select v-model="newContract.location" class="form-select" :class="{ 'form-select--error': formErrors.location }">
-                  <option value="">اختر المدينة</option>
-                  <option v-for="loc in locations" :key="loc" :value="loc">{{ loc }}</option>
-                </select>
-                <span class="form-error" v-if="formErrors.location">{{ formErrors.location }}</span>
-              </div>
-
-              <div class="form-group">
-                <label class="form-label">السعر <span class="required">*</span></label>
+                <label class="form-label">رقم العقد <span class="required">*</span></label>
                 <input
                   type="text"
-                  v-model="newContract.price"
+                  v-model="newContract.contractNumber"
                   class="form-input"
-                  :class="{ 'form-input--error': formErrors.price }"
-                  :placeholder="newContract.type === 'sale' ? 'مثال: 1,500,000' : 'مثال: 5,000'"
+                  :class="{ 'form-input--error': formErrors.contractNumber }"
+                  placeholder="CV-2026-001"
                 />
-                <span class="form-error" v-if="formErrors.price">{{ formErrors.price }}</span>
+                <span class="form-error" v-if="formErrors.contractNumber">{{ formErrors.contractNumber }}</span>
               </div>
 
               <div class="form-group">
-                <label class="form-label">المساحة (متر مربع)</label>
+                <label class="form-label">المبلغ <span class="required">*</span></label>
                 <input
-                  type="text"
-                  v-model="newContract.area"
+                  type="number"
+                  v-model="newContract.contractAmount"
                   class="form-input"
-                  placeholder="مثال: 250"
+                  :class="{ 'form-input--error': formErrors.contractAmount }"
+                  placeholder="1500000"
                 />
+                <span class="form-error" v-if="formErrors.contractAmount">{{ formErrors.contractAmount }}</span>
               </div>
 
               <div class="form-group form-group--full">
-                <label class="form-label">وصف العقار</label>
-                <textarea
-                  v-model="newContract.description"
-                  class="form-textarea"
-                  rows="3"
-                  placeholder="أضف وصفاً تفصيلياً للعقار..."
-                ></textarea>
+                <label class="form-label">عنوان العقار <span class="required">*</span></label>
+                <input
+                  type="text"
+                  v-model="newContract.propertyAddress"
+                  class="form-input"
+                  :class="{ 'form-input--error': formErrors.propertyAddress }"
+                  placeholder="الرياض - حي النرجس - فيلا 450م²"
+                />
+                <span class="form-error" v-if="formErrors.propertyAddress">{{ formErrors.propertyAddress }}</span>
               </div>
             </div>
           </div>
@@ -448,61 +401,35 @@
           <!-- Parties Information -->
           <div class="form-section">
             <h3 class="form-section__title">
-              {{ newContract.type === 'sale' ? 'معلومات البائع والمشتري' : 'معلومات المالك والمستأجر' }}
+              {{ newContract.type === ContractType.Sale ? 'معلومات البائع والمشتري' : 'معلومات المالك والمستأجر' }}
             </h3>
             <div class="form-grid">
               <div class="form-group">
                 <label class="form-label">
-                  {{ newContract.type === 'sale' ? 'اسم البائع' : 'اسم المالك' }} <span class="required">*</span>
+                  {{ newContract.type === ContractType.Sale ? 'اسم البائع' : 'اسم المالك' }} <span class="required">*</span>
                 </label>
                 <input
                   type="text"
-                  v-model="newContract.partyOneName"
+                  v-model="newContract.sellerName"
                   class="form-input"
-                  :class="{ 'form-input--error': formErrors.partyOneName }"
+                  :class="{ 'form-input--error': formErrors.sellerName }"
                   placeholder="الاسم الكامل"
                 />
-                <span class="form-error" v-if="formErrors.partyOneName">{{ formErrors.partyOneName }}</span>
-              </div>
-
-              <div class="form-group">
-                <label class="form-label">رقم الهوية <span class="required">*</span></label>
-                <input
-                  type="text"
-                  v-model="newContract.partyOneId"
-                  class="form-input"
-                  :class="{ 'form-input--error': formErrors.partyOneId }"
-                  placeholder="رقم الهوية الوطنية"
-                  maxlength="10"
-                />
-                <span class="form-error" v-if="formErrors.partyOneId">{{ formErrors.partyOneId }}</span>
+                <span class="form-error" v-if="formErrors.sellerName">{{ formErrors.sellerName }}</span>
               </div>
 
               <div class="form-group">
                 <label class="form-label">
-                  {{ newContract.type === 'sale' ? 'اسم المشتري' : 'اسم المستأجر' }} <span class="required">*</span>
+                  {{ newContract.type === ContractType.Sale ? 'اسم المشتري' : 'اسم المستأجر' }} <span class="required">*</span>
                 </label>
                 <input
                   type="text"
-                  v-model="newContract.partyTwoName"
+                  v-model="newContract.buyerName"
                   class="form-input"
-                  :class="{ 'form-input--error': formErrors.partyTwoName }"
+                  :class="{ 'form-input--error': formErrors.buyerName }"
                   placeholder="الاسم الكامل"
                 />
-                <span class="form-error" v-if="formErrors.partyTwoName">{{ formErrors.partyTwoName }}</span>
-              </div>
-
-              <div class="form-group">
-                <label class="form-label">رقم الهوية <span class="required">*</span></label>
-                <input
-                  type="text"
-                  v-model="newContract.partyTwoId"
-                  class="form-input"
-                  :class="{ 'form-input--error': formErrors.partyTwoId }"
-                  placeholder="رقم الهوية الوطنية"
-                  maxlength="10"
-                />
-                <span class="form-error" v-if="formErrors.partyTwoId">{{ formErrors.partyTwoId }}</span>
+                <span class="form-error" v-if="formErrors.buyerName">{{ formErrors.buyerName }}</span>
               </div>
             </div>
           </div>
@@ -540,12 +467,23 @@
           <p class="confirm-message">
             {{ confirmAction === 'verify'
               ? 'هل أنت متأكد من رغبتك في تثبيت هذا العقد؟ سيتم اعتماده رسمياً.'
-              : 'هل أنت متأكد من رغبتك في رفض هذا العقد؟ لن يمكن التراجع عن هذا الإجراء.'
+              : 'هل أنت متأكد من رغبتك في رفض هذا العقد؟'
             }}
           </p>
           <div class="confirm-contract-info" v-if="selectedContract">
             <div class="confirm-contract-number">{{ selectedContract.contractNumber }}</div>
-            <div class="confirm-contract-type">{{ getContractTypeText(selectedContract.type) }} - {{ selectedContract.propertyType }}</div>
+            <div class="confirm-contract-type">{{ getContractTypeText(selectedContract.type) }}</div>
+          </div>
+
+          <!-- Comment Field -->
+          <div class="form-group form-group--full" style="margin-top: 20px;">
+            <label class="form-label">ملاحظات {{ confirmAction === 'verify' ? '(اختياري)' : '(مطلوب)' }}</label>
+            <textarea
+              v-model="confirmComment"
+              class="form-textarea"
+              rows="3"
+              placeholder="أضف ملاحظاتك هنا..."
+            ></textarea>
           </div>
         </div>
       </div>

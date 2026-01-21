@@ -8,6 +8,7 @@ import router from './router';
 import './registerServiceWorker';
 import { VueDiContainer } from 'vue-di-container';
 import AxiosService from './Services/AxiosService';
+import AxiosService2 from './Services/AxiosService2';
 import LoaderService from './Services/LoaderService';
 import initializeApplication from './plugins/application-initialization';
 import TelemetryService from './Services/TelemetryService';
@@ -44,6 +45,7 @@ initializeApplication().then((initialize) => {
             ContractService,
             UserService,
             RoleService,
+            AxiosService2
         ],
         render: (h) => h(App),
     }).$mount('#app');
