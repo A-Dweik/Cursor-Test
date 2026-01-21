@@ -9,6 +9,7 @@ import './registerServiceWorker';
 import { VueDiContainer } from 'vue-di-container';
 import AxiosService from './Services/AxiosService';
 import LoaderService from './Services/LoaderService';
+import WorkflowService from './Services/WorkflowService';
 import initializeApplication from './plugins/application-initialization';
 import TelemetryService from './Services/TelemetryService';
 import '@/assets/styles/main.css';
@@ -38,6 +39,7 @@ initializeApplication().then((initialize) => {
             AxiosService,
             LoaderService,
             TelemetryService,
+            WorkflowService,
         ],
         render: (h) => h(App),
     }).$mount('#app');

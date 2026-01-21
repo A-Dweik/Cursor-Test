@@ -1,5 +1,8 @@
 import { Component, Vue} from 'vue-property-decorator';
 import WithRender from './IndexPage.html';
+import { Inject } from 'vue-di-container';
+import WorkflowService from '@/Services/WorkflowService';
+import { WorkflowStatus, ContractModel, WorkflowHistory } from '@/Models/WorkflowStatus';
 
 @WithRender
 @Component({
@@ -7,10 +10,13 @@ import WithRender from './IndexPage.html';
      },
 })
 export default class Index extends Vue {
-    public contracts: any[] = [];
+    @Inject(WorkflowService) public workflowService!: WorkflowService;
+    
+    public contracts: ContractModel[] = [];
     public loading: boolean = false;
     public searchQuery: string = '';
     public selectedFilter: string = 'all';
+    public selectedWorkflowFilter: string = 'all';
     
     public mounted() {
         this.loadContracts();
@@ -18,7 +24,7 @@ export default class Index extends Vue {
 
     public loadContracts() {
         this.loading = true;
-        // Simulated contract data
+        // Simulated contract data with workflow stages
         setTimeout(() => {
             this.contracts = [
                 {
@@ -29,9 +35,10 @@ export default class Index extends Vue {
                     price: '2,500,000 ريال',
                     seller: 'محمد أحمد العلي',
                     buyer: 'خالد سعد المطيري',
-                    status: 'pending',
+                    workflowStatus: WorkflowStatus.Submitted,
                     date: '2026-01-15',
-                    contractNumber: 'CV-2026-001'
+                    contractNumber: 'CV-2026-001',
+                    workflowHistory: []
                 },
                 {
                     id: 2,
@@ -41,9 +48,12 @@ export default class Index extends Vue {
                     price: '3,500 ريال/شهرياً',
                     owner: 'سعد عبدالله الغامدي',
                     tenant: 'أحمد علي الزهراني',
-                    status: 'verified',
+                    workflowStatus: WorkflowStatus.InitialApproved,
                     date: '2026-01-12',
-                    contractNumber: 'CR-2026-045'
+                    contractNumber: 'CR-2026-045',
+                    workflowHistory: [
+                        { stage: WorkflowStatus.Submitted, action: 'approved', by: 'مراجع أول', date: '2026-01-12' }
+                    ]
                 },
                 {
                     id: 3,
@@ -53,9 +63,14 @@ export default class Index extends Vue {
                     price: '1,200,000 ريال',
                     seller: 'فهد محمد القحطاني',
                     buyer: 'عبدالرحمن سليمان الدوسري',
-                    status: 'verified',
+                    workflowStatus: WorkflowStatus.FinalApproved,
                     date: '2026-01-10',
-                    contractNumber: 'CV-2026-002'
+                    contractNumber: 'CV-2026-002',
+                    workflowHistory: [
+                        { stage: WorkflowStatus.Submitted, action: 'approved', by: 'مراجع أول', date: '2026-01-10' },
+                        { stage: WorkflowStatus.InitialApproved, action: 'approved', by: 'مدير الإدارة', date: '2026-01-10' },
+                        { stage: WorkflowStatus.ManagerApproved, action: 'approved', by: 'الموافقة النهائية', date: '2026-01-10' }
+                    ]
                 },
                 {
                     id: 4,
@@ -65,9 +80,12 @@ export default class Index extends Vue {
                     price: '8,000 ريال/شهرياً',
                     owner: 'شركة العقارات المتقدمة',
                     tenant: 'مؤسسة التقنية الحديثة',
-                    status: 'rejected',
+                    workflowStatus: WorkflowStatus.Rejected,
                     date: '2026-01-08',
-                    contractNumber: 'CR-2026-046'
+                    contractNumber: 'CR-2026-046',
+                    workflowHistory: [
+                        { stage: WorkflowStatus.Submitted, action: 'rejected', by: 'مراجع أول', date: '2026-01-08', notes: 'بيانات ناقصة' }
+                    ]
                 },
                 {
                     id: 5,
@@ -77,9 +95,13 @@ export default class Index extends Vue {
                     price: '5,800,000 ريال',
                     seller: 'ناصر عبدالعزيز الشهري',
                     buyer: 'مجموعة الاستثمار العقاري',
-                    status: 'pending',
+                    workflowStatus: WorkflowStatus.ManagerApproved,
                     date: '2026-01-18',
-                    contractNumber: 'CV-2026-003'
+                    contractNumber: 'CV-2026-003',
+                    workflowHistory: [
+                        { stage: WorkflowStatus.Submitted, action: 'approved', by: 'مراجع أول', date: '2026-01-18' },
+                        { stage: WorkflowStatus.InitialApproved, action: 'approved', by: 'مدير الإدارة', date: '2026-01-18' }
+                    ]
                 },
                 {
                     id: 6,
@@ -89,9 +111,10 @@ export default class Index extends Vue {
                     price: '4,200 ريال/شهرياً',
                     owner: 'عبدالله حسن العتيبي',
                     tenant: 'مؤسسة التجارة الحديثة',
-                    status: 'verified',
+                    workflowStatus: WorkflowStatus.Submitted,
                     date: '2026-01-05',
-                    contractNumber: 'CR-2026-047'
+                    contractNumber: 'CR-2026-047',
+                    workflowHistory: []
                 }
             ];
             this.loading = false;
@@ -101,10 +124,17 @@ export default class Index extends Vue {
     public get filteredContracts() {
         let filtered = this.contracts;
 
+        // Filter by contract type (sale/rental)
         if (this.selectedFilter !== 'all') {
             filtered = filtered.filter(c => c.type === this.selectedFilter);
         }
 
+        // Filter by workflow status
+        if (this.selectedWorkflowFilter !== 'all') {
+            filtered = filtered.filter(c => c.workflowStatus === this.selectedWorkflowFilter);
+        }
+
+        // Search filter
         if (this.searchQuery) {
             const query = this.searchQuery.toLowerCase();
             filtered = filtered.filter(c => 
@@ -121,37 +151,99 @@ export default class Index extends Vue {
         this.selectedFilter = filter;
     }
 
-    public viewContract(contract: any) {
-        alert(`عرض تفاصيل العقد: ${contract.contractNumber}`);
+    public viewContract(contract: ContractModel) {
+        alert(`عرض تفاصيل العقد: ${contract.contractNumber}\n\nحالة سير العمل: ${this.getWorkflowStatusText(contract.workflowStatus)}`);
     }
 
-    public verifyContract(contract: any) {
-        contract.status = 'verified';
-        alert(`تم تثبيت العقد: ${contract.contractNumber}`);
-    }
-
-    public rejectContract(contract: any) {
-        contract.status = 'rejected';
-        alert(`تم رفض العقد: ${contract.contractNumber}`);
-    }
-
-    public getStatusText(status: string): string {
-        switch (status) {
-            case 'verified': return 'موثق';
-            case 'pending': return 'قيد المراجعة';
-            case 'rejected': return 'مرفوض';
-            default: return status;
+    public approveContract(contract: ContractModel) {
+        const nextStage = this.workflowService.getNextStage(contract.workflowStatus);
+        if (nextStage) {
+            const currentStageText = this.getWorkflowStatusText(contract.workflowStatus);
+            const nextStageText = this.getWorkflowStatusText(nextStage);
+            
+            // Add to history
+            const historyEntry: WorkflowHistory = {
+                stage: contract.workflowStatus,
+                action: 'approved',
+                by: this.getCurrentUserRole(contract.workflowStatus),
+                date: new Date().toISOString().split('T')[0]
+            };
+            contract.workflowHistory.push(historyEntry);
+            
+            // Update status
+            contract.workflowStatus = nextStage;
+            alert(`تمت الموافقة على العقد: ${contract.contractNumber}\n\nانتقل من: ${currentStageText}\nإلى: ${nextStageText}`);
         }
     }
 
-    public getStatusClasses(status: string): string {
+    public rejectContract(contract: ContractModel) {
+        if (this.workflowService.canReject(contract.workflowStatus)) {
+            const currentStageText = this.getWorkflowStatusText(contract.workflowStatus);
+            
+            // Add to history
+            const historyEntry: WorkflowHistory = {
+                stage: contract.workflowStatus,
+                action: 'rejected',
+                by: this.getCurrentUserRole(contract.workflowStatus),
+                date: new Date().toISOString().split('T')[0],
+                notes: 'تم الرفض من قبل المسؤول'
+            };
+            contract.workflowHistory.push(historyEntry);
+            
+            contract.workflowStatus = WorkflowStatus.Rejected;
+            alert(`تم رفض العقد: ${contract.contractNumber}\n\nمن المرحلة: ${currentStageText}`);
+        }
+    }
+
+    public getCurrentUserRole(status: WorkflowStatus): string {
+        switch (status) {
+            case WorkflowStatus.Submitted:
+                return 'مراجع أول';
+            case WorkflowStatus.InitialApproved:
+                return 'مدير الإدارة';
+            case WorkflowStatus.ManagerApproved:
+                return 'الموافقة النهائية';
+            default:
+                return 'مسؤول';
+        }
+    }
+
+    public getWorkflowStatusText(status: WorkflowStatus): string {
+        const stage = this.workflowService.getStageByStatus(status);
+        return stage ? stage.labelAr : status;
+    }
+
+    public getWorkflowStatusClasses(status: WorkflowStatus): string {
         const baseClasses = 'status--text status--rounded';
         switch (status) {
-            case 'verified': return `${baseClasses} status--green`;
-            case 'pending': return `${baseClasses} status--orange`;
-            case 'rejected': return `${baseClasses} status--red`;
-            default: return baseClasses;
+            case WorkflowStatus.FinalApproved:
+                return `${baseClasses} status--green`;
+            case WorkflowStatus.Submitted:
+                return `${baseClasses} status--blue`;
+            case WorkflowStatus.InitialApproved:
+            case WorkflowStatus.ManagerApproved:
+                return `${baseClasses} status--orange`;
+            case WorkflowStatus.Rejected:
+                return `${baseClasses} status--red`;
+            default:
+                return baseClasses;
         }
+    }
+
+    public canApprove(contract: ContractModel): boolean {
+        return this.workflowService.canApprove(contract.workflowStatus);
+    }
+
+    public canReject(contract: ContractModel): boolean {
+        return this.workflowService.canReject(contract.workflowStatus);
+    }
+
+    public getApprovalButtonText(contract: ContractModel): string {
+        return this.workflowService.getApprovalButtonText(contract.workflowStatus);
+    }
+
+    public getProgressPercentage(contract: ContractModel): number {
+        return this.workflowService.getProgressPercentage(contract.workflowStatus);
     }
 
     public getContractTypeText(type: string): string {
@@ -168,5 +260,25 @@ export default class Index extends Vue {
 
     public get rentalContractsCount(): number {
         return this.contracts.filter(c => c.type === 'rental').length;
+    }
+
+    public get submittedCount(): number {
+        return this.contracts.filter(c => c.workflowStatus === WorkflowStatus.Submitted).length;
+    }
+
+    public get initialApprovedCount(): number {
+        return this.contracts.filter(c => c.workflowStatus === WorkflowStatus.InitialApproved).length;
+    }
+
+    public get managerApprovedCount(): number {
+        return this.contracts.filter(c => c.workflowStatus === WorkflowStatus.ManagerApproved).length;
+    }
+
+    public get finalApprovedCount(): number {
+        return this.contracts.filter(c => c.workflowStatus === WorkflowStatus.FinalApproved).length;
+    }
+
+    public selectWorkflowFilter(filter: string) {
+        this.selectedWorkflowFilter = filter;
     }
 }
