@@ -68,14 +68,14 @@ namespace ContractVerification.Data
 
         private void SeedData(ModelBuilder modelBuilder)
         {
-            // Seed sample contracts
+            // Seed sample contracts with workflow stages
             modelBuilder.Entity<ContractEntity>().HasData(
                 new ContractEntity
                 {
                     Id = 1,
                     ContractNumber = "CV-2026-001",
                     Type = ContractType.Sale,
-                    Status = ContractStatus.Pending,
+                    Status = ContractStatus.Submitted,  // Stage 1: Awaiting initial review
                     SellerName = "محمد أحمد العلي",
                     BuyerName = "خالد سعد المطيري",
                     PropertyAddress = "الرياض - حي النرجس - فيلا دوبلكس 450م²",
@@ -89,7 +89,7 @@ namespace ContractVerification.Data
                     Id = 2,
                     ContractNumber = "CR-2026-045",
                     Type = ContractType.Rental,
-                    Status = ContractStatus.Verified,
+                    Status = ContractStatus.FinalApproved,  // Stage 4: Fully approved
                     SellerName = "سعد عبدالله الغامدي",
                     BuyerName = "أحمد علي الزهراني",
                     PropertyAddress = "جدة - حي الروضة - شقة مفروشة 180م²",
@@ -103,7 +103,7 @@ namespace ContractVerification.Data
                     Id = 3,
                     ContractNumber = "CV-2026-002",
                     Type = ContractType.Sale,
-                    Status = ContractStatus.Verified,
+                    Status = ContractStatus.FinalApproved,  // Stage 4: Fully approved
                     SellerName = "فهد محمد القحطاني",
                     BuyerName = "عبدالرحمن سليمان الدوسري",
                     PropertyAddress = "الدمام - حي الفيصلية - أرض سكنية 600م²",
@@ -131,7 +131,7 @@ namespace ContractVerification.Data
                     Id = 5,
                     ContractNumber = "CV-2026-003",
                     Type = ContractType.Sale,
-                    Status = ContractStatus.Pending,
+                    Status = ContractStatus.Submitted,  // Stage 1: Awaiting initial review
                     SellerName = "ناصر عبدالعزيز الشهري",
                     BuyerName = "مجموعة الاستثمار العقاري",
                     PropertyAddress = "مكة المكرمة - حي العزيزية - عمارة سكنية 1200م²",
@@ -145,7 +145,7 @@ namespace ContractVerification.Data
                     Id = 6,
                     ContractNumber = "CR-2026-047",
                     Type = ContractType.Rental,
-                    Status = ContractStatus.Verified,
+                    Status = ContractStatus.FinalApproved,  // Stage 4: Fully approved
                     SellerName = "عبدالله حسن العتيبي",
                     BuyerName = "مؤسسة التجارة الحديثة",
                     PropertyAddress = "الخبر - حي الكورنيش - محل تجاري 85م²",
@@ -159,7 +159,7 @@ namespace ContractVerification.Data
                     Id = 7,
                     ContractNumber = "CV-2026-004",
                     Type = ContractType.Sale,
-                    Status = ContractStatus.UnderReview,
+                    Status = ContractStatus.InitialApproved,  // Stage 2: Initial approval granted
                     SellerName = "سالم محمد الحربي",
                     BuyerName = "فيصل أحمد الغامدي",
                     PropertyAddress = "الطائف - حي الشفا - فيلا 350م²",
@@ -173,7 +173,7 @@ namespace ContractVerification.Data
                     Id = 8,
                     ContractNumber = "CR-2026-048",
                     Type = ContractType.Rental,
-                    Status = ContractStatus.Pending,
+                    Status = ContractStatus.Submitted,  // Stage 1: Awaiting initial review
                     SellerName = "يوسف عبدالرحمن المطيري",
                     BuyerName = "خالد سليمان الدوسري",
                     PropertyAddress = "المدينة المنورة - حي العزيزية - شقة 140م²",
@@ -187,7 +187,7 @@ namespace ContractVerification.Data
                     Id = 9,
                     ContractNumber = "CV-2026-005",
                     Type = ContractType.Sale,
-                    Status = ContractStatus.Verified,
+                    Status = ContractStatus.ManagerApproved,  // Stage 3: Manager approved, awaiting final
                     SellerName = "عبدالملك فهد الشمري",
                     BuyerName = "ماجد سعد القحطاني",
                     PropertyAddress = "أبها - حي الموظفين - أرض تجارية 800م²",
@@ -201,7 +201,7 @@ namespace ContractVerification.Data
                     Id = 10,
                     ContractNumber = "CR-2026-049",
                     Type = ContractType.Rental,
-                    Status = ContractStatus.UnderReview,
+                    Status = ContractStatus.InitialApproved,  // Stage 2: Initial approval granted
                     SellerName = "مؤسسة البناء الحديث",
                     BuyerName = "شركة التطوير العقاري",
                     PropertyAddress = "تبوك - حي السلام - مستودع 500م²",
@@ -212,47 +212,154 @@ namespace ContractVerification.Data
                 }
             );
 
-            // Seed sample history
+            // Seed sample history with workflow progression
             modelBuilder.Entity<ContractHistoryEntity>().HasData(
+                // Contract 2 history - Full workflow progression
                 new ContractHistoryEntity
                 {
                     Id = 1,
                     ContractId = 2,
-                    OldStatus = ContractStatus.Pending,
-                    NewStatus = ContractStatus.UnderReview,
-                    ChangedBy = "عبدالله محمد مروان محمد",
+                    OldStatus = ContractStatus.Submitted,
+                    NewStatus = ContractStatus.InitialApproved,
+                    ChangedBy = "مراجع أول",
                     ChangedAt = new DateTime(2026, 1, 12, 16, 0, 0),
-                    Comment = "تم استلام العقد وبدء عملية المراجعة"
+                    Comment = "تم المراجعة الأولية والموافقة"
                 },
                 new ContractHistoryEntity
                 {
                     Id = 2,
                     ContractId = 2,
-                    OldStatus = ContractStatus.UnderReview,
-                    NewStatus = ContractStatus.Verified,
-                    ChangedBy = "عبدالله محمد مروان محمد",
-                    ChangedAt = new DateTime(2026, 1, 13, 9, 15, 0),
-                    Comment = "تم التحقق من جميع المستندات والتوقيع الإلكتروني"
+                    OldStatus = ContractStatus.InitialApproved,
+                    NewStatus = ContractStatus.ManagerApproved,
+                    ChangedBy = "مدير الإدارة",
+                    ChangedAt = new DateTime(2026, 1, 13, 9, 0, 0),
+                    Comment = "تمت موافقة المدير"
                 },
                 new ContractHistoryEntity
                 {
                     Id = 3,
-                    ContractId = 3,
-                    OldStatus = ContractStatus.Pending,
-                    NewStatus = ContractStatus.Verified,
-                    ChangedBy = "عبدالله محمد مروان محمد",
-                    ChangedAt = new DateTime(2026, 1, 11, 10, 30, 0),
-                    Comment = "عقد مكتمل ومطابق للشروط"
+                    ContractId = 2,
+                    OldStatus = ContractStatus.ManagerApproved,
+                    NewStatus = ContractStatus.FinalApproved,
+                    ChangedBy = "الموافقة النهائية",
+                    ChangedAt = new DateTime(2026, 1, 13, 9, 15, 0),
+                    Comment = "تم التحقق من جميع المستندات والموافقة النهائية"
                 },
+                // Contract 3 history - Quick approval (skipped to final)
                 new ContractHistoryEntity
                 {
                     Id = 4,
+                    ContractId = 3,
+                    OldStatus = ContractStatus.Submitted,
+                    NewStatus = ContractStatus.InitialApproved,
+                    ChangedBy = "مراجع أول",
+                    ChangedAt = new DateTime(2026, 1, 10, 14, 0, 0),
+                    Comment = "موافقة أولية"
+                },
+                new ContractHistoryEntity
+                {
+                    Id = 5,
+                    ContractId = 3,
+                    OldStatus = ContractStatus.InitialApproved,
+                    NewStatus = ContractStatus.ManagerApproved,
+                    ChangedBy = "مدير الإدارة",
+                    ChangedAt = new DateTime(2026, 1, 11, 9, 0, 0),
+                    Comment = "موافقة المدير"
+                },
+                new ContractHistoryEntity
+                {
+                    Id = 6,
+                    ContractId = 3,
+                    OldStatus = ContractStatus.ManagerApproved,
+                    NewStatus = ContractStatus.FinalApproved,
+                    ChangedBy = "الموافقة النهائية",
+                    ChangedAt = new DateTime(2026, 1, 11, 10, 30, 0),
+                    Comment = "عقد مكتمل ومطابق للشروط - موافقة نهائية"
+                },
+                // Contract 4 history - Rejected
+                new ContractHistoryEntity
+                {
+                    Id = 7,
                     ContractId = 4,
-                    OldStatus = ContractStatus.Pending,
+                    OldStatus = ContractStatus.Submitted,
                     NewStatus = ContractStatus.Rejected,
-                    ChangedBy = "عبدالله محمد مروان محمد",
+                    ChangedBy = "مراجع أول",
                     ChangedAt = new DateTime(2026, 1, 9, 16, 20, 0),
                     Comment = "المستندات المرفقة غير مكتملة"
+                },
+                // Contract 6 history - Full workflow
+                new ContractHistoryEntity
+                {
+                    Id = 8,
+                    ContractId = 6,
+                    OldStatus = ContractStatus.Submitted,
+                    NewStatus = ContractStatus.InitialApproved,
+                    ChangedBy = "مراجع أول",
+                    ChangedAt = new DateTime(2026, 1, 5, 14, 0, 0),
+                    Comment = "موافقة أولية"
+                },
+                new ContractHistoryEntity
+                {
+                    Id = 9,
+                    ContractId = 6,
+                    OldStatus = ContractStatus.InitialApproved,
+                    NewStatus = ContractStatus.ManagerApproved,
+                    ChangedBy = "مدير الإدارة",
+                    ChangedAt = new DateTime(2026, 1, 6, 10, 0, 0),
+                    Comment = "موافقة المدير"
+                },
+                new ContractHistoryEntity
+                {
+                    Id = 10,
+                    ContractId = 6,
+                    OldStatus = ContractStatus.ManagerApproved,
+                    NewStatus = ContractStatus.FinalApproved,
+                    ChangedBy = "الموافقة النهائية",
+                    ChangedAt = new DateTime(2026, 1, 6, 14, 45, 0),
+                    Comment = "موافقة نهائية"
+                },
+                // Contract 7 history - At initial approval stage
+                new ContractHistoryEntity
+                {
+                    Id = 11,
+                    ContractId = 7,
+                    OldStatus = ContractStatus.Submitted,
+                    NewStatus = ContractStatus.InitialApproved,
+                    ChangedBy = "مراجع أول",
+                    ChangedAt = new DateTime(2026, 1, 16, 11, 20, 0),
+                    Comment = "موافقة أولية - في انتظار موافقة المدير"
+                },
+                // Contract 9 history - At manager approval stage
+                new ContractHistoryEntity
+                {
+                    Id = 12,
+                    ContractId = 9,
+                    OldStatus = ContractStatus.Submitted,
+                    NewStatus = ContractStatus.InitialApproved,
+                    ChangedBy = "مراجع أول",
+                    ChangedAt = new DateTime(2026, 1, 11, 15, 0, 0),
+                    Comment = "موافقة أولية"
+                },
+                new ContractHistoryEntity
+                {
+                    Id = 13,
+                    ContractId = 9,
+                    OldStatus = ContractStatus.InitialApproved,
+                    NewStatus = ContractStatus.ManagerApproved,
+                    ChangedBy = "مدير الإدارة",
+                    ChangedAt = new DateTime(2026, 1, 12, 16, 30, 0),
+                    Comment = "موافقة المدير - في انتظار الموافقة النهائية"
+                },
+                // Contract 10 history - At initial approval stage
+                new ContractHistoryEntity
+                {
+                    Id = 14,
+                    ContractId = 10,
+                    OldStatus = ContractStatus.Submitted,
+                    NewStatus = ContractStatus.InitialApproved,
+                    ChangedBy = "مراجع أول",
+                    ChangedAt = new DateTime(2026, 1, 17, 10, 15, 0),
+                    Comment = "موافقة أولية"
                 }
             );
         }
