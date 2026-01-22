@@ -1,0 +1,1475 @@
+/* Contract Verification MicroApp Styles - SigmaS Theme */
+
+/* ===== Global Styles ===== */
+* {
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Almarai', 'Cairo', 'Segoe UI Arabic', 'Roboto', sans-serif;
+  direction: rtl;
+  text-align: right;
+  margin: 0;
+  padding: 0;
+  background-color: #f5f7fa;
+}
+
+.contract-verification-page {
+  min-height: 100vh;
+  padding-bottom: 40px;
+}
+
+/* ===== Loading Overlay ===== */
+.loading-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(255, 255, 255, 0.95);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+}
+
+.loading-spinner {
+  text-align: center;
+}
+
+.mdi-spin {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+/* ===== Page Header ===== */
+.page-header {
+  background: linear-gradient(135deg, #1B8354 0%, #006C35 100%);
+  color: white;
+  padding: 32px 24px;
+  margin-bottom: 24px;
+}
+
+.page-header__content {
+  max-width: 1200px;
+  margin: 0 auto;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+.page-header__title {
+  font-size: 28px;
+  font-weight: 700;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.page-header__title i {
+  font-size: 32px;
+}
+
+.page-header__subtitle {
+  margin: 8px 0 0;
+  font-size: 16px;
+  opacity: 0.9;
+}
+
+.btn-add-contract {
+  background: white;
+  color: #1B8354;
+  border: none;
+  padding: 12px 24px;
+  border-radius: 8px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: all 0.3s ease;
+  font-family: inherit;
+}
+
+.btn-add-contract:hover {
+  background: #f0faf5;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.btn-add-contract--secondary {
+  background: #1B8354;
+  color: white;
+  margin-top: 16px;
+}
+
+.btn-add-contract--secondary:hover {
+  background: #157347;
+}
+
+/* ===== Statistics Section ===== */
+.statistics-section {
+  max-width: 1200px;
+  margin: 0 auto 24px;
+  padding: 0 24px;
+}
+
+.statistics-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 20px;
+}
+
+@media (max-width: 992px) {
+  .statistics-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 576px) {
+  .statistics-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.stat-card {
+  background: white;
+  border-radius: 12px;
+  padding: 20px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  transition: all 0.3s ease;
+}
+
+.stat-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+}
+
+.stat-card__icon {
+  width: 56px;
+  height: 56px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24px;
+}
+
+.stat-card--total .stat-card__icon {
+  background: #e3f2fd;
+  color: #1976D2;
+}
+
+.stat-card--pending .stat-card__icon {
+  background: #fff3e0;
+  color: #F57C00;
+}
+
+.stat-card--verified .stat-card__icon {
+  background: #e8f5e9;
+  color: #388E3C;
+}
+
+.stat-card--rejected .stat-card__icon {
+  background: #ffebee;
+  color: #D32F2F;
+}
+
+.stat-card__content {
+  display: flex;
+  flex-direction: column;
+}
+
+.stat-card__value {
+  font-size: 28px;
+  font-weight: 700;
+  color: #333;
+  line-height: 1;
+}
+
+.stat-card__label {
+  font-size: 14px;
+  color: #666;
+  margin-top: 4px;
+}
+
+/* ===== Search & Filter Section ===== */
+.search-filter-section {
+  max-width: 1200px;
+  margin: 0 auto 24px;
+  padding: 0 24px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  align-items: center;
+}
+
+.search-box {
+  flex: 1;
+  min-width: 280px;
+  position: relative;
+}
+
+.search-box__icon {
+  position: absolute;
+  right: 16px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #999;
+  font-size: 20px;
+}
+
+.search-box__input {
+  width: 100%;
+  padding: 14px 48px 14px 16px;
+  border: 2px solid #e0e0e0;
+  border-radius: 10px;
+  font-size: 15px;
+  font-family: inherit;
+  transition: all 0.3s ease;
+  background: white;
+}
+
+.search-box__input:focus {
+  outline: none;
+  border-color: #1B8354;
+  box-shadow: 0 0 0 3px rgba(27, 131, 84, 0.1);
+}
+
+.search-box__input::placeholder {
+  color: #999;
+}
+
+.filter-tabs {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.filter-tab {
+  padding: 12px 20px;
+  border: 2px solid #e0e0e0;
+  border-radius: 10px;
+  background: white;
+  color: #666;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: all 0.3s ease;
+  font-family: inherit;
+}
+
+.filter-tab:hover {
+  border-color: #1B8354;
+  color: #1B8354;
+}
+
+.filter-tab--active {
+  background: #1B8354;
+  border-color: #1B8354;
+  color: white;
+}
+
+.filter-tab--active:hover {
+  background: #157347;
+  color: white;
+}
+
+/* ===== Contracts Section ===== */
+.contracts-section {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 24px;
+}
+
+.contracts-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
+  gap: 20px;
+}
+
+@media (max-width: 576px) {
+  .contracts-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ===== Contract Card ===== */
+.contract-card {
+  background: white;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  transition: all 0.3s ease;
+  cursor: pointer;
+}
+
+.contract-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.12);
+}
+
+.contract-card__header {
+  padding: 16px 20px;
+  background: #f8f9fa;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid #eee;
+}
+
+.contract-card__type {
+  padding: 6px 12px;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.contract-card__type--sale {
+  background: #e8f5e9;
+  color: #2E7D32;
+}
+
+.contract-card__type--rental {
+  background: #e3f2fd;
+  color: #1565C0;
+}
+
+.contract-card__body {
+  padding: 20px;
+}
+
+.contract-card__number {
+  font-size: 18px;
+  font-weight: 700;
+  color: #1B8354;
+  margin-bottom: 16px;
+}
+
+.contract-card__info {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 16px;
+}
+
+.contract-card__info-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #555;
+  font-size: 14px;
+}
+
+.contract-card__info-item i {
+  color: #1B8354;
+  font-size: 18px;
+  width: 20px;
+}
+
+.contract-card__info-item--price {
+  font-weight: 600;
+  color: #1B8354;
+}
+
+.contract-card__parties {
+  background: #f8f9fa;
+  border-radius: 8px;
+  padding: 12px;
+  margin-bottom: 12px;
+}
+
+.contract-card__party {
+  display: flex;
+  gap: 8px;
+  font-size: 13px;
+  margin-bottom: 6px;
+}
+
+.contract-card__party:last-child {
+  margin-bottom: 0;
+}
+
+.contract-card__party-label {
+  color: #888;
+}
+
+.contract-card__party-name {
+  color: #333;
+  font-weight: 500;
+}
+
+.contract-card__date {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  color: #888;
+}
+
+.contract-card__date i {
+  color: #1B8354;
+}
+
+.contract-card__actions {
+  padding: 16px 20px;
+  background: #f8f9fa;
+  display: flex;
+  gap: 8px;
+  border-top: 1px solid #eee;
+}
+
+.btn-action {
+  flex: 1;
+  padding: 10px 16px;
+  border: none;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  transition: all 0.3s ease;
+  font-family: inherit;
+}
+
+.btn-action--view {
+  background: #e0e0e0;
+  color: #333;
+}
+
+.btn-action--view:hover {
+  background: #d0d0d0;
+}
+
+.btn-action--verify {
+  background: #1B8354;
+  color: white;
+}
+
+.btn-action--verify:hover {
+  background: #157347;
+}
+
+.btn-action--reject {
+  background: #ffebee;
+  color: #D32F2F;
+}
+
+.btn-action--reject:hover {
+  background: #ffcdd2;
+}
+
+/* ===== Status Badges ===== */
+.contract-status {
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.contract-status--verified {
+  background: #e8f5e9;
+  color: #2E7D32;
+}
+
+.contract-status--pending {
+  background: #fff3e0;
+  color: #E65100;
+}
+
+.contract-status--rejected {
+  background: #ffebee;
+  color: #C62828;
+}
+
+/* ===== Empty State ===== */
+.empty-state {
+  text-align: center;
+  padding: 60px 24px;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.empty-state__icon {
+  font-size: 80px;
+  color: #ccc;
+  margin-bottom: 16px;
+}
+
+.empty-state__title {
+  font-size: 24px;
+  color: #333;
+  margin: 0 0 8px;
+}
+
+.empty-state__text {
+  font-size: 16px;
+  color: #888;
+  margin: 0;
+}
+
+/* ===== Modal Styles ===== */
+.modal-overlay {
+  position: fixed !important;
+  top: 0 !important;
+  left: 0 !important;
+  width: 100% !important;
+  height: 100% !important;
+  background: rgba(0, 0, 0, 0.5) !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  z-index: 999999 !important;
+  padding: 20px !important;
+  animation: fadeIn 0.2s ease !important;
+  overflow-y: auto !important;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.modal {
+  background: white !important;
+  border-radius: 16px !important;
+  width: 100% !important;
+  max-height: 90vh !important;
+  overflow: hidden !important;
+  display: flex !important;
+  flex-direction: column !important;
+  animation: slideUp 0.3s ease !important;
+  position: relative !important;
+  z-index: 1000000 !important;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3) !important;
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.modal--large {
+  max-width: 720px;
+}
+
+.modal--small {
+  max-width: 480px;
+}
+
+.modal__header {
+  padding: 20px 24px;
+  background: #f8f9fa;
+  border-bottom: 1px solid #eee;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.modal__header--success {
+  background: #e8f5e9;
+}
+
+.modal__header--danger {
+  background: #ffebee;
+}
+
+.modal__title {
+  font-size: 20px;
+  font-weight: 700;
+  color: #333;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.modal__title i {
+  color: #1B8354;
+}
+
+.modal__header--success .modal__title i {
+  color: #2E7D32;
+}
+
+.modal__header--danger .modal__title i {
+  color: #C62828;
+}
+
+.modal__close {
+  width: 36px;
+  height: 36px;
+  border: none;
+  background: transparent;
+  color: #666;
+  font-size: 24px;
+  cursor: pointer;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+}
+
+.modal__close:hover {
+  background: #e0e0e0;
+  color: #333;
+}
+
+.modal__body {
+  padding: 24px;
+  overflow-y: auto;
+  flex: 1;
+}
+
+.modal__footer {
+  padding: 16px 24px;
+  background: #f8f9fa;
+  border-top: 1px solid #eee;
+  display: flex;
+  gap: 12px;
+  justify-content: flex-end;
+}
+
+/* ===== Buttons ===== */
+.btn {
+  padding: 12px 24px;
+  border: none;
+  border-radius: 8px;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  transition: all 0.3s ease;
+  font-family: inherit;
+}
+
+.btn--primary {
+  background: #1B8354;
+  color: white;
+}
+
+.btn--primary:hover {
+  background: #157347;
+}
+
+.btn--secondary {
+  background: #e0e0e0;
+  color: #333;
+}
+
+.btn--secondary:hover {
+  background: #d0d0d0;
+}
+
+.btn--success {
+  background: #2E7D32;
+  color: white;
+}
+
+.btn--success:hover {
+  background: #1B5E20;
+}
+
+.btn--danger {
+  background: #C62828;
+  color: white;
+}
+
+.btn--danger:hover {
+  background: #B71C1C;
+}
+
+.btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* ===== Contract Detail Modal ===== */
+.contract-detail__header {
+  text-align: center;
+  margin-bottom: 24px;
+  padding-bottom: 20px;
+  border-bottom: 2px solid #eee;
+}
+
+.contract-detail__number {
+  font-size: 24px;
+  font-weight: 700;
+  color: #1B8354;
+  margin-bottom: 12px;
+}
+
+.contract-detail__badges {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+}
+
+.badge {
+  padding: 6px 14px;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.badge--sale {
+  background: #e8f5e9;
+  color: #2E7D32;
+}
+
+.badge--rental {
+  background: #e3f2fd;
+  color: #1565C0;
+}
+
+.contract-detail__section {
+  margin-bottom: 24px;
+}
+
+.contract-detail__section-title {
+  font-size: 16px;
+  font-weight: 700;
+  color: #333;
+  margin: 0 0 16px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid #eee;
+}
+
+.contract-detail__section-title i {
+  color: #1B8354;
+}
+
+.contract-detail__grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px;
+}
+
+@media (max-width: 576px) {
+  .contract-detail__grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.contract-detail__item {
+  background: #f8f9fa;
+  padding: 12px 16px;
+  border-radius: 8px;
+}
+
+.contract-detail__label {
+  display: block;
+  font-size: 12px;
+  color: #888;
+  margin-bottom: 4px;
+}
+
+.contract-detail__value {
+  font-size: 15px;
+  color: #333;
+  font-weight: 500;
+}
+
+.contract-detail__value--price {
+  color: #1B8354;
+  font-weight: 700;
+}
+
+.contract-detail__description {
+  background: #f8f9fa;
+  padding: 16px;
+  border-radius: 8px;
+  margin-top: 16px;
+}
+
+.contract-detail__description p {
+  margin: 8px 0 0;
+  line-height: 1.6;
+}
+
+.contract-detail__parties {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px;
+}
+
+@media (max-width: 576px) {
+  .contract-detail__parties {
+    grid-template-columns: 1fr;
+  }
+}
+
+.contract-detail__party {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: #f8f9fa;
+  padding: 16px;
+  border-radius: 8px;
+}
+
+.contract-detail__party-icon {
+  width: 48px;
+  height: 48px;
+  background: #1B8354;
+  color: white;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
+}
+
+.contract-detail__party-icon--secondary {
+  background: #006C35;
+}
+
+.contract-detail__party-info {
+  flex: 1;
+}
+
+.contract-detail__party-role {
+  display: block;
+  font-size: 12px;
+  color: #888;
+  margin-bottom: 2px;
+}
+
+.contract-detail__party-name {
+  font-size: 15px;
+  color: #333;
+  font-weight: 600;
+}
+
+.contract-detail__date {
+  background: #f8f9fa;
+  padding: 12px 16px;
+  border-radius: 8px;
+}
+
+/* ===== Form Styles ===== */
+.contract-form {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.form-section {
+  background: #f8f9fa;
+  border-radius: 12px;
+  padding: 20px;
+}
+
+.form-section__title {
+  font-size: 16px;
+  font-weight: 700;
+  color: #333;
+  margin: 0 0 16px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.form-radio-group {
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.form-radio {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+  padding: 12px 20px;
+  background: white;
+  border: 2px solid #e0e0e0;
+  border-radius: 8px;
+  transition: all 0.3s ease;
+}
+
+.form-radio:hover {
+  border-color: #1B8354;
+}
+
+.form-radio input[type="radio"] {
+  display: none;
+}
+
+.form-radio__mark {
+  width: 20px;
+  height: 20px;
+  border: 2px solid #ccc;
+  border-radius: 50%;
+  position: relative;
+  transition: all 0.3s ease;
+}
+
+.form-radio input[type="radio"]:checked + .form-radio__mark {
+  border-color: #1B8354;
+}
+
+.form-radio input[type="radio"]:checked + .form-radio__mark::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 10px;
+  height: 10px;
+  background: #1B8354;
+  border-radius: 50%;
+}
+
+.form-radio input[type="radio"]:checked ~ .form-radio__label {
+  color: #1B8354;
+  font-weight: 600;
+}
+
+.form-radio__label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  color: #555;
+}
+
+.form-radio__label i {
+  font-size: 18px;
+}
+
+.form-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px;
+}
+
+@media (max-width: 576px) {
+  .form-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+}
+
+.form-group--full {
+  grid-column: 1 / -1;
+}
+
+.form-label {
+  font-size: 14px;
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 8px;
+}
+
+.required {
+  color: #C62828;
+}
+
+.form-input,
+.form-select,
+.form-textarea {
+  padding: 12px 16px;
+  border: 2px solid #e0e0e0;
+  border-radius: 8px;
+  font-size: 15px;
+  font-family: inherit;
+  transition: all 0.3s ease;
+  background: white;
+}
+
+.form-input:focus,
+.form-select:focus,
+.form-textarea:focus {
+  outline: none;
+  border-color: #1B8354;
+  box-shadow: 0 0 0 3px rgba(27, 131, 84, 0.1);
+}
+
+.form-input--error,
+.form-select--error {
+  border-color: #C62828;
+}
+
+.form-input--error:focus,
+.form-select--error:focus {
+  box-shadow: 0 0 0 3px rgba(198, 40, 40, 0.1);
+}
+
+.form-textarea {
+  resize: vertical;
+  min-height: 100px;
+}
+
+.form-select {
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23666' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: left 16px center;
+  padding-left: 40px;
+}
+
+.form-error {
+  font-size: 12px;
+  color: #C62828;
+  margin-top: 4px;
+}
+
+/* ===== Confirmation Modal ===== */
+.confirm-content {
+  text-align: center;
+}
+
+.confirm-message {
+  font-size: 16px;
+  color: #555;
+  line-height: 1.6;
+  margin: 0 0 20px;
+}
+
+.confirm-contract-info {
+  background: #f8f9fa;
+  padding: 16px;
+  border-radius: 8px;
+}
+
+.confirm-contract-number {
+  font-size: 20px;
+  font-weight: 700;
+  color: #1B8354;
+  margin-bottom: 4px;
+}
+
+.confirm-contract-type {
+  font-size: 14px;
+  color: #666;
+}
+
+/* ===== Responsive Adjustments ===== */
+@media (max-width: 768px) {
+  .page-header__content {
+    flex-direction: column;
+    text-align: center;
+  }
+
+  .page-header__title {
+    font-size: 22px;
+    justify-content: center;
+  }
+
+  .search-filter-section {
+    flex-direction: column;
+  }
+
+  .search-box {
+    width: 100%;
+  }
+
+  .filter-tabs {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .modal__footer {
+    flex-direction: column;
+  }
+
+  .modal__footer .btn {
+    width: 100%;
+    justify-content: center;
+  }
+}
+
+/* ===== Print Styles ===== */
+@media print {
+  .page-header,
+  .statistics-section,
+  .search-filter-section,
+  .contract-card__actions,
+  .modal-overlay,
+  .btn-add-contract {
+    display: none !important;
+  }
+
+  .contract-card {
+    break-inside: avoid;
+    box-shadow: none;
+    border: 1px solid #ccc;
+  }
+}
+
+/* ===== Workflow Timeline ===== */
+.workflow-timeline {
+  background: #f8f9fa;
+  border-radius: 12px;
+  padding: 24px;
+  margin-bottom: 20px;
+}
+
+.workflow-timeline__steps {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  margin-bottom: 20px;
+}
+
+.workflow-step {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  flex: 0 0 auto;
+  position: relative;
+}
+
+.workflow-step__icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: #e0e0e0;
+  color: #888;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
+  margin-bottom: 8px;
+  transition: all 0.3s ease;
+  border: 3px solid #e0e0e0;
+}
+
+.workflow-step--completed .workflow-step__icon {
+  background: #1B8354;
+  color: white;
+  border-color: #1B8354;
+}
+
+.workflow-step--active .workflow-step__icon {
+  background: #fff;
+  color: #1B8354;
+  border-color: #1B8354;
+  box-shadow: 0 0 0 4px rgba(27, 131, 84, 0.2);
+}
+
+.workflow-step--rejected .workflow-step__icon {
+  background: #dc2626;
+  color: white;
+  border-color: #dc2626;
+}
+
+.workflow-step__content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.workflow-step__label {
+  font-size: 13px;
+  font-weight: 600;
+  color: #666;
+  margin-bottom: 2px;
+}
+
+.workflow-step--completed .workflow-step__label,
+.workflow-step--active .workflow-step__label {
+  color: #1B8354;
+}
+
+.workflow-step--rejected .workflow-step__label {
+  color: #dc2626;
+}
+
+.workflow-step__sublabel {
+  font-size: 11px;
+  color: #999;
+}
+
+.workflow-step__connector {
+  flex: 1;
+  height: 4px;
+  background: #e0e0e0;
+  margin: 22px 8px 0;
+  border-radius: 2px;
+  min-width: 30px;
+}
+
+.workflow-step__connector--completed {
+  background: #1B8354;
+}
+
+.workflow-progress {
+  height: 8px;
+  background: #e0e0e0;
+  border-radius: 4px;
+  overflow: hidden;
+  margin-bottom: 8px;
+}
+
+.workflow-progress__bar {
+  height: 100%;
+  background: linear-gradient(90deg, #1B8354, #36c5ba);
+  border-radius: 4px;
+  transition: width 0.5s ease;
+}
+
+.workflow-progress__label {
+  text-align: center;
+  font-size: 14px;
+  font-weight: 600;
+  color: #1B8354;
+}
+
+.workflow-progress__status--rejected {
+  color: #dc2626;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+
+.workflow-progress--rejected .workflow-progress__bar {
+  background: linear-gradient(90deg, #1B8354, #dc2626);
+}
+
+/* ===== Workflow History Timeline ===== */
+.workflow-history {
+  margin-top: 20px;
+  background: white;
+  border-radius: 12px;
+  padding: 20px;
+  border: 1px solid #eee;
+}
+
+.workflow-history--empty {
+  text-align: center;
+  color: #999;
+  padding: 30px;
+}
+
+.workflow-history--empty i {
+  font-size: 48px;
+  margin-bottom: 12px;
+  display: block;
+}
+
+.workflow-history--empty p {
+  margin: 0;
+  font-size: 14px;
+}
+
+.workflow-history__title {
+  font-size: 15px;
+  font-weight: 700;
+  color: #333;
+  margin: 0 0 16px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.workflow-history__title i {
+  color: #1B8354;
+}
+
+.workflow-history__list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.workflow-history__item {
+  display: flex;
+  gap: 12px;
+  padding: 12px;
+  background: #f8f9fa;
+  border-radius: 8px;
+  position: relative;
+}
+
+.workflow-history__item:not(:last-child)::after {
+  content: '';
+  position: absolute;
+  right: 22px;
+  bottom: -16px;
+  width: 2px;
+  height: 16px;
+  background: #e0e0e0;
+}
+
+.workflow-history__icon {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  flex-shrink: 0;
+}
+
+.workflow-history__icon--approved {
+  background: #e8f5e9;
+  color: #2E7D32;
+}
+
+.workflow-history__icon--rejected {
+  background: #ffebee;
+  color: #C62828;
+}
+
+.workflow-history__content {
+  flex: 1;
+}
+
+.workflow-history__action {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+  font-size: 14px;
+}
+
+.workflow-history__from {
+  color: #888;
+}
+
+.workflow-history__action i {
+  color: #1B8354;
+  font-size: 16px;
+}
+
+.workflow-history__to {
+  font-weight: 600;
+  color: #1B8354;
+}
+
+.workflow-history__to--rejected {
+  color: #C62828;
+}
+
+.workflow-history__meta {
+  display: flex;
+  gap: 16px;
+  font-size: 12px;
+  color: #888;
+  margin-bottom: 6px;
+}
+
+.workflow-history__meta span {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.workflow-history__meta i {
+  font-size: 14px;
+}
+
+.workflow-history__comment {
+  font-size: 13px;
+  color: #666;
+  background: white;
+  padding: 8px 12px;
+  border-radius: 6px;
+  border-right: 3px solid #1B8354;
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+}
+
+.workflow-history__comment i {
+  color: #1B8354;
+  margin-top: 2px;
+}
+
+/* Responsive adjustments for workflow timeline */
+@media (max-width: 768px) {
+  .workflow-timeline__steps {
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .workflow-step__connector {
+    display: none;
+  }
+
+  .workflow-step {
+    flex: 1 1 45%;
+    margin-bottom: 12px;
+  }
+
+  .workflow-step__icon {
+    width: 40px;
+    height: 40px;
+    font-size: 16px;
+  }
+
+  .workflow-step__label {
+    font-size: 11px;
+  }
+}
+
+.contract-status--submitted {
+  background: #e3f2fd;
+  color: #1565C0;
+}
+
+/* ===== Custom Scrollbar ===== */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f5f5f5;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #ccc;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #aaa;
+}

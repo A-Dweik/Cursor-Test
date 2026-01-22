@@ -1,59 +1,73 @@
-# AmmanWeather
+# Contract Verification Application - تثبيت عقود بيع وإيجار العقارات
 
-This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 21.0.2.
+تطبيق لتثبيت والتحقق من عقود بيع وإيجار العقارات في منصة نجيز.
 
-## Development server
+## التقنيات المستخدمة
 
-To start a local development server, run:
+- **Backend**: ASP.NET Core 3.1
+- **Frontend**: Vue.js 2.6 + TypeScript 4.5 + Vuetify 1.5
+- **Build**: MSBuild + Vue CLI 3.10 + npm/Webpack
 
+## الميزات
+
+- عرض قائمة العقود (بيع وإيجار)
+- البحث في العقود برقم العقد أو الموقع
+- تصفية العقود حسب النوع (بيع/إيجار)
+- تثبيت ورفض العقود
+- عرض تفاصيل كل عقد
+- واجهة عربية كاملة مع دعم RTL
+
+## التثبيت والتشغيل
+
+### المتطلبات
+
+- Node.js 12+
+- .NET Core SDK 3.1
+- npm
+
+### خطوات التشغيل
+
+1. تثبيت الحزم:
 ```bash
-ng serve
+npm install
 ```
 
-Once the server is running, open your browser and navigate to `http://localhost:4200/`. The application will automatically reload whenever you modify any of the source files.
-
-## Code scaffolding
-
-Angular CLI includes powerful code scaffolding tools. To generate a new component, run:
-
+2. بناء المشروع الأمامي:
 ```bash
-ng generate component component-name
+npm run build
 ```
 
-For a complete list of available schematics (such as `components`, `directives`, or `pipes`), run:
-
+3. تشغيل التطبيق:
 ```bash
-ng generate --help
+dotnet run
 ```
 
-## Building
-
-To build the project run:
-
-```bash
-ng build
+4. افتح المتصفح على:
+```
+http://localhost:5000/applications/contractverification/
 ```
 
-This will compile your project and store the build artifacts in the `dist/` directory. By default, the production build optimizes your application for performance and speed.
-
-## Running unit tests
-
-To execute unit tests with the [Vitest](https://vitest.dev/) test runner, use the following command:
+## بناء للإنتاج
 
 ```bash
-ng test
+npm run build
+dotnet publish -c Release
 ```
 
-## Running end-to-end tests
+## الهيكل
 
-For end-to-end (e2e) testing, run:
-
-```bash
-ng e2e
+```
+/ClientApp          # Frontend Vue.js application
+  /components       # Vue components
+  /Services         # Services (API, Loader, etc.)
+  /plugins          # Vue plugins
+  /assets           # CSS and static assets
+/Config             # Configuration files
+/Pages              # Razor pages
+/Properties         # ASP.NET properties
+/public             # Public static files
 ```
 
-Angular CLI does not come with an end-to-end testing framework by default. You can choose one that suits your needs.
+## الدعم
 
-## Additional Resources
-
-For more information on using the Angular CLI, including detailed command references, visit the [Angular CLI Overview and Command Reference](https://angular.dev/tools/cli) page.
+للمزيد من المعلومات، راجع وثائق منصة نجيز.
