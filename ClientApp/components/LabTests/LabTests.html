@@ -1,0 +1,147 @@
+<!-- Title & Search Section -->
+<section class="titleSearch">
+  <div class="titleSearch__container">
+    <h1 class="titleSearch__title">حجز موعد للتحاليل الطبية</h1>
+    <div class="input--search" style="max-width: 600px; margin: 20px auto 0;">
+      <input 
+        type="text" 
+        class="input__field" 
+        v-model="searchQuery"
+        @input="filterLabTests"
+        placeholder="ابحث عن تحليل طبي..." 
+        style="width: 100%; padding: 12px 50px 12px 20px; border: 2px solid #e5e7eb; border-radius: 50px; font-size: 16px;"
+      />
+      <i class="mdi mdi-magnify" style="position: absolute; left: 20px; top: 50%; transform: translateY(-50%); color: #9ca3af; font-size: 24px;"></i>
+    </div>
+  </div>
+</section>
+
+<!-- Filters Section -->
+<section class="filters">
+  <div class="filters__container">
+    <div 
+      class="filters__filterWrapper" 
+      v-for="(cat, index) in categories" 
+      :key="index"
+    >
+      <input 
+        type="radio" 
+        name="category" 
+        class="filters__filterCheck" 
+        :id="'cat-' + index"
+        :checked="selectedCategory === cat"
+        @change="selectCategory(cat)"
+      >
+      <label :for="'cat-' + index" class="filters__filterLabel"></label>
+      <div class="filters__item">
+        <span class="filters__icon mdi mdi-flask"></span>
+        <span class="filters__name">{{ cat }}</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Lab Tests Grid -->
+<section class="dashboardServices">
+  <div class="dashboardServicesCards">
+    <div 
+      class="dashboardServicesCards__card" 
+      v-for="test in filteredLabTests" 
+      :key="test.id"
+    >
+      <div class="dashboardServicesCards__cardWrapper">
+        <!-- Test Header -->
+        <div style="display: flex; align-items: center; margin-bottom: 16px;">
+          <div style="width: 60px; height: 60px; border-radius: 50%; background: linear-gradient(135deg, #2563eb 0%, #3b82f6 100%); display: flex; align-items: center; justify-content: center; margin-left: 16px;">
+            <i class="mdi mdi-test-tube" style="color: white; font-size: 32px;"></i>
+          </div>
+          <div style="flex: 1;">
+            <h6 class="dashboardServicesCards__serviceType" style="margin-bottom: 4px; font-size: 18px; color: #1f2937;">
+              {{ test.name }}
+            </h6>
+            <span style="color: #2563eb; font-size: 14px; font-weight: 500;">
+              <i class="mdi mdi-tag ml-1"></i>
+              {{ test.category }}
+            </span>
+          </div>
+        </div>
+
+        <!-- Test Info -->
+        <div style="background: #eff6ff; padding: 12px; border-radius: 8px; margin-bottom: 12px;">
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+            <div>
+              <span style="color: #6b7280; font-size: 13px; display: block;">
+                <i class="mdi mdi-currency-usd ml-1" style="color: #2563eb;"></i>
+                السعر
+              </span>
+              <span style="color: #1f2937; font-weight: 600; font-size: 16px;">{{ test.price }} ريال</span>
+            </div>
+            <div>
+              <span style="color: #6b7280; font-size: 13px; display: block;">
+                <i class="mdi mdi-clock-outline ml-1" style="color: #2563eb;"></i>
+                المدة
+              </span>
+              <span style="color: #1f2937; font-weight: 600; font-size: 16px;">{{ test.duration }} دقيقة</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Description -->
+        <p class="dashboardServicesCards__serviceDescription" style="margin-bottom: 12px;">
+          {{ test.description }}
+        </p>
+
+        <!-- Preparation Instructions -->
+        <div style="margin-bottom: 16px;">
+          <div 
+            v-if="test.requiresFasting"
+            style="background: #fef2f2; border: 1px solid #fecaca; padding: 10px; border-radius: 8px; margin-bottom: 8px;"
+          >
+            <i class="mdi mdi-alert-circle ml-1" style="color: #dc2626;"></i>
+            <span style="color: #dc2626; font-size: 13px; font-weight: 500;">يتطلب صيام</span>
+          </div>
+          <span style="color: #6b7280; font-size: 12px; line-height: 1.6;">
+            <i class="mdi mdi-information ml-1" style="color: #2563eb;"></i>
+            {{ test.preparationInstructions }}
+          </span>
+        </div>
+
+        <!-- Available Days -->
+        <div style="margin-bottom: 16px;">
+          <span style="color: #6b7280; font-size: 13px; display: block; margin-bottom: 8px;">
+            <i class="mdi mdi-calendar ml-1" style="color: #2563eb;"></i>
+            أيام العمل:
+          </span>
+          <div style="display: flex; flex-wrap: wrap; gap: 6px;">
+            <span 
+              v-for="day in test.availableDays" 
+              :key="day"
+              style="background: #eff6ff; color: #2563eb; padding: 4px 12px; border-radius: 12px; font-size: 12px; border: 1px solid #bfdbfe;"
+            >
+              {{ day }}
+            </span>
+          </div>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="dashboardServicesCards__buttons">
+          <a 
+            @click.prevent="bookTest(test)" 
+            class="dashboardServicesCards__buttonFill"
+            style="cursor: pointer;"
+          >
+            <i class="mdi mdi-calendar-plus ml-1"></i>
+            احجز الآن
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Empty State -->
+  <div v-if="filteredLabTests.length === 0" class="empty-state">
+    <i class="mdi mdi-flask empty-state-icon"></i>
+    <p class="title">لا توجد نتائج</p>
+    <p class="body-1 grey--text">لم نجد تحاليل مطابقة للبحث</p>
+  </div>
+</section>

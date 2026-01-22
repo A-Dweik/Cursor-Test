@@ -1,0 +1,208 @@
+<v-container fluid class="page-container">
+  <!-- Header -->
+  <v-layout row wrap class="mb-4">
+    <v-flex xs12>
+      <v-btn icon @click="goBack" class="mb-2">
+        <v-icon>mdi-arrow-right</v-icon>
+      </v-btn>
+      <h1 class="display-1 mb-2" style="color: #1B8354">حجز موعد</h1>
+      <p class="subheading grey--text">املأ البيانات التالية لإتمام الحجز</p>
+    </v-flex>
+  </v-layout>
+
+  <v-layout row wrap v-if="entity">
+    <!-- Entity Info Card -->
+    <v-flex xs12 md4 class="pa-2">
+      <v-card elevation="2" class="sticky-card">
+        <v-card-title :style="{ background: getEntityColor() }" class="white--text">
+          <v-icon left color="white" size="32">{{ getEntityIcon() }}</v-icon>
+          <span class="headline">{{ type === 'doctor' ? 'معلومات الطبيب' : 'معلومات التحليل' }}</span>
+        </v-card-title>
+        <v-card-text class="pa-4">
+          <h3 class="title mb-3">{{ entity.name }}</h3>
+          
+          <div v-if="type === 'doctor'" class="mb-3">
+            <v-divider class="mb-3"></v-divider>
+            <div class="body-2 mb-2">
+              <v-icon small :color="getEntityColor()" class="ml-1">mdi-stethoscope</v-icon>
+              <strong>التخصص:</strong> {{ entity.specialization }}
+            </div>
+            <div class="body-2 mb-2">
+              <v-icon small :color="getEntityColor()" class="ml-1">mdi-briefcase</v-icon>
+              <strong>الخبرة:</strong> {{ entity.experience }} سنة
+            </div>
+            <div class="body-2">
+              <v-icon small :color="getEntityColor()" class="ml-1">mdi-star</v-icon>
+              <strong>التقييم:</strong> {{ entity.rating }} / 5
+            </div>
+          </div>
+
+          <div v-if="type === 'labtest'" class="mb-3">
+            <v-divider class="mb-3"></v-divider>
+            <div class="body-2 mb-2">
+              <v-icon small :color="getEntityColor()" class="ml-1">mdi-tag</v-icon>
+              <strong>التصنيف:</strong> {{ entity.category }}
+            </div>
+            <div class="body-2 mb-2">
+              <v-icon small :color="getEntityColor()" class="ml-1">mdi-currency-usd</v-icon>
+              <strong>السعر:</strong> {{ entity.price }} ريال
+            </div>
+            <div class="body-2 mb-2">
+              <v-icon small :color="getEntityColor()" class="ml-1">mdi-clock-outline</v-icon>
+              <strong>المدة:</strong> {{ entity.duration }} دقيقة
+            </div>
+            <div class="body-2" v-if="entity.requiresFasting">
+              <v-chip small color="error" text-color="white">
+                <v-icon left small>mdi-alert-circle</v-icon>
+                يتطلب صيام
+              </v-chip>
+            </div>
+          </div>
+
+          <v-divider class="mb-3"></v-divider>
+          <div class="caption grey--text">
+            <v-icon small color="grey" class="ml-1">mdi-calendar</v-icon>
+            أيام العمل: {{ entity.availableDays.join('، ') }}
+          </div>
+        </v-card-text>
+      </v-card>
+    </v-flex>
+
+    <!-- Booking Form -->
+    <v-flex xs12 md8 class="pa-2">
+      <v-card elevation="2">
+        <v-card-title class="headline">
+          <v-icon left color="primary">mdi-form-select</v-icon>
+          بيانات الحجز
+        </v-card-title>
+        <v-divider></v-divider>
+        <v-card-text class="pa-4">
+          <v-form ref="form" v-model="valid">
+            <!-- Patient Name -->
+            <v-text-field
+              v-model="form.patientName"
+              label="اسم المريض *"
+              :rules="[rules.required]"
+              outlined
+              color="primary"
+              prepend-inner-icon="mdi-account"
+              class="mb-2"
+            ></v-text-field>
+
+            <!-- Patient Phone -->
+            <v-text-field
+              v-model="form.patientPhone"
+              label="رقم الجوال *"
+              :rules="[rules.required, rules.phone]"
+              outlined
+              color="primary"
+              prepend-inner-icon="mdi-phone"
+              placeholder="05xxxxxxxx"
+              class="mb-2"
+            ></v-text-field>
+
+            <!-- Date Selection -->
+            <v-select
+              v-model="form.selectedDate"
+              :items="availableDates"
+              label="تاريخ الموعد *"
+              :rules="[rules.required]"
+              outlined
+              color="primary"
+              prepend-inner-icon="mdi-calendar"
+              @change="onDateChange"
+              class="mb-2"
+            >
+              <template v-slot:selection="{ item }">
+                {{ formatDate(item) }}
+              </template>
+              <template v-slot:item="{ item }">
+                {{ formatDate(item) }}
+              </template>
+            </v-select>
+
+            <!-- Time Selection -->
+            <v-select
+              v-model="form.selectedTime"
+              :items="availableTimes"
+              item-text="time"
+              item-value="time"
+              label="وقت الموعد *"
+              :rules="[rules.required]"
+              :disabled="!form.selectedDate || availableTimes.length === 0"
+              outlined
+              color="primary"
+              prepend-inner-icon="mdi-clock-outline"
+              class="mb-2"
+            >
+              <template v-slot:item="{ item }">
+                <v-list-item-content>
+                  <v-list-item-title>{{ item.time }}</v-list-item-title>
+                  <v-list-item-subtitle v-if="!item.isAvailable" class="error--text">
+                    غير متاح
+                  </v-list-item-subtitle>
+                </v-list-item-content>
+                <v-list-item-action v-if="item.isAvailable">
+                  <v-icon color="success">mdi-check-circle</v-icon>
+                </v-list-item-action>
+              </template>
+            </v-select>
+
+            <!-- Notes -->
+            <v-textarea
+              v-model="form.notes"
+              label="ملاحظات إضافية (اختياري)"
+              outlined
+              color="primary"
+              prepend-inner-icon="mdi-note-text"
+              rows="3"
+              class="mb-2"
+            ></v-textarea>
+
+            <!-- Preparation Instructions (for lab tests) -->
+            <v-alert
+              v-if="type === 'labtest' && entity.preparationInstructions"
+              type="info"
+              text
+              border="right"
+              class="mb-3"
+            >
+              <strong>تعليمات التحضير:</strong><br>
+              {{ entity.preparationInstructions }}
+            </v-alert>
+          </v-form>
+        </v-card-text>
+        <v-divider></v-divider>
+        <v-card-actions class="pa-4">
+          <v-btn
+            color="grey"
+            outlined
+            large
+            @click="goBack"
+          >
+            <v-icon left>mdi-arrow-right</v-icon>
+            رجوع
+          </v-btn>
+          <v-spacer></v-spacer>
+          <v-btn
+            color="primary"
+            large
+            :disabled="!valid"
+            @click="submitAppointment"
+          >
+            <v-icon left>mdi-check</v-icon>
+            تأكيد الحجز
+          </v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-flex>
+  </v-layout>
+
+  <!-- Loading State -->
+  <v-layout row wrap v-else>
+    <v-flex xs12 class="text-center pa-12">
+      <v-progress-circular indeterminate color="primary" size="64"></v-progress-circular>
+      <p class="mt-4 body-1">جاري التحميل...</p>
+    </v-flex>
+  </v-layout>
+</v-container>

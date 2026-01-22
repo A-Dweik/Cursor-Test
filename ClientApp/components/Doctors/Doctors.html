@@ -1,0 +1,138 @@
+<!-- Title & Search Section -->
+<section class="titleSearch">
+  <div class="titleSearch__container">
+    <h1 class="titleSearch__title">حجز موعد مع طبيب</h1>
+    <div class="input--search" style="max-width: 600px; margin: 20px auto 0;">
+      <input 
+        type="text" 
+        class="input__field" 
+        v-model="searchQuery"
+        @input="filterDoctors"
+        placeholder="ابحث عن طبيب أو تخصص..." 
+        style="width: 100%; padding: 12px 50px 12px 20px; border: 2px solid #e5e7eb; border-radius: 50px; font-size: 16px;"
+      />
+      <i class="mdi mdi-magnify" style="position: absolute; left: 20px; top: 50%; transform: translateY(-50%); color: #9ca3af; font-size: 24px;"></i>
+    </div>
+  </div>
+</section>
+
+<!-- Filters Section -->
+<section class="filters">
+  <div class="filters__container">
+    <div 
+      class="filters__filterWrapper" 
+      v-for="(spec, index) in specializations" 
+      :key="index"
+    >
+      <input 
+        type="radio" 
+        name="specialization" 
+        class="filters__filterCheck" 
+        :id="'spec-' + index"
+        :checked="selectedSpecialization === spec"
+        @change="selectSpecialization(spec)"
+      >
+      <label :for="'spec-' + index" class="filters__filterLabel"></label>
+      <div class="filters__item">
+        <span class="filters__icon mdi mdi-stethoscope"></span>
+        <span class="filters__name">{{ spec }}</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Doctors Grid -->
+<section class="dashboardServices">
+  <div class="dashboardServicesCards">
+    <div 
+      class="dashboardServicesCards__card" 
+      v-for="doctor in filteredDoctors" 
+      :key="doctor.id"
+    >
+      <div class="dashboardServicesCards__cardWrapper">
+        <!-- Doctor Header -->
+        <div style="display: flex; align-items: center; margin-bottom: 16px;">
+          <div style="width: 60px; height: 60px; border-radius: 50%; background: linear-gradient(135deg, #1B8354 0%, #22A966 100%); display: flex; align-items: center; justify-content: center; margin-left: 16px;">
+            <i class="mdi mdi-doctor" style="color: white; font-size: 32px;"></i>
+          </div>
+          <div style="flex: 1;">
+            <h6 class="dashboardServicesCards__serviceType" style="margin-bottom: 4px; font-size: 18px;">
+              {{ doctor.name }}
+            </h6>
+            <span style="color: #1B8354; font-size: 14px; font-weight: 500;">
+              <i class="mdi mdi-stethoscope ml-1"></i>
+              {{ doctor.specialization }}
+            </span>
+          </div>
+        </div>
+
+        <!-- Doctor Info -->
+        <div style="background: #f9fafb; padding: 12px; border-radius: 8px; margin-bottom: 12px;">
+          <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+            <span style="color: #6b7280; font-size: 14px;">
+              <i class="mdi mdi-briefcase ml-1" style="color: #1B8354;"></i>
+              الخبرة
+            </span>
+            <span style="color: #1f2937; font-weight: 500;">{{ doctor.experience }} سنة</span>
+          </div>
+          <div style="display: flex; justify-content: space-between; align-items: center;">
+            <span style="color: #6b7280; font-size: 14px;">
+              <i class="mdi mdi-star ml-1" style="color: #FFC107;"></i>
+              التقييم
+            </span>
+            <div style="display: flex; align-items: center;">
+              <span style="color: #1f2937; font-weight: 500; margin-left: 8px;">{{ doctor.rating }}</span>
+              <i 
+                v-for="star in 5" 
+                :key="star"
+                class="mdi mdi-star" 
+                :style="{ color: getStarColor(doctor.rating, star), fontSize: '16px' }"
+              ></i>
+            </div>
+          </div>
+        </div>
+
+        <!-- Description -->
+        <p class="dashboardServicesCards__serviceDescription" style="margin-bottom: 12px;">
+          {{ doctor.description }}
+        </p>
+
+        <!-- Available Days -->
+        <div style="margin-bottom: 16px;">
+          <span style="color: #6b7280; font-size: 13px; display: block; margin-bottom: 8px;">
+            <i class="mdi mdi-calendar ml-1" style="color: #1B8354;"></i>
+            أيام العمل:
+          </span>
+          <div style="display: flex; flex-wrap: wrap; gap: 6px;">
+            <span 
+              v-for="day in doctor.availableDays" 
+              :key="day"
+              style="background: #f0fdf4; color: #1B8354; padding: 4px 12px; border-radius: 12px; font-size: 12px; border: 1px solid #d1fae5;"
+            >
+              {{ day }}
+            </span>
+          </div>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="dashboardServicesCards__buttons">
+          <a 
+            @click.prevent="bookAppointment(doctor)" 
+            class="dashboardServicesCards__buttonFill"
+            style="cursor: pointer;"
+          >
+            <i class="mdi mdi-calendar-plus ml-1"></i>
+            احجز الآن
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Empty State -->
+  <div v-if="filteredDoctors.length === 0" class="empty-state">
+    <i class="mdi mdi-doctor empty-state-icon"></i>
+    <p class="title">لا توجد نتائج</p>
+    <p class="body-1 grey--text">لم نجد أطباء مطابقين للبحث</p>
+  </div>
+</section>
