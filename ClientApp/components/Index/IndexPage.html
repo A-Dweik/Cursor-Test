@@ -1,0 +1,138 @@
+<v-container fluid class="page-container">
+  <!-- Page Header -->
+  <v-layout row wrap class="mb-6">
+    <v-flex xs12>
+      <h1 class="display-1 mb-2" style="color: #1B8354">نظام حجز مواعيد المستشفى</h1>
+      <p class="subheading grey--text">احجز موعدك مع الطبيب أو لإجراء التحاليل الطبية</p>
+    </v-flex>
+  </v-layout>
+
+  <!-- Quick Access Cards -->
+  <v-layout row wrap>
+    <!-- Doctors Card -->
+    <v-flex xs12 md4 class="pa-2">
+      <v-card class="card-hover" elevation="2" @click="$router.push('/doctors')">
+        <v-card-title class="primary white--text">
+          <v-icon left color="white" size="32">mdi-doctor</v-icon>
+          <span class="headline">حجز موعد مع طبيب</span>
+        </v-card-title>
+        <v-card-text class="pa-4">
+          <p class="body-1">
+            احجز موعدك مع أفضل الأطباء في مختلف التخصصات الطبية
+          </p>
+          <v-divider class="my-3"></v-divider>
+          <div class="text-center">
+            <v-icon color="primary" size="48">mdi-calendar-check</v-icon>
+          </div>
+        </v-card-text>
+        <v-card-actions>
+          <v-spacer></v-spacer>
+          <v-btn color="primary" text>
+            تصفح الأطباء
+            <v-icon right>mdi-arrow-left</v-icon>
+          </v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-flex>
+
+    <!-- Lab Tests Card -->
+    <v-flex xs12 md4 class="pa-2">
+      <v-card class="card-hover" elevation="2" @click="$router.push('/lab-tests')">
+        <v-card-title class="info white--text">
+          <v-icon left color="white" size="32">mdi-flask</v-icon>
+          <span class="headline">حجز تحاليل طبية</span>
+        </v-card-title>
+        <v-card-text class="pa-4">
+          <p class="body-1">
+            احجز موعدك لإجراء التحاليل والفحوصات الطبية المختلفة
+          </p>
+          <v-divider class="my-3"></v-divider>
+          <div class="text-center">
+            <v-icon color="info" size="48">mdi-test-tube</v-icon>
+          </div>
+        </v-card-text>
+        <v-card-actions>
+          <v-spacer></v-spacer>
+          <v-btn color="info" text>
+            تصفح التحاليل
+            <v-icon right>mdi-arrow-left</v-icon>
+          </v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-flex>
+
+    <!-- My Appointments Card -->
+    <v-flex xs12 md4 class="pa-2">
+      <v-card class="card-hover" elevation="2" @click="$router.push('/my-appointments')">
+        <v-card-title class="success white--text">
+          <v-icon left color="white" size="32">mdi-calendar-account</v-icon>
+          <span class="headline">مواعيدي</span>
+        </v-card-title>
+        <v-card-text class="pa-4">
+          <p class="body-1">
+            عرض وإدارة جميع مواعيدك القادمة والسابقة
+          </p>
+          <v-divider class="my-3"></v-divider>
+          <div class="text-center">
+            <v-icon color="success" size="48">mdi-clipboard-list</v-icon>
+          </div>
+        </v-card-text>
+        <v-card-actions>
+          <v-spacer></v-spacer>
+          <v-btn color="success" text>
+            عرض مواعيدي
+            <v-icon right>mdi-arrow-left</v-icon>
+          </v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-flex>
+  </v-layout>
+
+  <!-- Features Section -->
+  <v-layout row wrap class="mt-6">
+    <v-flex xs12>
+      <v-card elevation="2">
+        <v-card-title class="headline">
+          <v-icon left color="primary">mdi-star</v-icon>
+          مميزات النظام
+        </v-card-title>
+        <v-divider></v-divider>
+        <v-list>
+          <v-list-item>
+            <v-list-item-avatar>
+              <v-icon color="primary">mdi-clock-fast</v-icon>
+            </v-list-item-avatar>
+            <v-list-item-content>
+              <v-list-item-title>حجز سريع وسهل</v-list-item-title>
+              <v-list-item-subtitle>احجز موعدك في دقائق معدودة</v-list-item-subtitle>
+            </v-list-item-content>
+          </v-list-item>
+
+          <v-divider inset></v-divider>
+
+          <v-list-item>
+            <v-list-item-avatar>
+              <v-icon color="success">mdi-shield-check</v-icon>
+            </v-list-item-avatar>
+            <v-list-item-content>
+              <v-list-item-title>آمن وموثوق</v-list-item-title>
+              <v-list-item-subtitle>حماية كاملة لبياناتك الطبية</v-list-item-subtitle>
+            </v-list-item-content>
+          </v-list-item>
+
+          <v-divider inset></v-divider>
+
+          <v-list-item>
+            <v-list-item-avatar>
+              <v-icon color="info">mdi-bell-ring</v-icon>
+            </v-list-item-avatar>
+            <v-list-item-content>
+              <v-list-item-title>تذكير بالمواعيد</v-list-item-title>
+              <v-list-item-subtitle>تلقي إشعارات قبل موعدك</v-list-item-subtitle>
+            </v-list-item-content>
+          </v-list-item>
+        </v-list>
+      </v-card>
+    </v-flex>
+  </v-layout>
+</v-container>
