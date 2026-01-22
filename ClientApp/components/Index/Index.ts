@@ -200,14 +200,22 @@ export default class Index extends Vue {
     }
 
     // Modal handlers
-    public openDetailModal(contract: Contract) {
+    public async openDetailModal(contract: Contract) {
         this.selectedContract = contract;
         this.showDetailModal = true;
+        // Load contract history for the workflow timeline
+        try {
+            this.contractHistory = await this.contractService.getContractHistory(contract.id);
+        } catch (error) {
+            console.error('Error loading history:', error);
+            this.contractHistory = [];
+        }
     }
 
     public closeDetailModal() {
         this.showDetailModal = false;
         this.selectedContract = null;
+        this.contractHistory = [];
     }
 
     public openAddModal() {
@@ -462,5 +470,74 @@ export default class Index extends Vue {
             default:
                 return 'مسؤول';
         }
+    }
+
+    // Get the status before rejection (from history)
+    public getStatusBeforeRejection(): ContractStatus {
+        if (this.contractHistory.length > 0) {
+            // History is ordered newest first, find the rejection entry
+            const rejectionEntry = this.contractHistory.find(h => h.newStatus === ContractStatus.Rejected);
+            if (rejectionEntry) {
+                return rejectionEntry.oldStatus;
+            }
+        }
+        return ContractStatus.Submitted;
+    }
+
+    // Get the highest completed status (for workflow visualization)
+    public getHighestCompletedStatus(): ContractStatus {
+        if (!this.selectedContract) return ContractStatus.Submitted;
+
+        // If rejected, get status before rejection
+        if (this.selectedContract.status === ContractStatus.Rejected) {
+            return this.getStatusBeforeRejection();
+        }
+
+        return this.selectedContract.status;
+    }
+
+    // Check if a workflow step is completed
+    public isStepCompleted(stepStatus: ContractStatus): boolean {
+        const highestStatus = this.getHighestCompletedStatus();
+        return highestStatus >= stepStatus;
+    }
+
+    // Check if a workflow step is the active/current step
+    public isStepActive(stepStatus: ContractStatus): boolean {
+        if (!this.selectedContract) return false;
+
+        // If rejected, the step where rejection happened is "active" (shows rejection)
+        if (this.selectedContract.status === ContractStatus.Rejected) {
+            const statusBeforeRejection = this.getStatusBeforeRejection();
+            return stepStatus === statusBeforeRejection;
+        }
+
+        return this.selectedContract.status === stepStatus;
+    }
+
+    // Check if a workflow step is where rejection happened
+    public isStepRejected(stepStatus: ContractStatus): boolean {
+        if (!this.selectedContract || this.selectedContract.status !== ContractStatus.Rejected) {
+            return false;
+        }
+        const statusBeforeRejection = this.getStatusBeforeRejection();
+        return stepStatus === statusBeforeRejection;
+    }
+
+    // Get the icon for a workflow step
+    public getStepIcon(stepStatus: ContractStatus, defaultIcon: string): string {
+        if (this.isStepRejected(stepStatus)) {
+            return 'mdi-close';
+        }
+        if (this.isStepCompleted(stepStatus)) {
+            return 'mdi-check';
+        }
+        return defaultIcon;
+    }
+
+    // Check if connector should show as completed
+    public isConnectorCompleted(afterStepStatus: ContractStatus): boolean {
+        const highestStatus = this.getHighestCompletedStatus();
+        return highestStatus >= afterStepStatus;
     }
 }

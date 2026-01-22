@@ -196,7 +196,7 @@
             @click="openConfirmModal(contract, 'verify')"
           >
             <i class="mdi mdi-check"></i>
-            تثبيت
+            {{ getApprovalButtonText(contract.status) }}
           </button>
           <button
             v-if="canApprove(contract)"
@@ -305,6 +305,133 @@
               <span class="contract-detail__value">{{ selectedContract.createdBy }}</span>
             </div>
           </div>
+
+          <!-- Workflow Progress Timeline -->
+          <div class="contract-detail__section">
+            <h3 class="contract-detail__section-title">
+              <i class="mdi mdi-timeline-clock-outline"></i>
+              مسار سير العمل
+            </h3>
+
+            <!-- Visual Workflow Steps -->
+            <div class="workflow-timeline">
+              <div class="workflow-timeline__steps">
+                <!-- Step 1: Submitted -->
+                <div class="workflow-step" :class="{
+                  'workflow-step--completed': isStepCompleted(ContractStatus.Submitted),
+                  'workflow-step--active': isStepActive(ContractStatus.Submitted),
+                  'workflow-step--rejected': isStepRejected(ContractStatus.Submitted)
+                }">
+                  <div class="workflow-step__icon">
+                    <i class="mdi" :class="getStepIcon(ContractStatus.Submitted, 'mdi-file-document-outline')"></i>
+                  </div>
+                  <div class="workflow-step__content">
+                    <span class="workflow-step__label">مقدم للمراجعة</span>
+                    <span class="workflow-step__sublabel">الخطوة 1</span>
+                  </div>
+                </div>
+                <div class="workflow-step__connector" :class="{ 'workflow-step__connector--completed': isConnectorCompleted(ContractStatus.InitialApproved) }"></div>
+
+                <!-- Step 2: Initial Approved -->
+                <div class="workflow-step" :class="{
+                  'workflow-step--completed': isStepCompleted(ContractStatus.InitialApproved),
+                  'workflow-step--active': isStepActive(ContractStatus.InitialApproved),
+                  'workflow-step--rejected': isStepRejected(ContractStatus.InitialApproved)
+                }">
+                  <div class="workflow-step__icon">
+                    <i class="mdi" :class="getStepIcon(ContractStatus.InitialApproved, 'mdi-check-circle-outline')"></i>
+                  </div>
+                  <div class="workflow-step__content">
+                    <span class="workflow-step__label">الموافقة الأولية</span>
+                    <span class="workflow-step__sublabel">الخطوة 2</span>
+                  </div>
+                </div>
+                <div class="workflow-step__connector" :class="{ 'workflow-step__connector--completed': isConnectorCompleted(ContractStatus.ManagerApproved) }"></div>
+
+                <!-- Step 3: Manager Approved -->
+                <div class="workflow-step" :class="{
+                  'workflow-step--completed': isStepCompleted(ContractStatus.ManagerApproved),
+                  'workflow-step--active': isStepActive(ContractStatus.ManagerApproved),
+                  'workflow-step--rejected': isStepRejected(ContractStatus.ManagerApproved)
+                }">
+                  <div class="workflow-step__icon">
+                    <i class="mdi" :class="getStepIcon(ContractStatus.ManagerApproved, 'mdi-account-check-outline')"></i>
+                  </div>
+                  <div class="workflow-step__content">
+                    <span class="workflow-step__label">موافقة المدير</span>
+                    <span class="workflow-step__sublabel">الخطوة 3</span>
+                  </div>
+                </div>
+                <div class="workflow-step__connector" :class="{ 'workflow-step__connector--completed': isConnectorCompleted(ContractStatus.FinalApproved) }"></div>
+
+                <!-- Step 4: Final Approved -->
+                <div class="workflow-step" :class="{
+                  'workflow-step--completed': isStepCompleted(ContractStatus.FinalApproved),
+                  'workflow-step--active': isStepActive(ContractStatus.FinalApproved),
+                  'workflow-step--rejected': isStepRejected(ContractStatus.FinalApproved)
+                }">
+                  <div class="workflow-step__icon">
+                    <i class="mdi" :class="getStepIcon(ContractStatus.FinalApproved, 'mdi-check-all')"></i>
+                  </div>
+                  <div class="workflow-step__content">
+                    <span class="workflow-step__label">الموافقة النهائية</span>
+                    <span class="workflow-step__sublabel">الخطوة 4</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Progress Bar -->
+              <div class="workflow-progress" :class="{ 'workflow-progress--rejected': selectedContract.status === ContractStatus.Rejected }">
+                <div class="workflow-progress__bar" :style="{ width: getProgressPercentage(getHighestCompletedStatus()) + '%' }"></div>
+              </div>
+              <div class="workflow-progress__label">
+                <span v-if="selectedContract.status === ContractStatus.Rejected" class="workflow-progress__status workflow-progress__status--rejected">
+                  <i class="mdi mdi-close-circle"></i> مرفوض عند: {{ getStatusText(getStatusBeforeRejection()) }}
+                </span>
+                <span v-else>{{ getProgressPercentage(selectedContract.status) }}% مكتمل</span>
+              </div>
+            </div>
+
+            <!-- Audit Trail History -->
+            <div class="workflow-history" v-if="contractHistory.length > 0">
+              <h4 class="workflow-history__title">
+                <i class="mdi mdi-history"></i>
+                سجل التغييرات
+              </h4>
+              <div class="workflow-history__list">
+                <div class="workflow-history__item" v-for="history in contractHistory" :key="history.id">
+                  <div class="workflow-history__icon" :class="history.newStatus === 5 ? 'workflow-history__icon--rejected' : 'workflow-history__icon--approved'">
+                    <i class="mdi" :class="history.newStatus === 5 ? 'mdi-close' : 'mdi-check'"></i>
+                  </div>
+                  <div class="workflow-history__content">
+                    <div class="workflow-history__action">
+                      <span class="workflow-history__from">{{ getStatusText(history.oldStatus) }}</span>
+                      <i class="mdi mdi-arrow-left"></i>
+                      <span class="workflow-history__to" :class="history.newStatus === 5 ? 'workflow-history__to--rejected' : ''">{{ getStatusText(history.newStatus) }}</span>
+                    </div>
+                    <div class="workflow-history__meta">
+                      <span class="workflow-history__user">
+                        <i class="mdi mdi-account"></i>
+                        {{ history.changedBy }}
+                      </span>
+                      <span class="workflow-history__date">
+                        <i class="mdi mdi-calendar-clock"></i>
+                        {{ formatDate(history.changedAt) }}
+                      </span>
+                    </div>
+                    <div class="workflow-history__comment" v-if="history.comment">
+                      <i class="mdi mdi-comment-text-outline"></i>
+                      {{ history.comment }}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="workflow-history workflow-history--empty" v-else>
+              <i class="mdi mdi-history"></i>
+              <p>لا يوجد سجل تغييرات بعد</p>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -322,7 +449,7 @@
           @click="openConfirmModal(selectedContract, 'verify'); closeDetailModal();"
         >
           <i class="mdi mdi-check-circle"></i>
-          تثبيت العقد
+          {{ getApprovalButtonText(selectedContract.status) }}
         </button>
       </div>
     </div>
@@ -465,7 +592,7 @@
       <div class="modal__header" :class="confirmAction === 'verify' ? 'modal__header--success' : 'modal__header--danger'">
         <h2 class="modal__title">
           <i :class="confirmAction === 'verify' ? 'mdi mdi-check-circle' : 'mdi mdi-alert-circle'"></i>
-          {{ confirmAction === 'verify' ? 'تأكيد تثبيت العقد' : 'تأكيد رفض العقد' }}
+          {{ confirmAction === 'verify' ? 'تأكيد ' + (selectedContract ? getApprovalButtonText(selectedContract.status) : 'الموافقة') : 'تأكيد رفض العقد' }}
         </h2>
         <button class="modal__close" @click="closeConfirmModal">
           <i class="mdi mdi-close"></i>
@@ -476,7 +603,7 @@
         <div class="confirm-content">
           <p class="confirm-message">
             {{ confirmAction === 'verify'
-              ? 'هل أنت متأكد من رغبتك في تثبيت هذا العقد؟ سيتم اعتماده رسمياً.'
+              ? 'هل أنت متأكد من إتمام ' + (selectedContract ? getApprovalButtonText(selectedContract.status) : 'الموافقة') + ' لهذا العقد؟'
               : 'هل أنت متأكد من رغبتك في رفض هذا العقد؟'
             }}
           </p>
@@ -508,7 +635,7 @@
           @click="confirmActionExecute"
         >
           <i :class="confirmAction === 'verify' ? 'mdi mdi-check' : 'mdi mdi-close'"></i>
-          {{ confirmAction === 'verify' ? 'تثبيت' : 'رفض' }}
+          {{ confirmAction === 'verify' ? (selectedContract ? getApprovalButtonText(selectedContract.status) : 'موافقة') : 'رفض' }}
         </button>
       </div>
     </div>
