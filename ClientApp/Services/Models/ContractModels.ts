@@ -19,7 +19,9 @@ export interface Contract {
     type: ContractType;
     status: ContractStatus;
     sellerName: string;
+    sellerIdNumber: string;
     buyerName: string;
+    buyerIdNumber: string;
     propertyAddress: string;
     contractAmount: number;
     createdBy: string;
@@ -32,7 +34,9 @@ export interface ContractCreateModel {
     contractNumber: string;
     type: ContractType;
     sellerName: string;
+    sellerIdNumber: string;
     buyerName: string;
+    buyerIdNumber: string;
     propertyAddress: string;
     contractAmount: number;
 }

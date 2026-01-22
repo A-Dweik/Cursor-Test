@@ -26,7 +26,9 @@ namespace ContractVerification.Data
                 entity.Property(e => e.Type).IsRequired();
                 entity.Property(e => e.Status).IsRequired();
                 entity.Property(e => e.SellerName).IsRequired().HasMaxLength(200);
+                entity.Property(e => e.SellerIdNumber).IsRequired().HasMaxLength(20);
                 entity.Property(e => e.BuyerName).IsRequired().HasMaxLength(200);
+                entity.Property(e => e.BuyerIdNumber).IsRequired().HasMaxLength(20);
                 entity.Property(e => e.PropertyAddress).IsRequired().HasMaxLength(500);
                 entity.Property(e => e.ContractAmount).IsRequired().HasColumnType("decimal(18,2)");
                 entity.Property(e => e.CreatedBy).IsRequired().HasMaxLength(200);
@@ -38,6 +40,8 @@ namespace ContractVerification.Data
                 entity.HasIndex(e => e.Type);
                 entity.HasIndex(e => e.CreatedBy);
                 entity.HasIndex(e => e.CreatedAt);
+                entity.HasIndex(e => e.SellerIdNumber);
+                entity.HasIndex(e => e.BuyerIdNumber);
             });
 
             // Configure ContractHistory table
@@ -77,7 +81,9 @@ namespace ContractVerification.Data
                     Type = ContractType.Sale,
                     Status = ContractStatus.Submitted,  // Stage 1: Awaiting initial review
                     SellerName = "محمد أحمد العلي",
+                    SellerIdNumber = "1023456789",
                     BuyerName = "خالد سعد المطيري",
+                    BuyerIdNumber = "1098765432",
                     PropertyAddress = "الرياض - حي النرجس - فيلا دوبلكس 450م²",
                     ContractAmount = 2500000,
                     CreatedBy = "test",
@@ -91,7 +97,9 @@ namespace ContractVerification.Data
                     Type = ContractType.Rental,
                     Status = ContractStatus.FinalApproved,  // Stage 4: Fully approved
                     SellerName = "سعد عبدالله الغامدي",
+                    SellerIdNumber = "1034567890",
                     BuyerName = "أحمد علي الزهراني",
+                    BuyerIdNumber = "1087654321",
                     PropertyAddress = "جدة - حي الروضة - شقة مفروشة 180م²",
                     ContractAmount = 3500,
                     CreatedBy = "test2",
@@ -105,7 +113,9 @@ namespace ContractVerification.Data
                     Type = ContractType.Sale,
                     Status = ContractStatus.FinalApproved,  // Stage 4: Fully approved
                     SellerName = "فهد محمد القحطاني",
+                    SellerIdNumber = "1045678901",
                     BuyerName = "عبدالرحمن سليمان الدوسري",
+                    BuyerIdNumber = "1076543210",
                     PropertyAddress = "الدمام - حي الفيصلية - أرض سكنية 600م²",
                     ContractAmount = 1200000,
                     CreatedBy = "test",
@@ -119,7 +129,9 @@ namespace ContractVerification.Data
                     Type = ContractType.Rental,
                     Status = ContractStatus.Rejected,
                     SellerName = "شركة العقارات المتقدمة",
+                    SellerIdNumber = "7001234567",
                     BuyerName = "مؤسسة التقنية الحديثة",
+                    BuyerIdNumber = "7007654321",
                     PropertyAddress = "الرياض - حي العليا - مكتب تجاري 120م²",
                     ContractAmount = 8000,
                     CreatedBy = "test1",
@@ -133,7 +145,9 @@ namespace ContractVerification.Data
                     Type = ContractType.Sale,
                     Status = ContractStatus.Submitted,  // Stage 1: Awaiting initial review
                     SellerName = "ناصر عبدالعزيز الشهري",
+                    SellerIdNumber = "1056789012",
                     BuyerName = "مجموعة الاستثمار العقاري",
+                    BuyerIdNumber = "7002345678",
                     PropertyAddress = "مكة المكرمة - حي العزيزية - عمارة سكنية 1200م²",
                     ContractAmount = 5800000,
                     CreatedBy = "test",
@@ -147,7 +161,9 @@ namespace ContractVerification.Data
                     Type = ContractType.Rental,
                     Status = ContractStatus.FinalApproved,  // Stage 4: Fully approved
                     SellerName = "عبدالله حسن العتيبي",
+                    SellerIdNumber = "1067890123",
                     BuyerName = "مؤسسة التجارة الحديثة",
+                    BuyerIdNumber = "7003456789",
                     PropertyAddress = "الخبر - حي الكورنيش - محل تجاري 85م²",
                     ContractAmount = 4200,
                     CreatedBy = "test2",
@@ -161,7 +177,9 @@ namespace ContractVerification.Data
                     Type = ContractType.Sale,
                     Status = ContractStatus.InitialApproved,  // Stage 2: Initial approval granted
                     SellerName = "سالم محمد الحربي",
+                    SellerIdNumber = "1078901234",
                     BuyerName = "فيصل أحمد الغامدي",
+                    BuyerIdNumber = "1065432109",
                     PropertyAddress = "الطائف - حي الشفا - فيلا 350م²",
                     ContractAmount = 1800000,
                     CreatedBy = "test1",
@@ -175,7 +193,9 @@ namespace ContractVerification.Data
                     Type = ContractType.Rental,
                     Status = ContractStatus.Submitted,  // Stage 1: Awaiting initial review
                     SellerName = "يوسف عبدالرحمن المطيري",
+                    SellerIdNumber = "1089012345",
                     BuyerName = "خالد سليمان الدوسري",
+                    BuyerIdNumber = "1054321098",
                     PropertyAddress = "المدينة المنورة - حي العزيزية - شقة 140م²",
                     ContractAmount = 2800,
                     CreatedBy = "test",
@@ -189,7 +209,9 @@ namespace ContractVerification.Data
                     Type = ContractType.Sale,
                     Status = ContractStatus.ManagerApproved,  // Stage 3: Manager approved, awaiting final
                     SellerName = "عبدالملك فهد الشمري",
+                    SellerIdNumber = "1090123456",
                     BuyerName = "ماجد سعد القحطاني",
+                    BuyerIdNumber = "1043210987",
                     PropertyAddress = "أبها - حي الموظفين - أرض تجارية 800م²",
                     ContractAmount = 2100000,
                     CreatedBy = "test2",
@@ -203,7 +225,9 @@ namespace ContractVerification.Data
                     Type = ContractType.Rental,
                     Status = ContractStatus.InitialApproved,  // Stage 2: Initial approval granted
                     SellerName = "مؤسسة البناء الحديث",
+                    SellerIdNumber = "7004567890",
                     BuyerName = "شركة التطوير العقاري",
+                    BuyerIdNumber = "7008765432",
                     PropertyAddress = "تبوك - حي السلام - مستودع 500م²",
                     ContractAmount = 6500,
                     CreatedBy = "test1",

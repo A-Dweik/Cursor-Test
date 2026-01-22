@@ -25,8 +25,16 @@ namespace ContractVerification.Models
         public string SellerName { get; set; }
 
         [Required]
+        [MaxLength(20)]
+        public string SellerIdNumber { get; set; }
+
+        [Required]
         [MaxLength(200)]
         public string BuyerName { get; set; }
+
+        [Required]
+        [MaxLength(20)]
+        public string BuyerIdNumber { get; set; }
 
         [Required]
         [MaxLength(500)]

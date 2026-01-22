@@ -9,7 +9,9 @@ namespace ContractVerification.Models.DTOs
         public int Type { get; set; }
         public int Status { get; set; }
         public string SellerName { get; set; }
+        public string SellerIdNumber { get; set; }
         public string BuyerName { get; set; }
+        public string BuyerIdNumber { get; set; }
         public string PropertyAddress { get; set; }
         public decimal ContractAmount { get; set; }
         public string CreatedBy { get; set; }
@@ -22,7 +24,9 @@ namespace ContractVerification.Models.DTOs
         public string ContractNumber { get; set; }
         public int Type { get; set; }
         public string SellerName { get; set; }
+        public string SellerIdNumber { get; set; }
         public string BuyerName { get; set; }
+        public string BuyerIdNumber { get; set; }
         public string PropertyAddress { get; set; }
         public decimal ContractAmount { get; set; }
     }

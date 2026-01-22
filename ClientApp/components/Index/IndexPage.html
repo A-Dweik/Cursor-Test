@@ -173,8 +173,16 @@
               <span class="contract-card__party-name">{{ contract.sellerName }}</span>
             </div>
             <div class="contract-card__party">
+              <span class="contract-card__party-label">رقم الهوية:</span>
+              <span class="contract-card__party-name">{{ contract.sellerIdNumber }}</span>
+            </div>
+            <div class="contract-card__party">
               <span class="contract-card__party-label">{{ contract.type === ContractType.Sale ? 'المشتري:' : 'المستأجر:' }}</span>
               <span class="contract-card__party-name">{{ contract.buyerName }}</span>
+            </div>
+            <div class="contract-card__party">
+              <span class="contract-card__party-label">رقم الهوية:</span>
+              <span class="contract-card__party-name">{{ contract.buyerIdNumber }}</span>
             </div>
           </div>
 
@@ -280,6 +288,9 @@
                 <div class="contract-detail__party-info">
                   <span class="contract-detail__party-role">{{ selectedContract.type === ContractType.Sale ? 'البائع' : 'المالك' }}</span>
                   <span class="contract-detail__party-name">{{ selectedContract.sellerName }}</span>
+                  <span class="contract-detail__party-role" style="margin-top: 4px; font-size: 12px;">
+                    رقم الهوية: <strong style="color: #1B8354;">{{ selectedContract.sellerIdNumber }}</strong>
+                  </span>
                 </div>
               </div>
               <div class="contract-detail__party">
@@ -289,6 +300,9 @@
                 <div class="contract-detail__party-info">
                   <span class="contract-detail__party-role">{{ selectedContract.type === ContractType.Sale ? 'المشتري' : 'المستأجر' }}</span>
                   <span class="contract-detail__party-name">{{ selectedContract.buyerName }}</span>
+                  <span class="contract-detail__party-role" style="margin-top: 4px; font-size: 12px;">
+                    رقم الهوية: <strong style="color: #1B8354;">{{ selectedContract.buyerIdNumber }}</strong>
+                  </span>
                 </div>
               </div>
             </div>
@@ -430,6 +444,22 @@
 
               <div class="form-group">
                 <label class="form-label">
+                  {{ newContract.type === ContractType.Sale ? 'رقم هوية البائع' : 'رقم هوية المالك' }} <span class="required">*</span>
+                </label>
+                <input
+                  type="text"
+                  v-model="newContract.sellerIdNumber"
+                  class="form-input"
+                  :class="{ 'form-input--error': formErrors.sellerIdNumber }"
+                  placeholder="رقم الهوية (10 أرقام)"
+                  maxlength="10"
+                  @input="newContract.sellerIdNumber = newContract.sellerIdNumber.replace(/[^0-9]/g, '')"
+                />
+                <span class="form-error" v-if="formErrors.sellerIdNumber">{{ formErrors.sellerIdNumber }}</span>
+              </div>
+
+              <div class="form-group">
+                <label class="form-label">
                   {{ newContract.type === ContractType.Sale ? 'اسم المشتري' : 'اسم المستأجر' }} <span class="required">*</span>
                 </label>
                 <input
@@ -440,6 +470,22 @@
                   placeholder="الاسم الكامل"
                 />
                 <span class="form-error" v-if="formErrors.buyerName">{{ formErrors.buyerName }}</span>
+              </div>
+
+              <div class="form-group">
+                <label class="form-label">
+                  {{ newContract.type === ContractType.Sale ? 'رقم هوية المشتري' : 'رقم هوية المستأجر' }} <span class="required">*</span>
+                </label>
+                <input
+                  type="text"
+                  v-model="newContract.buyerIdNumber"
+                  class="form-input"
+                  :class="{ 'form-input--error': formErrors.buyerIdNumber }"
+                  placeholder="رقم الهوية (10 أرقام)"
+                  maxlength="10"
+                  @input="newContract.buyerIdNumber = newContract.buyerIdNumber.replace(/[^0-9]/g, '')"
+                />
+                <span class="form-error" v-if="formErrors.buyerIdNumber">{{ formErrors.buyerIdNumber }}</span>
               </div>
             </div>
           </div>

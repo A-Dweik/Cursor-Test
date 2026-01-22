@@ -81,7 +81,9 @@ namespace ContractVerification.Controllers
                     Type = (int)c.Type,
                     Status = (int)c.Status,
                     SellerName = c.SellerName,
+                    SellerIdNumber = c.SellerIdNumber,
                     BuyerName = c.BuyerName,
+                    BuyerIdNumber = c.BuyerIdNumber,
                     PropertyAddress = c.PropertyAddress,
                     ContractAmount = c.ContractAmount,
                     CreatedBy = c.CreatedBy,
@@ -161,9 +163,19 @@ namespace ContractVerification.Controllers
                     return BadRequest("Seller/Owner name must be at least 3 characters");
                 }
 
+                if (string.IsNullOrWhiteSpace(createDto.SellerIdNumber) || createDto.SellerIdNumber.Trim().Length < 10)
+                {
+                    return BadRequest("Seller/Owner ID number must be at least 10 digits");
+                }
+
                 if (string.IsNullOrWhiteSpace(createDto.BuyerName) || createDto.BuyerName.Trim().Length < 3)
                 {
                     return BadRequest("Buyer/Tenant name must be at least 3 characters");
+                }
+
+                if (string.IsNullOrWhiteSpace(createDto.BuyerIdNumber) || createDto.BuyerIdNumber.Trim().Length < 10)
+                {
+                    return BadRequest("Buyer/Tenant ID number must be at least 10 digits");
                 }
 
                 if (string.IsNullOrWhiteSpace(createDto.PropertyAddress) || createDto.PropertyAddress.Trim().Length < 5)
@@ -194,7 +206,9 @@ namespace ContractVerification.Controllers
                     Type = (ContractType)createDto.Type,
                     Status = ContractStatus.Submitted,  // New contracts start as Submitted
                     SellerName = createDto.SellerName.Trim(),
+                    SellerIdNumber = createDto.SellerIdNumber.Trim(),
                     BuyerName = createDto.BuyerName.Trim(),
+                    BuyerIdNumber = createDto.BuyerIdNumber.Trim(),
                     PropertyAddress = createDto.PropertyAddress.Trim(),
                     ContractAmount = createDto.ContractAmount,
                     CreatedBy = username,
@@ -212,7 +226,9 @@ namespace ContractVerification.Controllers
                     Type = (int)contract.Type,
                     Status = (int)contract.Status,
                     SellerName = contract.SellerName,
+                    SellerIdNumber = contract.SellerIdNumber,
                     BuyerName = contract.BuyerName,
+                    BuyerIdNumber = contract.BuyerIdNumber,
                     PropertyAddress = contract.PropertyAddress,
                     ContractAmount = contract.ContractAmount,
                     CreatedBy = contract.CreatedBy,

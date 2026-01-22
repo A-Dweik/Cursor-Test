@@ -21,7 +21,9 @@ interface NewContractForm {
     contractNumber: string;
     type: ContractType;
     sellerName: string;
+    sellerIdNumber: string;
     buyerName: string;
+    buyerIdNumber: string;
     propertyAddress: string;
     contractAmount: string;
 }
@@ -143,7 +145,9 @@ export default class Index extends Vue {
             contractNumber: this.generateContractNumber(),
             type: ContractType.Sale,
             sellerName: '',
+            sellerIdNumber: '',
             buyerName: '',
+            buyerIdNumber: '',
             propertyAddress: '',
             contractAmount: ''
         };
@@ -298,8 +302,24 @@ export default class Index extends Vue {
             isValid = false;
         }
 
+        if (!this.newContract.sellerIdNumber.trim()) {
+            this.formErrors.sellerIdNumber = 'يرجى إدخال رقم هوية البائع/المالك';
+            isValid = false;
+        } else if (this.newContract.sellerIdNumber.trim().length !== 10) {
+            this.formErrors.sellerIdNumber = 'رقم الهوية يجب أن يكون 10 أرقام';
+            isValid = false;
+        }
+
         if (!this.newContract.buyerName.trim()) {
             this.formErrors.buyerName = 'يرجى إدخال اسم المشتري/المستأجر';
+            isValid = false;
+        }
+
+        if (!this.newContract.buyerIdNumber.trim()) {
+            this.formErrors.buyerIdNumber = 'يرجى إدخال رقم هوية المشتري/المستأجر';
+            isValid = false;
+        } else if (this.newContract.buyerIdNumber.trim().length !== 10) {
+            this.formErrors.buyerIdNumber = 'رقم الهوية يجب أن يكون 10 أرقام';
             isValid = false;
         }
 
@@ -325,7 +345,9 @@ export default class Index extends Vue {
                 contractNumber: this.newContract.contractNumber,
                 type: this.newContract.type,
                 sellerName: this.newContract.sellerName,
+                sellerIdNumber: this.newContract.sellerIdNumber,
                 buyerName: this.newContract.buyerName,
+                buyerIdNumber: this.newContract.buyerIdNumber,
                 propertyAddress: this.newContract.propertyAddress,
                 contractAmount: parseFloat(this.newContract.contractAmount)
             };
