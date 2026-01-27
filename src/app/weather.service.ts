@@ -7,6 +7,10 @@ export interface WeatherData {
   windspeed: number;
   weathercode: number;
   time: string;
+  humidity?: number;
+  feelsLike?: number;
+  pressure?: number;
+  windDirection?: number;
 }
 
 export interface OpenMeteoResponse {
@@ -15,6 +19,12 @@ export interface OpenMeteoResponse {
     windspeed: number;
     weathercode: number;
     time: string;
+    winddirection: number;
+  };
+  current?: {
+    relative_humidity_2m?: number;
+    apparent_temperature?: number;
+    surface_pressure?: number;
   };
 }
 
@@ -32,14 +42,18 @@ export class WeatherService {
   private readonly API_URL = 'https://api.open-meteo.com/v1/forecast';
 
   getAmmanWeather(): Observable<WeatherData> {
-    const url = `${this.API_URL}?latitude=${this.AMMAN_LAT}&longitude=${this.AMMAN_LON}&current_weather=true`;
+    const url = `${this.API_URL}?latitude=${this.AMMAN_LAT}&longitude=${this.AMMAN_LON}&current_weather=true&current=relative_humidity_2m,apparent_temperature,surface_pressure`;
     
     return this.http.get<OpenMeteoResponse>(url).pipe(
       map(response => ({
         temperature: response.current_weather.temperature,
         windspeed: response.current_weather.windspeed,
         weathercode: response.current_weather.weathercode,
-        time: response.current_weather.time
+        time: response.current_weather.time,
+        windDirection: response.current_weather.winddirection,
+        humidity: response.current?.relative_humidity_2m,
+        feelsLike: response.current?.apparent_temperature,
+        pressure: response.current?.surface_pressure
       }))
     );
   }
@@ -80,5 +94,11 @@ export class WeatherService {
     if (code <= 75) return '❄️';
     if (code <= 82) return '🌦️';
     return '⛈️';
+  }
+
+  getWindDirection(degrees: number): string {
+    const directions = ['N', 'NE', 'E', 'SE', 'S', 'SW', 'W', 'NW'];
+    const index = Math.round(degrees / 45) % 8;
+    return directions[index];
   }
 }

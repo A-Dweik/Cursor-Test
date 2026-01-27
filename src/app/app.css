@@ -130,6 +130,9 @@
   border-radius: 12px;
   padding: 20px;
   margin-bottom: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
 }
 
 .detail {
@@ -152,6 +155,18 @@
 .detail-value {
   font-weight: 600;
   color: #333;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.wind-dir {
+  background: #667eea;
+  color: white;
+  padding: 2px 8px;
+  border-radius: 6px;
+  font-size: 0.85rem;
+  font-weight: 700;
 }
 
 .last-updated {

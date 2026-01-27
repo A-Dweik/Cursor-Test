@@ -45,4 +45,8 @@ export class App implements OnInit {
   getWeatherIcon(code: number): string {
     return this.weatherService.getWeatherIcon(code);
   }
+
+  getWindDirection(degrees: number): string {
+    return this.weatherService.getWindDirection(degrees);
+  }
 }
