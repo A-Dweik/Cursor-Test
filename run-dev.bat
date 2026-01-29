@@ -10,7 +10,7 @@ echo.
 
 REM Start the .NET backend in a new window
 echo 🚀 Starting .NET Backend API...
-start "Amman Weather API" cmd /k "cd backend\AmmanWeatherApi && dotnet run"
+start "Amman Weather API" cmd /k "dotnet run"
 
 REM Wait a moment for the backend to start
 timeout /t 3 /nobreak >nul

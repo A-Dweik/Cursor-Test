@@ -34,18 +34,14 @@ A full-stack weather application for Amman, Jordan featuring an Angular 21 front
 
 ### Installation
 
-1. **Install Frontend Dependencies**:
+1. **Install All Dependencies**:
 
 ```bash
+# Install frontend dependencies
 npm install
-```
 
-2. **Install Backend Dependencies** (automatically restored):
-
-```bash
-cd backend/AmmanWeatherApi
+# Restore backend dependencies (automatically done on first build)
 dotnet restore
-cd ../..
 ```
 
 ### Running the Application
@@ -72,7 +68,6 @@ These scripts will automatically start both services for you.
 
 **Terminal 1 - Start the .NET Backend**:
 ```bash
-cd backend/AmmanWeatherApi
 dotnet run
 ```
 The API will start on `http://localhost:5137`
@@ -89,7 +84,6 @@ The app will be available at `http://localhost:4200`
 
 **Backend with hot reload**:
 ```bash
-cd backend/AmmanWeatherApi
 dotnet watch run
 ```
 
@@ -122,8 +116,14 @@ ng generate --help
 
 To build the project for production, run:
 
+**Frontend**:
 ```bash
 npm run build
+```
+
+**Backend**:
+```bash
+dotnet build --configuration Release
 ```
 
 This will compile your project and store the build artifacts in the `dist/` directory. The production build is optimized for performance and speed.
@@ -160,14 +160,22 @@ amman-weather/
 │   ├── index.html               # Main HTML file
 │   └── main.ts                  # Application entry point
 │
-├── backend/                      # .NET backend
-│   └── AmmanWeatherApi/
-│       ├── Controllers/         # API controllers
-│       ├── Services/            # Business logic
-│       ├── Models/              # Data models
-│       └── Program.cs           # API entry point
+├── Controllers/                  # .NET API controllers
+│   └── WeatherController.cs
+├── Services/                     # .NET business logic
+│   ├── IWeatherService.cs
+│   └── WeatherService.cs
+├── Models/                       # .NET data models
+│   └── WeatherData.cs
+│
+├── Program.cs                    # .NET API entry point
+├── AmmanWeatherApi.csproj       # .NET project file
+├── appsettings.json             # .NET configuration
 │
 ├── package.json                 # Frontend dependencies
+├── angular.json                 # Angular configuration
+├── run-dev.sh                   # Development script (Linux/Mac)
+├── run-dev.bat                  # Development script (Windows)
 └── README.md                    # This file
 ```
 
@@ -187,7 +195,7 @@ The backend provides the following endpoints:
 - `GET /api/weather/wind-direction/{degrees}` - Get wind direction
 - `GET /api/weather/health` - Health check
 
-See `backend/AmmanWeatherApi/README.md` for detailed API documentation.
+For detailed API documentation, visit `http://localhost:5137/swagger` when the backend is running.
 
 ## Running unit tests
 
@@ -247,7 +255,7 @@ private readonly API_URL = 'http://localhost:5137/api/weather';
 
 ### Backend Configuration
 
-CORS is configured to allow requests from `http://localhost:4200`. To modify this or add production URLs, edit `backend/AmmanWeatherApi/Program.cs`:
+CORS is configured to allow requests from `http://localhost:4200`. To modify this or add production URLs, edit `Program.cs`:
 
 ```csharp
 policy.WithOrigins("http://localhost:4200", "https://your-production-domain.com")

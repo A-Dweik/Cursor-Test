@@ -23,10 +23,8 @@ trap cleanup SIGINT SIGTERM
 
 # Start the .NET backend
 echo "🚀 Starting .NET Backend API..."
-cd backend/AmmanWeatherApi
 dotnet run &
 BACKEND_PID=$!
-cd ../..
 
 # Wait a moment for the backend to start
 sleep 3
