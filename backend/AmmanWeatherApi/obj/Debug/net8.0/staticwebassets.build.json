@@ -1,0 +1,11 @@
+{
+  "Version": 1,
+  "Hash": "TeUbcpBbRiA/K34QJqC8vRd4IQToOtFCHUO3TaPyC+8=",
+  "Source": "AmmanWeatherApi",
+  "BasePath": "_content/AmmanWeatherApi",
+  "Mode": "Default",
+  "ManifestType": "Build",
+  "ReferencedProjectsConfiguration": [],
+  "DiscoveryPatterns": [],
+  "Assets": []
+}

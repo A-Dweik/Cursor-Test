@@ -13,49 +13,17 @@ export interface WeatherData {
   windDirection?: number;
 }
 
-export interface OpenMeteoResponse {
-  current_weather: {
-    temperature: number;
-    windspeed: number;
-    weathercode: number;
-    time: string;
-    winddirection: number;
-  };
-  current?: {
-    relative_humidity_2m?: number;
-    apparent_temperature?: number;
-    surface_pressure?: number;
-  };
-}
-
 @Injectable({
   providedIn: 'root'
 })
 export class WeatherService {
   private http = inject(HttpClient);
   
-  // Amman, Jordan coordinates
-  private readonly AMMAN_LAT = 31.9454;
-  private readonly AMMAN_LON = 35.9284;
-  
-  // Open-Meteo API (free, no API key required)
-  private readonly API_URL = 'https://api.open-meteo.com/v1/forecast';
+  // .NET Backend API URL
+  private readonly API_URL = 'http://localhost:5137/api/weather';
 
   getAmmanWeather(): Observable<WeatherData> {
-    const url = `${this.API_URL}?latitude=${this.AMMAN_LAT}&longitude=${this.AMMAN_LON}&current_weather=true&current=relative_humidity_2m,apparent_temperature,surface_pressure`;
-    
-    return this.http.get<OpenMeteoResponse>(url).pipe(
-      map(response => ({
-        temperature: response.current_weather.temperature,
-        windspeed: response.current_weather.windspeed,
-        weathercode: response.current_weather.weathercode,
-        time: response.current_weather.time,
-        windDirection: response.current_weather.winddirection,
-        humidity: response.current?.relative_humidity_2m,
-        feelsLike: response.current?.apparent_temperature,
-        pressure: response.current?.surface_pressure
-      }))
-    );
+    return this.http.get<WeatherData>(`${this.API_URL}/amman`);
   }
 
   getWeatherDescription(code: number): string {
