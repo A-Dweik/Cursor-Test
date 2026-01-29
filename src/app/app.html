@@ -148,8 +148,7 @@
                 <input 
                   type="text" 
                   class="form-input"
-                  [(ngModel)]="newLand().title"
-                  (ngModelChange)="newLand.update(v => ({...v, title: $event}))"
+                  [(ngModel)]="newLandTitle"
                   name="title"
                   placeholder="e.g., Prime Residential Land in Abdoun"
                   required
@@ -160,8 +159,7 @@
                 <label class="form-label">Description *</label>
                 <textarea 
                   class="form-textarea"
-                  [(ngModel)]="newLand().description"
-                  (ngModelChange)="newLand.update(v => ({...v, description: $event}))"
+                  [(ngModel)]="newLandDescription"
                   name="description"
                   rows="4"
                   placeholder="Describe your land, its features, and why it's valuable..."
@@ -175,8 +173,7 @@
                   <input 
                     type="text" 
                     class="form-input"
-                    [(ngModel)]="newLand().location"
-                    (ngModelChange)="newLand.update(v => ({...v, location: $event}))"
+                    [(ngModel)]="newLandLocation"
                     name="location"
                     placeholder="e.g., Abdoun, Amman"
                     required
@@ -187,8 +184,7 @@
                   <label class="form-label">Type *</label>
                   <select 
                     class="form-select"
-                    [(ngModel)]="newLand().type"
-                    (ngModelChange)="newLand.update(v => ({...v, type: $event}))"
+                    [(ngModel)]="newLandType"
                     name="type"
                     required
                   >
@@ -207,8 +203,7 @@
                   <input 
                     type="number" 
                     class="form-input"
-                    [(ngModel)]="newLand().area"
-                    (ngModelChange)="newLand.update(v => ({...v, area: +$event}))"
+                    [(ngModel)]="newLandArea"
                     name="area"
                     min="1"
                     placeholder="1000"
@@ -221,8 +216,7 @@
                   <input 
                     type="number" 
                     class="form-input"
-                    [(ngModel)]="newLand().price"
-                    (ngModelChange)="newLand.update(v => ({...v, price: +$event}))"
+                    [(ngModel)]="newLandPrice"
                     name="price"
                     min="1"
                     placeholder="500000"
@@ -240,8 +234,7 @@
                 <input 
                   type="text" 
                   class="form-input"
-                  [(ngModel)]="newLand().features"
-                  (ngModelChange)="newLand.update(v => ({...v, features: $event}))"
+                  [(ngModel)]="newLandFeatures"
                   name="features"
                   placeholder="e.g., Mountain View, Close to Schools, Utilities Available"
                 />
@@ -251,8 +244,7 @@
                 <label class="form-label">Status *</label>
                 <select 
                   class="form-select"
-                  [(ngModel)]="newLand().status"
-                  (ngModelChange)="newLand.update(v => ({...v, status: $event}))"
+                  [(ngModel)]="newLandStatus"
                   name="status"
                   required
                 >
@@ -271,8 +263,7 @@
                 <input 
                   type="text" 
                   class="form-input"
-                  [(ngModel)]="newLand().ownerName"
-                  (ngModelChange)="newLand.update(v => ({...v, ownerName: $event}))"
+                  [(ngModel)]="newLandOwnerName"
                   name="ownerName"
                   placeholder="e.g., Ahmad Mansour"
                   required
@@ -284,8 +275,7 @@
                 <input 
                   type="tel" 
                   class="form-input"
-                  [(ngModel)]="newLand().ownerContact"
-                  (ngModelChange)="newLand.update(v => ({...v, ownerContact: $event}))"
+                  [(ngModel)]="newLandOwnerContact"
                   name="ownerContact"
                   placeholder="e.g., +962-79-1234567"
                   required

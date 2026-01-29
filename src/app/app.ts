@@ -25,18 +25,16 @@ export class App {
   maxPrice = signal<number | null>(null);
   
   // Form state for adding new land
-  newLand = signal({
-    title: '',
-    description: '',
-    location: '',
-    area: 0,
-    price: 0,
-    status: LandStatus.AVAILABLE,
-    type: LandType.RESIDENTIAL,
-    features: '',
-    ownerName: '',
-    ownerContact: ''
-  });
+  newLandTitle = signal('');
+  newLandDescription = signal('');
+  newLandLocation = signal('');
+  newLandArea = signal(0);
+  newLandPrice = signal(0);
+  newLandStatus = signal(LandStatus.AVAILABLE);
+  newLandType = signal(LandType.RESIDENTIAL);
+  newLandFeatures = signal('');
+  newLandOwnerName = signal('');
+  newLandOwnerContact = signal('');
   
   // Computed filtered lands
   filteredLands = computed(() => {
@@ -77,36 +75,34 @@ export class App {
   }
   
   addLand(): void {
-    const form = this.newLand();
-    
     // Validation
-    if (!form.title || !form.location || !form.ownerName || !form.ownerContact) {
+    if (!this.newLandTitle() || !this.newLandLocation() || !this.newLandOwnerName() || !this.newLandOwnerContact()) {
       alert('Please fill in all required fields');
       return;
     }
     
-    if (form.area <= 0 || form.price <= 0) {
+    if (this.newLandArea() <= 0 || this.newLandPrice() <= 0) {
       alert('Area and price must be greater than 0');
       return;
     }
     
-    const features = form.features
+    const features = this.newLandFeatures()
       .split(',')
       .map(f => f.trim())
       .filter(f => f.length > 0);
     
     this.landService.addLand({
-      title: form.title,
-      description: form.description,
-      location: form.location,
-      area: form.area,
-      price: form.price,
-      status: form.status,
-      type: form.type,
+      title: this.newLandTitle(),
+      description: this.newLandDescription(),
+      location: this.newLandLocation(),
+      area: this.newLandArea(),
+      price: this.newLandPrice(),
+      status: this.newLandStatus(),
+      type: this.newLandType(),
       features: features,
-      images: [this.getTypeEmoji(form.type)],
-      ownerName: form.ownerName,
-      ownerContact: form.ownerContact
+      images: [this.getTypeEmoji(this.newLandType())],
+      ownerName: this.newLandOwnerName(),
+      ownerContact: this.newLandOwnerContact()
     });
     
     this.showList();
@@ -139,18 +135,16 @@ export class App {
   }
   
   private resetForm(): void {
-    this.newLand.set({
-      title: '',
-      description: '',
-      location: '',
-      area: 0,
-      price: 0,
-      status: LandStatus.AVAILABLE,
-      type: LandType.RESIDENTIAL,
-      features: '',
-      ownerName: '',
-      ownerContact: ''
-    });
+    this.newLandTitle.set('');
+    this.newLandDescription.set('');
+    this.newLandLocation.set('');
+    this.newLandArea.set(0);
+    this.newLandPrice.set(0);
+    this.newLandStatus.set(LandStatus.AVAILABLE);
+    this.newLandType.set(LandType.RESIDENTIAL);
+    this.newLandFeatures.set('');
+    this.newLandOwnerName.set('');
+    this.newLandOwnerContact.set('');
   }
   
   private getTypeEmoji(type: LandType): string {
