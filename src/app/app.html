@@ -1,62 +1,407 @@
-<main class="container">
-  <div class="weather-card">
-    <div class="header">
-      <h1>🇯🇴 Amman, Jordan</h1>
-      <p class="subtitle">Current Weather</p>
+<div class="app-container">
+  <!-- Header -->
+  <header class="app-header">
+    <div class="header-content">
+      <h1 class="app-title">
+        <span class="icon">🏞️</span>
+        LandMarket
+      </h1>
+      <p class="app-subtitle">Buy and Sell Premium Land Properties</p>
     </div>
-
-    @if (loading()) {
-      <div class="loading">
-        <div class="spinner"></div>
-        <p>Loading weather data...</p>
-      </div>
+    
+    @if (currentView() === 'list') {
+      <button class="btn-primary" (click)="showAddForm()">
+        + Sell Your Land
+      </button>
+    } @else {
+      <button class="btn-secondary" (click)="showList()">
+        ← Back to Listings
+      </button>
     }
+  </header>
 
-    @if (error()) {
-      <div class="error">
-        <p>{{ error() }}</p>
-        <button (click)="fetchWeather()" class="retry-btn">Try Again</button>
-      </div>
-    }
-
-    @if (weather() && !loading()) {
-      <div class="weather-content">
-        <div class="weather-icon">
-          {{ getWeatherIcon(weather()!.weathercode) }}
-        </div>
-        
-        <div class="temperature">
-          <span class="temp-value">{{ weather()!.temperature }}</span>
-          <span class="temp-unit">°C</span>
-        </div>
-        
-        <div class="weather-description">
-          {{ getWeatherDescription(weather()!.weathercode) }}
-        </div>
-        
-        <div class="weather-details">
-          <div class="detail">
-            <span class="detail-icon">💨</span>
-            <span class="detail-label">Wind Speed</span>
-            <span class="detail-value">{{ weather()!.windspeed }} km/h</span>
+  <main class="main-content">
+    <!-- List View -->
+    @if (currentView() === 'list') {
+      <div class="list-view">
+        <!-- Filters -->
+        <div class="filters-section">
+          <h2 class="section-title">Find Your Perfect Land</h2>
+          
+          <div class="filters-grid">
+            <div class="filter-group">
+              <input 
+                type="text" 
+                class="filter-input"
+                placeholder="Search by title, location..."
+                [(ngModel)]="searchTerm"
+                (ngModelChange)="searchTerm.set($event)"
+              />
+            </div>
+            
+            <div class="filter-group">
+              <select 
+                class="filter-select"
+                [(ngModel)]="filterType"
+                (ngModelChange)="filterType.set($event)"
+              >
+                <option value="">All Types</option>
+                <option [value]="LandType.RESIDENTIAL">Residential</option>
+                <option [value]="LandType.COMMERCIAL">Commercial</option>
+                <option [value]="LandType.AGRICULTURAL">Agricultural</option>
+                <option [value]="LandType.INDUSTRIAL">Industrial</option>
+                <option [value]="LandType.MIXED_USE">Mixed Use</option>
+              </select>
+            </div>
+            
+            <div class="filter-group">
+              <select 
+                class="filter-select"
+                [(ngModel)]="filterStatus"
+                (ngModelChange)="filterStatus.set($event)"
+              >
+                <option value="">All Status</option>
+                <option [value]="LandStatus.AVAILABLE">Available</option>
+                <option [value]="LandStatus.PENDING">Pending</option>
+                <option [value]="LandStatus.SOLD">Sold</option>
+              </select>
+            </div>
+            
+            <button class="btn-clear" (click)="clearFilters()">
+              Clear Filters
+            </button>
           </div>
         </div>
 
-        @if (lastUpdated()) {
-          <div class="last-updated">
-            Last updated: {{ lastUpdated() | date:'medium' }}
+        <!-- Lands Grid -->
+        <div class="lands-count">
+          <strong>{{ filteredLands().length }}</strong> properties found
+        </div>
+        
+        @if (filteredLands().length === 0) {
+          <div class="empty-state">
+            <div class="empty-icon">🔍</div>
+            <h3>No lands found</h3>
+            <p>Try adjusting your filters or add a new listing</p>
+          </div>
+        } @else {
+          <div class="lands-grid">
+            @for (land of filteredLands(); track land.id) {
+              <div class="land-card" (click)="showDetails(land)">
+                <div class="land-card-header">
+                  <div class="land-icon">{{ land.images[0] }}</div>
+                  <span class="land-status" [class]="'status-' + land.status.toLowerCase()">
+                    {{ getStatusLabel(land.status) }}
+                  </span>
+                </div>
+                
+                <div class="land-card-body">
+                  <h3 class="land-title">{{ land.title }}</h3>
+                  <p class="land-location">📍 {{ land.location }}</p>
+                  <p class="land-description">{{ land.description }}</p>
+                  
+                  <div class="land-details-row">
+                    <div class="detail-item">
+                      <span class="detail-label">Area</span>
+                      <span class="detail-value">{{ formatArea(land.area) }}</span>
+                    </div>
+                    <div class="detail-item">
+                      <span class="detail-label">Type</span>
+                      <span class="detail-value">{{ getTypeLabel(land.type) }}</span>
+                    </div>
+                  </div>
+                  
+                  <div class="land-price">{{ formatPrice(land.price) }}</div>
+                  
+                  <div class="land-features">
+                    @for (feature of land.features.slice(0, 3); track feature) {
+                      <span class="feature-tag">{{ feature }}</span>
+                    }
+                  </div>
+                </div>
+                
+                <div class="land-card-footer">
+                  <small class="posted-date">
+                    Posted: {{ land.datePosted | date:'MMM d, y' }}
+                  </small>
+                </div>
+              </div>
+            }
           </div>
         }
-        
-        <button (click)="fetchWeather()" class="refresh-btn">
-          🔄 Refresh
-        </button>
       </div>
     }
-  </div>
 
-  <footer class="footer">
-    <p>Powered by <a href="https://open-meteo.com/" target="_blank" rel="noopener">Open-Meteo API</a></p>
-    <p class="api-note">Free weather API - No API key required</p>
+    <!-- Add Land Form -->
+    @if (currentView() === 'add') {
+      <div class="form-view">
+        <div class="form-container">
+          <h2 class="form-title">List Your Land for Sale</h2>
+          <p class="form-subtitle">Fill in the details below to create your listing</p>
+          
+          <form class="land-form" (ngSubmit)="addLand()">
+            <div class="form-section">
+              <h3 class="section-heading">Basic Information</h3>
+              
+              <div class="form-group">
+                <label class="form-label">Title *</label>
+                <input 
+                  type="text" 
+                  class="form-input"
+                  [(ngModel)]="newLand().title"
+                  (ngModelChange)="newLand.update(v => ({...v, title: $event}))"
+                  name="title"
+                  placeholder="e.g., Prime Residential Land in Abdoun"
+                  required
+                />
+              </div>
+              
+              <div class="form-group">
+                <label class="form-label">Description *</label>
+                <textarea 
+                  class="form-textarea"
+                  [(ngModel)]="newLand().description"
+                  (ngModelChange)="newLand.update(v => ({...v, description: $event}))"
+                  name="description"
+                  rows="4"
+                  placeholder="Describe your land, its features, and why it's valuable..."
+                  required
+                ></textarea>
+              </div>
+              
+              <div class="form-row">
+                <div class="form-group">
+                  <label class="form-label">Location *</label>
+                  <input 
+                    type="text" 
+                    class="form-input"
+                    [(ngModel)]="newLand().location"
+                    (ngModelChange)="newLand.update(v => ({...v, location: $event}))"
+                    name="location"
+                    placeholder="e.g., Abdoun, Amman"
+                    required
+                  />
+                </div>
+                
+                <div class="form-group">
+                  <label class="form-label">Type *</label>
+                  <select 
+                    class="form-select"
+                    [(ngModel)]="newLand().type"
+                    (ngModelChange)="newLand.update(v => ({...v, type: $event}))"
+                    name="type"
+                    required
+                  >
+                    <option [value]="LandType.RESIDENTIAL">Residential</option>
+                    <option [value]="LandType.COMMERCIAL">Commercial</option>
+                    <option [value]="LandType.AGRICULTURAL">Agricultural</option>
+                    <option [value]="LandType.INDUSTRIAL">Industrial</option>
+                    <option [value]="LandType.MIXED_USE">Mixed Use</option>
+                  </select>
+                </div>
+              </div>
+              
+              <div class="form-row">
+                <div class="form-group">
+                  <label class="form-label">Area (m²) *</label>
+                  <input 
+                    type="number" 
+                    class="form-input"
+                    [(ngModel)]="newLand().area"
+                    (ngModelChange)="newLand.update(v => ({...v, area: +$event}))"
+                    name="area"
+                    min="1"
+                    placeholder="1000"
+                    required
+                  />
+                </div>
+                
+                <div class="form-group">
+                  <label class="form-label">Price (USD) *</label>
+                  <input 
+                    type="number" 
+                    class="form-input"
+                    [(ngModel)]="newLand().price"
+                    (ngModelChange)="newLand.update(v => ({...v, price: +$event}))"
+                    name="price"
+                    min="1"
+                    placeholder="500000"
+                    required
+                  />
+                </div>
+              </div>
+            </div>
+            
+            <div class="form-section">
+              <h3 class="section-heading">Features & Details</h3>
+              
+              <div class="form-group">
+                <label class="form-label">Features (comma-separated)</label>
+                <input 
+                  type="text" 
+                  class="form-input"
+                  [(ngModel)]="newLand().features"
+                  (ngModelChange)="newLand.update(v => ({...v, features: $event}))"
+                  name="features"
+                  placeholder="e.g., Mountain View, Close to Schools, Utilities Available"
+                />
+              </div>
+              
+              <div class="form-group">
+                <label class="form-label">Status *</label>
+                <select 
+                  class="form-select"
+                  [(ngModel)]="newLand().status"
+                  (ngModelChange)="newLand.update(v => ({...v, status: $event}))"
+                  name="status"
+                  required
+                >
+                  <option [value]="LandStatus.AVAILABLE">Available</option>
+                  <option [value]="LandStatus.PENDING">Pending</option>
+                  <option [value]="LandStatus.SOLD">Sold</option>
+                </select>
+              </div>
+            </div>
+            
+            <div class="form-section">
+              <h3 class="section-heading">Contact Information</h3>
+              
+              <div class="form-group">
+                <label class="form-label">Your Name *</label>
+                <input 
+                  type="text" 
+                  class="form-input"
+                  [(ngModel)]="newLand().ownerName"
+                  (ngModelChange)="newLand.update(v => ({...v, ownerName: $event}))"
+                  name="ownerName"
+                  placeholder="e.g., Ahmad Mansour"
+                  required
+                />
+              </div>
+              
+              <div class="form-group">
+                <label class="form-label">Contact Number *</label>
+                <input 
+                  type="tel" 
+                  class="form-input"
+                  [(ngModel)]="newLand().ownerContact"
+                  (ngModelChange)="newLand.update(v => ({...v, ownerContact: $event}))"
+                  name="ownerContact"
+                  placeholder="e.g., +962-79-1234567"
+                  required
+                />
+              </div>
+            </div>
+            
+            <div class="form-actions">
+              <button type="button" class="btn-secondary" (click)="showList()">
+                Cancel
+              </button>
+              <button type="submit" class="btn-primary">
+                Publish Listing
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    }
+
+    <!-- Land Details View -->
+    @if (currentView() === 'details' && selectedLand()) {
+      <div class="details-view">
+        <div class="details-container">
+          <div class="details-header">
+            <div class="details-icon">{{ selectedLand()!.images[0] }}</div>
+            <div class="details-header-info">
+              <h2 class="details-title">{{ selectedLand()!.title }}</h2>
+              <p class="details-location">📍 {{ selectedLand()!.location }}</p>
+              <span class="land-status" [class]="'status-' + selectedLand()!.status.toLowerCase()">
+                {{ getStatusLabel(selectedLand()!.status) }}
+              </span>
+            </div>
+          </div>
+          
+          <div class="details-price-section">
+            <div class="price-label">Price</div>
+            <div class="price-amount">{{ formatPrice(selectedLand()!.price) }}</div>
+            <div class="price-per-sqm">
+              {{ formatPrice(selectedLand()!.price / selectedLand()!.area) }} per m²
+            </div>
+          </div>
+          
+          <div class="details-grid">
+            <div class="detail-box">
+              <div class="detail-box-label">Area</div>
+              <div class="detail-box-value">{{ formatArea(selectedLand()!.area) }}</div>
+            </div>
+            <div class="detail-box">
+              <div class="detail-box-label">Type</div>
+              <div class="detail-box-value">{{ getTypeLabel(selectedLand()!.type) }}</div>
+            </div>
+            <div class="detail-box">
+              <div class="detail-box-label">Posted</div>
+              <div class="detail-box-value">{{ selectedLand()!.datePosted | date:'MMM d, y' }}</div>
+            </div>
+          </div>
+          
+          <div class="details-section">
+            <h3 class="section-title">Description</h3>
+            <p class="details-description">{{ selectedLand()!.description }}</p>
+          </div>
+          
+          @if (selectedLand()!.features.length > 0) {
+            <div class="details-section">
+              <h3 class="section-title">Features</h3>
+              <div class="features-grid">
+                @for (feature of selectedLand()!.features; track feature) {
+                  <div class="feature-item">
+                    <span class="feature-icon">✓</span>
+                    <span>{{ feature }}</span>
+                  </div>
+                }
+              </div>
+            </div>
+          }
+          
+          <div class="details-section">
+            <h3 class="section-title">Contact Owner</h3>
+            <div class="owner-info">
+              <div class="owner-detail">
+                <strong>Name:</strong> {{ selectedLand()!.ownerName }}
+              </div>
+              <div class="owner-detail">
+                <strong>Phone:</strong> {{ selectedLand()!.ownerContact }}
+              </div>
+            </div>
+          </div>
+          
+          <div class="details-actions">
+            <button class="btn-primary btn-large" (click)="contactOwner(selectedLand()!)">
+              📞 Contact Owner
+            </button>
+            
+            @if (selectedLand()!.status === LandStatus.AVAILABLE) {
+              <button class="btn-warning" (click)="updateLandStatus(selectedLand()!.id, LandStatus.PENDING)">
+                Mark as Pending
+              </button>
+            }
+            
+            @if (selectedLand()!.status === LandStatus.PENDING) {
+              <button class="btn-success" (click)="updateLandStatus(selectedLand()!.id, LandStatus.SOLD)">
+                Mark as Sold
+              </button>
+            }
+            
+            <button class="btn-danger" (click)="deleteLand(selectedLand()!.id)">
+              🗑️ Delete Listing
+            </button>
+          </div>
+        </div>
+      </div>
+    }
+  </main>
+  
+  <footer class="app-footer">
+    <p>&copy; 2026 LandMarket. Your trusted platform for land transactions.</p>
   </footer>
-</main>
+</div>
