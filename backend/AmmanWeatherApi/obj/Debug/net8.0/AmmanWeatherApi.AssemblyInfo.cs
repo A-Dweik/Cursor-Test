@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("AmmanWeatherApi")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+7aeec4c3b5648d58745eeaef04fffd2168bf43ea")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+5fef5a5d6c3e57a8f10b800ae359982847d0e963")]
 [assembly: System.Reflection.AssemblyProductAttribute("AmmanWeatherApi")]
 [assembly: System.Reflection.AssemblyTitleAttribute("AmmanWeatherApi")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
