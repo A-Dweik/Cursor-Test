@@ -52,7 +52,23 @@ cd ../..
 
 **Important**: You need to run both the backend API and frontend app simultaneously.
 
-#### Option 1: Run Both Services
+#### Option 1: Quick Start (Recommended)
+
+Use the provided development scripts:
+
+**Linux/Mac**:
+```bash
+./run-dev.sh
+```
+
+**Windows**:
+```bash
+run-dev.bat
+```
+
+These scripts will automatically start both services for you.
+
+#### Option 2: Manual Start (Separate Terminals)
 
 **Terminal 1 - Start the .NET Backend**:
 ```bash
@@ -69,7 +85,7 @@ ng serve
 ```
 The app will be available at `http://localhost:4200`
 
-#### Option 2: Using Watch Mode (Hot Reload)
+#### Option 3: Using Watch Mode (Hot Reload)
 
 **Backend with hot reload**:
 ```bash
