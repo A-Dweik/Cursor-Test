@@ -1,15 +1,52 @@
-name: Deploy Angular App on Keyword Commit
+name: Build and Deploy Land Marketplace
 
 permissions:
-  contents: write   # REQUIRED so the workflow can push to gh-pages
+  contents: write
 
 on:
   push:
     branches:
-      - master   # Deploy only from master
+      - master
+      - main
 
 jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup .NET 6
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '6.0.x'
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Restore .NET packages
+        run: dotnet restore
+
+      - name: Install Angular CLI
+        run: npm install -g @angular/cli
+
+      - name: Install npm dependencies
+        run: npm ci
+
+      - name: Build Angular (production)
+        run: npm run build:prod
+
+      - name: Build .NET
+        run: dotnet build --configuration Release --no-restore
+
+      - name: Publish .NET
+        run: dotnet publish -c Release -o ./publish --no-build
+
   deploy:
+    needs: build
     if: contains(github.event.head_commit.message, 'deploy-now')
     runs-on: ubuntu-latest
 
@@ -17,26 +54,34 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
+      - name: Setup .NET 6
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '6.0.x'
+
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: 20
 
+      - name: Restore .NET packages
+        run: dotnet restore
+
       - name: Install Angular CLI
         run: npm install -g @angular/cli
 
-      - name: Install dependencies
-        run: npm install
+      - name: Install npm dependencies
+        run: npm ci
 
-      - name: Build Angular (base href must match repo name)
-        run: ng build --base-href "/amman-weather/"
+      - name: Build Angular for GitHub Pages
+        run: ng build --base-href "/land/"
 
       - name: Disable Jekyll
-        run: echo "" > ./dist/amman-weather/browser/.nojekyll
+        run: echo "" > ./wwwroot/browser/.nojekyll
 
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v3
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./dist/amman-weather/browser
+          publish_dir: ./wwwroot/browser
           enable_jekyll: false
