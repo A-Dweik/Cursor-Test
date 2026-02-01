@@ -3,7 +3,10 @@
     "allow": [
       "Bash(dir \"C:\\\\Prj\\\\sigmaS\\\\Agent.MicroApp\\\\Templates\" /s /b)",
       "Bash(dotnet restore:*)",
-      "Bash(dotnet build:*)"
+      "Bash(dotnet build:*)",
+      "Bash(npm run build:prod:*)",
+      "Bash(dotnet run)",
+      "Bash(curl:*)"
     ]
   }
 }

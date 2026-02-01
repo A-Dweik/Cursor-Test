@@ -32,8 +32,26 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseCors();
-app.UseDefaultFiles();
-app.UseStaticFiles();
+
+// Serve Angular from wwwroot/browser subfolder (Angular 21+ application builder)
+var browserPath = Path.Combine(app.Environment.WebRootPath, "browser");
+if (Directory.Exists(browserPath))
+{
+    app.UseDefaultFiles(new DefaultFilesOptions
+    {
+        FileProvider = new Microsoft.Extensions.FileProviders.PhysicalFileProvider(browserPath)
+    });
+    app.UseStaticFiles(new StaticFileOptions
+    {
+        FileProvider = new Microsoft.Extensions.FileProviders.PhysicalFileProvider(browserPath)
+    });
+}
+else
+{
+    // Fallback to serving from wwwroot directly
+    app.UseDefaultFiles();
+    app.UseStaticFiles();
+}
 
 app.UseAuthorization();
 
@@ -49,6 +67,16 @@ app.MapGet("/health", () => Results.Ok(new
 }));
 
 // Fallback for Angular SPA routing
-app.MapFallbackToFile("index.html");
+if (Directory.Exists(browserPath))
+{
+    app.MapFallbackToFile("index.html", new StaticFileOptions
+    {
+        FileProvider = new Microsoft.Extensions.FileProviders.PhysicalFileProvider(browserPath)
+    });
+}
+else
+{
+    app.MapFallbackToFile("index.html");
+}
 
 app.Run();
