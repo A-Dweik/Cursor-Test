@@ -1,6 +1,20 @@
-# AmmanWeather
+# LandMarket - Land Marketplace Application
 
-This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 21.0.2.
+A modern, feature-rich web application for buying and selling land properties. Built with Angular 21 and TypeScript.
+
+## Features
+
+- 🏞️ **Browse Land Listings** - View available properties with detailed information
+- 📝 **Sell Your Land** - Create and manage land listings with comprehensive details
+- 🔍 **Advanced Filtering** - Search by location, type, price range, and status
+- 📊 **Property Details** - View detailed information including area, features, and pricing
+- 📞 **Direct Contact** - Connect with property owners directly
+- 💾 **Local Storage** - All data persists locally in your browser
+- 📱 **Responsive Design** - Beautiful UI that works on all devices
+
+## Technology Stack
+
+This project was built using [Angular CLI](https://github.com/angular/angular-cli) version 21.0.2.
 
 ## Development server
 

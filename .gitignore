@@ -1,5 +1,17 @@
 # See https://docs.github.com/get-started/getting-started-with-git/ignoring-files for more about ignoring files.
 
+# .NET
+bin/
+obj/
+*.user
+*.userosscache
+*.suo
+*.dll
+*.pdb
+
+# Angular build output (served by .NET backend)
+/wwwroot
+
 # Compiled output
 /dist
 /tmp

@@ -1,48 +1,164 @@
-import { Component, OnInit, inject, signal } from '@angular/core';
+import { Component, inject, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { WeatherService, WeatherData } from './weather.service';
+import { FormsModule } from '@angular/forms';
+import { LandService } from './land.service';
+import { Land, LandStatus, LandType, LandFilter } from './land.model';
 
 @Component({
   selector: 'app-root',
-  imports: [CommonModule],
+  imports: [CommonModule, FormsModule],
   templateUrl: './app.html',
   styleUrl: './app.css'
 })
-export class App implements OnInit {
-  private weatherService = inject(WeatherService);
+export class App {
+  private landService = inject(LandService);
   
-  weather = signal<WeatherData | null>(null);
-  loading = signal(true);
-  error = signal<string | null>(null);
-  lastUpdated = signal<Date | null>(null);
-
-  ngOnInit(): void {
-    this.fetchWeather();
-  }
-
-  fetchWeather(): void {
-    this.loading.set(true);
-    this.error.set(null);
+  // View state
+  currentView = signal<'list' | 'add' | 'details'>('list');
+  selectedLand = signal<Land | null>(null);
+  
+  // Filter state
+  searchTerm = signal('');
+  filterStatus = signal<LandStatus | ''>('');
+  filterType = signal<LandType | ''>('');
+  minPrice = signal<number | null>(null);
+  maxPrice = signal<number | null>(null);
+  
+  // Form state for adding new land
+  newLandTitle = signal('');
+  newLandDescription = signal('');
+  newLandLocation = signal('');
+  newLandArea = signal(0);
+  newLandPrice = signal(0);
+  newLandStatus = signal(LandStatus.AVAILABLE);
+  newLandType = signal(LandType.RESIDENTIAL);
+  newLandFeatures = signal('');
+  newLandOwnerName = signal('');
+  newLandOwnerContact = signal('');
+  
+  // Computed filtered lands
+  filteredLands = computed(() => {
+    const filter: LandFilter = {
+      searchTerm: this.searchTerm() || undefined,
+      status: this.filterStatus() || undefined,
+      type: this.filterType() || undefined,
+      minPrice: this.minPrice() ?? undefined,
+      maxPrice: this.maxPrice() ?? undefined
+    };
     
-    this.weatherService.getAmmanWeather().subscribe({
-      next: (data) => {
-        this.weather.set(data);
-        this.lastUpdated.set(new Date());
-        this.loading.set(false);
-      },
-      error: (err) => {
-        this.error.set('Failed to fetch weather data. Please try again.');
-        this.loading.set(false);
-        console.error('Weather fetch error:', err);
-      }
+    return this.landService.filterLands(filter);
+  });
+  
+  // Expose enums to template
+  LandStatus = LandStatus;
+  LandType = LandType;
+  
+  // Expose service methods to template
+  formatPrice = this.landService.formatPrice.bind(this.landService);
+  formatArea = this.landService.formatArea.bind(this.landService);
+  getStatusLabel = this.landService.getStatusLabel.bind(this.landService);
+  getTypeLabel = this.landService.getTypeLabel.bind(this.landService);
+  
+  showAddForm(): void {
+    this.currentView.set('add');
+    this.resetForm();
+  }
+  
+  showList(): void {
+    this.currentView.set('list');
+    this.selectedLand.set(null);
+  }
+  
+  showDetails(land: Land): void {
+    this.selectedLand.set(land);
+    this.currentView.set('details');
+  }
+  
+  addLand(): void {
+    // Validation
+    if (!this.newLandTitle() || !this.newLandLocation() || !this.newLandOwnerName() || !this.newLandOwnerContact()) {
+      alert('Please fill in all required fields');
+      return;
+    }
+    
+    if (this.newLandArea() <= 0 || this.newLandPrice() <= 0) {
+      alert('Area and price must be greater than 0');
+      return;
+    }
+    
+    const features = this.newLandFeatures()
+      .split(',')
+      .map(f => f.trim())
+      .filter(f => f.length > 0);
+    
+    this.landService.addLand({
+      title: this.newLandTitle(),
+      description: this.newLandDescription(),
+      location: this.newLandLocation(),
+      area: this.newLandArea(),
+      price: this.newLandPrice(),
+      status: this.newLandStatus(),
+      type: this.newLandType(),
+      features: features,
+      images: [this.getTypeEmoji(this.newLandType())],
+      ownerName: this.newLandOwnerName(),
+      ownerContact: this.newLandOwnerContact()
     });
+    
+    this.showList();
+    alert('Land listing added successfully!');
   }
-
-  getWeatherDescription(code: number): string {
-    return this.weatherService.getWeatherDescription(code);
+  
+  deleteLand(id: string): void {
+    if (confirm('Are you sure you want to delete this land listing?')) {
+      this.landService.deleteLand(id);
+      this.showList();
+    }
   }
-
-  getWeatherIcon(code: number): string {
-    return this.weatherService.getWeatherIcon(code);
+  
+  updateLandStatus(id: string, status: LandStatus): void {
+    this.landService.updateLand(id, { status });
+    if (this.selectedLand()?.id === id) {
+      const updated = this.landService.getLandById(id);
+      if (updated) {
+        this.selectedLand.set(updated);
+      }
+    }
+  }
+  
+  clearFilters(): void {
+    this.searchTerm.set('');
+    this.filterStatus.set('');
+    this.filterType.set('');
+    this.minPrice.set(null);
+    this.maxPrice.set(null);
+  }
+  
+  private resetForm(): void {
+    this.newLandTitle.set('');
+    this.newLandDescription.set('');
+    this.newLandLocation.set('');
+    this.newLandArea.set(0);
+    this.newLandPrice.set(0);
+    this.newLandStatus.set(LandStatus.AVAILABLE);
+    this.newLandType.set(LandType.RESIDENTIAL);
+    this.newLandFeatures.set('');
+    this.newLandOwnerName.set('');
+    this.newLandOwnerContact.set('');
+  }
+  
+  private getTypeEmoji(type: LandType): string {
+    const emojis = {
+      [LandType.RESIDENTIAL]: '🏡',
+      [LandType.COMMERCIAL]: '🏢',
+      [LandType.AGRICULTURAL]: '🌾',
+      [LandType.INDUSTRIAL]: '🏭',
+      [LandType.MIXED_USE]: '🏘️'
+    };
+    return emojis[type];
+  }
+  
+  contactOwner(land: Land): void {
+    alert(`Contact ${land.ownerName} at:\n${land.ownerContact}`);
   }
 }
